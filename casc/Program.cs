@@ -1,16 +1,19 @@
-﻿using System;
-using System.Linq;
-using CASC.CodeParser;
+﻿using CASC.CodeParser.Binding;
 using CASC.CodeParser.Syntax;
+using CASC.CodeParser;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+
 
 
 namespace CASC
 {
-    class Program
+    internal static class Program
     {
         static bool showParseTree = false;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             while (true)
             {
@@ -25,20 +28,22 @@ namespace CASC
                     continue;
                 }
 
-                var parser = new Parser(line);
-                var syntaxTree = parser.Parse();
+                var syntaxTree = SyntaxTree.Parse(line);
+                var binder = new Binder();
+                var boundExpression = binder.BindExpression(syntaxTree.Root);
 
-                var color = Console.ForegroundColor;
+                var diagnotics = syntaxTree.Diagnotics.Concat(binder.Diagnotics).ToArray();
+
                 if (showParseTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     PrettyPrint(syntaxTree.Root);
-                    Console.ForegroundColor = color;
+                    Console.ResetColor();
                 }
 
                 if (!syntaxTree.Diagnotics.Any())
                 {
-                    var e = new Evaluator(syntaxTree.Root);
+                    var e = new Evaluator(boundExpression);
                     var result = e.Evaluate();
                     Console.WriteLine(result);
                 }
@@ -49,7 +54,7 @@ namespace CASC
                     foreach (var diagnotic in syntaxTree.Diagnotics)
                         Console.WriteLine(diagnotic);
 
-                    Console.ForegroundColor = color;
+                    Console.ResetColor();
                 }
             }
         }

@@ -2,6 +2,7 @@ namespace CASC.CodeParser.Syntax
 {
     enum SyntaxKind
     {
+        // Tokens
         NumberToken,
         WhiteSpaceToken,
         PlusToken,
@@ -13,6 +14,12 @@ namespace CASC.CodeParser.Syntax
         ParenthesizedToken,
         BinaryToken,
         EndOfFileToken,
-        BadToken
+        BadToken,
+
+        // Expressions
+        LiteralExpression,
+        UnaryExpression,
+        BinaryExpression,
+        ParenthesizedExpression
     }
 }

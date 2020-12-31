@@ -11,7 +11,7 @@ namespace CASC.CodeParser.Syntax
             CloseParentheizedToken = closeParentheizedToken;
         }
 
-        public override SyntaxKind Kind => SyntaxKind.ParenthesizedToken;
+        public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
         public SyntaxToken OpenParentheizedToken { get; }
         public ExpressionSyntax Expression { get; }
         public SyntaxToken CloseParentheizedToken { get; }

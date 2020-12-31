@@ -1,13 +1,14 @@
+using CASC.CodeParser.Binding;
 using CASC.CodeParser.Syntax;
 using System;
 
 namespace CASC.CodeParser
 {
-    class Evaluator
+    internal sealed class Evaluator
     {
-        private readonly ExpressionSyntax _root;
+        private readonly BoundExpression _root;
 
-        public Evaluator(ExpressionSyntax root)
+        public Evaluator(BoundExpression root)
         {
             this._root = root;
         }
@@ -17,31 +18,44 @@ namespace CASC.CodeParser
             return EvaluateExpression(_root);
         }
 
-        private int EvaluateExpression(ExpressionSyntax node)
+        private int EvaluateExpression(BoundExpression node)
         {
-            if (node is NumberExpressionSyntax N)
+            if (node is BoundLiteralExpression N)
             {
-                return (int)N.NumberToken.Value;
+                return (int)N.Value;
             }
-            if (node is BinaryExpressionSyntax B)
+
+            if (node is BoundUnaryExpression U)
+            {
+                var operand = EvaluateExpression(U.Operand);
+
+                if (U.OperatorKind == BoundUnaryOperatorKind.Identity)
+                    return operand;
+                else if (U.OperatorKind == BoundUnaryOperatorKind.Negation)
+                    return -operand;
+                else
+                    throw new Exception($"ERROR: Unexpected unary operator {U.OperatorKind}");
+            }
+
+            if (node is BoundBinaryExpression B)
             {
                 var left = EvaluateExpression(B.Left);
                 var right = EvaluateExpression(B.Right);
 
-                if (B.OperatorToken.Kind == SyntaxKind.PlusToken)
-                    return left + right;
-                if (B.OperatorToken.Kind == SyntaxKind.MinusToken)
-                    return left - right;
-                if (B.OperatorToken.Kind == SyntaxKind.StarToken)
-                    return left * right;
-                if (B.OperatorToken.Kind == SyntaxKind.SlashToken)
-                    return left / right;
-                else
-                    throw new Exception($"ERROR: Unexpected Binary Operator {B.OperatorToken.Kind}.");
+                switch (B.OperatorKind)
+                {
+                    case BoundBinaryOperatorKind.Addition:
+                        return left + right;
+                    case BoundBinaryOperatorKind.Subtraction:
+                        return left - right;
+                    case BoundBinaryOperatorKind.Multiplication:
+                        return left * right;
+                    case BoundBinaryOperatorKind.Division:
+                        return left / right;
+                    default:
+                        throw new Exception($"ERROR: Unexpected Binary Operator {B.OperatorKind}.");
+                }
             }
-
-            if (node is ParenthesizedSyntax P)
-                return EvaluateExpression(P.Expression);
 
             throw new Exception($"ERROR: Unexpected Node {node.Kind}.");
         }

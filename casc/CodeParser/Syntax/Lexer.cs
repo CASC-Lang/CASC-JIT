@@ -2,7 +2,7 @@ using CASC.CodeParser.Utils;
 using System.Collections.Generic;
 
 namespace CASC.CodeParser.Syntax {
-    class Lexer
+    internal sealed class Lexer
     {
         private readonly string _text;
         private List<string> _diagnotics = new List<string>();
@@ -66,7 +66,7 @@ namespace CASC.CodeParser.Syntax {
 
             if (Current == '+' || Current == '加')
                 return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
-            else if (Current == '-' || Current == '減')
+            else if (Current == '-' || Current == '減' || Current == '負')
                 return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
             else if (Current == '*' || Current == '乘')
                 return new SyntaxToken(SyntaxKind.StarToken, _position++, "*", null);
