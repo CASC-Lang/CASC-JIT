@@ -8,24 +8,36 @@ This project is inspired by [Minsk](https://github.com/terrajobst/minsk).
 
 ## Example Code <br> 程式碼範例
 ------
-12/31/2020 TODO
 ```casc
 > 1 + 9 - 7
 3
-> 一加九減七
+> 一 加 九 減 七
 3
-> 1 + 九減7
+> 1 + 九 減 7
 3
+> 一加二十一是二十二
+True
 ```
 ## Preserved Word Conversion Table <br> 保留字對照表
 ------
-| English | Traditional Chinese | Simplified Chinese | Note |
-|--------:|--------------------:|-------------------:|-----:|
-| + | 加 | TODO |
-| - | 減 | TODO |
-| / | 除 | TODO |
-| * | 乘 | TODO |
-| ( | 開 | TODO | TF[^1] |
-| ) | 閉 | TODO | TF[^1] |
+### Operators 運算子
+| Operator  | Traditional Chinese   | Simplified Chinese    | Note      |
+|----------:|----------------------:|----------------------:|----------:|
+| +         | 加 / 正               | TODO                  |
+| -         | 減 / 負               | TODO                  |
+| /         | 除                    | TODO                  |
+| *         | 乘                    | TODO                  |
+| (         | 開                    | TODO                  | TF        |
+| )         | 閉                    | TODO                  | TF        |
+| &&        | 且                    | TODO                  |
+| \|\|      | 或                    | TODO                  |
+| !         | 反                    | TODO                  |
+| ==        | 是                    | TODO                  |
+| !=        | 不是                  | TODO                  |
+| ^2        | 平方                  | TODO                  | OUA       |
+| 2√        | 平方根                | TODO                  | OUA       |
+| ^^        | 次方                  | TODO                  | OUA       |
+| √         | 開方                  | TODO                  | OUA       |
 
-[^1]: Testing feature.
+TF: Testing feature.測試特性。  
+OUA: Operator Unacceptable. 不接受純運算子，即不接受第一欄位。

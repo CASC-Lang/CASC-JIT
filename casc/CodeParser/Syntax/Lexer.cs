@@ -181,7 +181,7 @@ namespace CASC.CodeParser.Syntax
                         if (Peek(2) == '根')
                         {
                             _position += 3;
-                            return new SyntaxToken(SyntaxKind.SquareRootToken, start, "√", null);
+                            return new SyntaxToken(SyntaxKind.SquareRootToken, start, "2√", null);
                         }
 
                         _position += 2;
