@@ -12,8 +12,8 @@ namespace CASC.CodeParser.Binding
             Right = right;
         }
 
-        public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
-        public override Type Type => Right.Type;
+        public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
+        public override Type Type => Op.ResultType;
         public BoundExpression Left { get; }
         public BoundBinaryOperator  Op { get; }
         public BoundExpression Right { get; }

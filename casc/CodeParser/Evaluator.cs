@@ -29,7 +29,7 @@ namespace CASC.CodeParser
             {
                 var operand = EvaluateExpression(U.Operand);
 
-                switch (operand)
+                switch (U.Op.Kind)
                 {
                     case BoundUnaryOperatorKind.Identity:
                         return (int)operand;
@@ -61,6 +61,10 @@ namespace CASC.CodeParser
                         return (bool)left && (bool)right;
                     case BoundBinaryOperatorKind.LogicalOR:
                         return (bool)left || (bool)right;
+                    case BoundBinaryOperatorKind.Equals:
+                        return Equals(left, right);
+                    case BoundBinaryOperatorKind.NotEquals:
+                        return !Equals(left, right);
                     default:
                         throw new Exception($"ERROR: Unexpected Binary Operator {B.Op }.");
                 }

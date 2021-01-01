@@ -23,14 +23,14 @@ namespace CASC.CodeParser.Binding
             Kind = kind;
             LeftType = leftType;
             RightTye = rightTye;
-            Type = resultType;
+            ResultType = resultType;
         }
 
         public SyntaxKind SyntaxKind { get; }
         public BoundBinaryOperatorKind Kind { get; }
         public Type LeftType { get; }
         public Type RightTye { get; }
-        public Type Type { get; }
+        public Type ResultType { get; }
 
         private static BoundBinaryOperator[] _operators =
         {

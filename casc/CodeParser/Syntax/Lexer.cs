@@ -1,13 +1,23 @@
 using CASC.CodeParser.Utils;
 using System.Collections.Generic;
+using System;
 
 namespace CASC.CodeParser.Syntax
 {
     internal sealed class Lexer
     {
         private static readonly List<char> _exceptionChineseChar = new List<char> {
+            '加',
+            '減',
+            '乘',
+            '除',
+            '開',
+            '閉',
             '且',
-            '或'
+            '或',
+            '反',
+            '是',
+            '不'
         };
 
         private readonly string _text;
@@ -31,7 +41,7 @@ namespace CASC.CodeParser.Syntax
             if (_position >= _text.Length)
                 return '\0';
 
-            return _text[_position];
+            return _text[index];
         }
 
         private void Next()
@@ -76,7 +86,7 @@ namespace CASC.CodeParser.Syntax
             {
                 var start = _position;
 
-                while (char.IsLetter(Current))
+                while (char.IsLetter(Current) && !_exceptionChineseChar.Contains(Current))
                     Next();
 
                 var length = _position - start;
@@ -96,7 +106,7 @@ namespace CASC.CodeParser.Syntax
                     return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
                 case '乘':
                 case '*':
-                    return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
+                    return new SyntaxToken(SyntaxKind.StarToken, _position++, "/", null);
                 case '除':
                 case '/':
                     return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
@@ -106,24 +116,35 @@ namespace CASC.CodeParser.Syntax
                 case '閉':
                 case ')':
                     return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
-                case '不':
-                    if (LookAhead == '是')
-                        return new SyntaxToken(SyntaxKind.BangToken, _position += 2, "!", null);
-                    break;
-                case '!':
-                    return new SyntaxToken(SyntaxKind.BangToken, _position++, "!", null);
+                case '且':
+                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position++, "&&", null);
                 case '&':
                     if (LookAhead == '&')
                         return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position += 2, "&&", null);
                     break;
-                case '且':
-                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position++, "&&", null);
+                case '或':
+                    return new SyntaxToken(SyntaxKind.PipePipeToken, _position++, "||", null);
                 case '|':
                     if (LookAhead == '|')
                         return new SyntaxToken(SyntaxKind.PipePipeToken, _position += 2, "||", null);
                     break;
-                case '或':
-                    return new SyntaxToken(SyntaxKind.PipePipeToken, _position++, "||", null);
+                case '反':
+                    return new SyntaxToken(SyntaxKind.BangToken, _position++, "!", null);
+                case '!':
+                    if (LookAhead == '=')
+                        return new SyntaxToken(SyntaxKind.BangEqualsToken, _position += 2, "!=", null);
+                    else
+                        return new SyntaxToken(SyntaxKind.BangToken, _position++, "!", null);
+                case '不':
+                    if (LookAhead == '是')
+                        return new SyntaxToken(SyntaxKind.BangEqualsToken, _position += 2, "!=", null);
+                    break;
+                case '是':
+                    return new SyntaxToken(SyntaxKind.EqualsEqualsToken, _position++, "==", null);
+                case '=':
+                    if (LookAhead == '=')
+                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, _position += 2, "==", null);
+                    break;
             }
 
             _diagnostics.Add($"ERROR: Bad Character input: '{Current}'");

@@ -1,3 +1,5 @@
+using System;
+
 namespace CASC.CodeParser.Syntax
 {
     internal static class SyntaxFacts
@@ -48,11 +50,9 @@ namespace CASC.CodeParser.Syntax
             switch (text)
             {
                 case "真":
-                    goto case "true";
                 case "true":
                     return SyntaxKind.TrueKeyword;
                 case "假":
-                    goto case "false";
                 case "false":
                     return SyntaxKind.FalseKeyword;
                 default:

@@ -15,13 +15,13 @@ namespace CASC.CodeParser.Binding
             SyntaxKind = syntaxKind;
             Kind = kind;
             OperandType = operandType;
-            Type = resultType;
+            ResultType = resultType;
         }
 
         public SyntaxKind SyntaxKind { get; }
         public BoundUnaryOperatorKind Kind { get; }
         public Type OperandType { get; }
-        public Type Type { get; }
+        public Type ResultType { get; }
 
         private static BoundUnaryOperator[] _operators =
         {
