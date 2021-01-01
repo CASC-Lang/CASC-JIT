@@ -4,6 +4,11 @@ namespace CASC.CodeParser.Binding
     {
         Identity,
         Negation,
-        LogicalNegation
+        LogicalNegation,
+
+        // Special Chinese Operator
+        Square,
+        SquareRoot,
+        NthRoot
     }
 }

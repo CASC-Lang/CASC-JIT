@@ -11,7 +11,12 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
                 case SyntaxKind.BangToken:
-                    return 6;
+                    return 8;
+
+                case SyntaxKind.SquareToken:
+                case SyntaxKind.SquareRootToken:
+                case SyntaxKind.NthRootToken:
+                    return 7;
 
                 default:
                     return 0;
@@ -22,6 +27,10 @@ namespace CASC.CodeParser.Syntax
         {
             switch (kind)
             {
+                case SyntaxKind.PowerToken:
+                case SyntaxKind.NthRootToken:
+                    return 6;
+
                 case SyntaxKind.StarToken:
                 case SyntaxKind.SlashToken:
                     return 5;

@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace CASC.CodeParser.Syntax {
-    sealed class SyntaxTree
+    public sealed class SyntaxTree
     {
-        public SyntaxTree(IEnumerable<string> diagnotics, ExpressionSyntax root, SyntaxToken endOfFileToken)
+        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
         {
-            Diagnotics = diagnotics.ToArray();
+            Diagnostics = diagnostics.ToArray();
             Root = root;
             EndOfFileToken = endOfFileToken;
         }
 
-        public IReadOnlyList<string> Diagnotics { get; }
+        public IReadOnlyList<Diagnostic> Diagnostics { get; }
         public ExpressionSyntax Root { get; }
         public SyntaxToken EndOfFileToken { get; }
 

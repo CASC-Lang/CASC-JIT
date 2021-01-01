@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace CASC.CodeParser.Syntax
 {
-    sealed class ParenthesizedSyntax : ExpressionSyntax
+    public sealed class ParenthesizedSyntax : ExpressionSyntax
     {
         public ParenthesizedSyntax(SyntaxToken openParentheizedToken, ExpressionSyntax expression, SyntaxToken closeParentheizedToken)
         {

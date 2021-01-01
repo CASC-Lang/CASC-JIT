@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace CASC.CodeParser.Syntax
 {
-    sealed class UnaryExpressionSyntax : ExpressionSyntax
+    public sealed class UnaryExpressionSyntax : ExpressionSyntax
     {
         public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax operand)
         {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace CASC.CodeParser.Syntax
 {
-    sealed class LiteralExpressionSyntax : ExpressionSyntax
+    public sealed class LiteralExpressionSyntax : ExpressionSyntax
     {
         public LiteralExpressionSyntax(SyntaxToken token) : this(token, token.Value)
         {

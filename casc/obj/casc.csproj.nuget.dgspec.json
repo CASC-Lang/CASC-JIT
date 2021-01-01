@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj": {}
+    "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\CASC\\CASC.csproj": {}
   },
   "projects": {
-    "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj": {
+    "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\CASC\\CASC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj",
-        "projectName": "casc",
-        "projectPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj",
+        "projectUniqueName": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\CASC\\CASC.csproj",
+        "projectName": "CASC",
+        "projectPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\CASC\\CASC.csproj",
         "packagesPath": "C:\\Users\\KYLE\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\obj\\",
+        "outputPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\CASC\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\KYLE\\AppData\\Roaming\\NuGet\\NuGet.Config"

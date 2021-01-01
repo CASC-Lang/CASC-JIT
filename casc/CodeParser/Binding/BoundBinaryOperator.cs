@@ -45,6 +45,9 @@ namespace CASC.CodeParser.Binding
             new BoundBinaryOperator(SyntaxKind.PipePipeToken, BoundBinaryOperatorKind.LogicalOR, typeof(bool)),
             new BoundBinaryOperator(SyntaxKind.EqualsEqualsToken, BoundBinaryOperatorKind.Equals, typeof(bool)),
             new BoundBinaryOperator(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, typeof(bool)),
+
+            new BoundBinaryOperator(SyntaxKind.SquareToken, BoundBinaryOperatorKind.Power, typeof(int)),
+            new BoundBinaryOperator(SyntaxKind.NthRootToken, BoundBinaryOperatorKind.NthRoot, typeof(int))
         };
 
         public static BoundBinaryOperator Bind(SyntaxKind syntaxKind, Type leftType, Type rightType)

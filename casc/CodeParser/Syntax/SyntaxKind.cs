@@ -1,6 +1,6 @@
 namespace CASC.CodeParser.Syntax
 {
-    enum SyntaxKind
+    public enum SyntaxKind
     {
         // Tokens
         NumberToken,
@@ -21,6 +21,12 @@ namespace CASC.CodeParser.Syntax
         IdentifierToken,
         EndOfFileToken,
         BadToken,
+
+        // Special Chinese Token
+        SquareToken,
+        SquareRootToken,
+        NthRootToken,
+        PowerToken,
 
         // Keywords
         TrueKeyword,

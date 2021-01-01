@@ -6,15 +6,15 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "casc/1.0.0": {
+      "CASC/1.0.0": {
         "runtime": {
-          "casc.dll": {}
+          "CASC.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "casc/1.0.0": {
+    "CASC/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

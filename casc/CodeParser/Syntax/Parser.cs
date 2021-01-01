@@ -7,7 +7,7 @@ namespace CASC.CodeParser.Syntax
     {
         private readonly SyntaxToken[] _tokens;
 
-        private List<string> _diagnostics = new List<string>();
+        private DiagnosticPack _diagnostics = new DiagnosticPack();
         private int _position;
 
         public Parser(string text)
@@ -31,7 +31,7 @@ namespace CASC.CodeParser.Syntax
             _diagnostics.AddRange(lexer.Diagnostics);
         }
 
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticPack Diagnostics => _diagnostics;
 
         private SyntaxToken Peek(int offset)
         {
@@ -56,7 +56,7 @@ namespace CASC.CodeParser.Syntax
             if (Current.Kind == kind)
                 return NextToken();
 
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
+            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
