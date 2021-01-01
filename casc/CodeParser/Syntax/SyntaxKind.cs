@@ -11,10 +11,20 @@ namespace CASC.CodeParser.Syntax
         SlashToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
+        BangToken,
+        AmpersandAmpersandToken,
+        PipePipeToken,
         ParenthesizedToken,
+        EqualsEqualsToken,
+        BangEqualsToken,
         BinaryToken,
+        IdentifierToken,
         EndOfFileToken,
         BadToken,
+
+        // Keywords
+        TrueKeyword,
+        FalseKeyword,
 
         // Expressions
         LiteralExpression,

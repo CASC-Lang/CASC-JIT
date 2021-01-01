@@ -7,9 +7,9 @@ namespace CASC.CodeParser.Binding
 
     internal sealed class Binder
     {
-        private readonly List<string> _diagnotics = new List<string>();
+        private readonly List<string> _diagnostics = new List<string>();
 
-        public IEnumerable<string> Diagnotics => _diagnotics;
+        public IEnumerable<string> Diagnostics => _diagnostics;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -22,7 +22,7 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.BinaryExpression:
                     return BindBinaryExpression((BinaryExpressionSyntax)syntax);
                 default:
-                    throw new Exception($"ERROR: Unexpected syntax {syntax.Kind}");
+                    throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
         }
 
@@ -35,66 +35,30 @@ namespace CASC.CodeParser.Binding
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
         {
             var boundOperand = BindExpression(syntax.Operand);
-            var boundOperatorKind = BindUnaryOperatorKind(syntax.OperatorToken.Kind, boundOperand.Type);
+            var boundOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
 
-            if (boundOperatorKind == null)
+            if (boundOperator == null)
             {
-                _diagnotics.Add($"ERROR: Unary operator '{syntax.OperatorToken.Text}' is not defined for type {boundOperand.Type}");
+                _diagnostics.Add($"Unary operator '{syntax.OperatorToken.Text}' is not defined for type {boundOperand.Type}.");
                 return boundOperand;
             }
 
-            return new BoundUnaryExpression(boundOperatorKind.Value, boundOperand);
+            return new BoundUnaryExpression(boundOperator, boundOperand);
         }
 
         private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)
         {
             var boundLeft = BindExpression(syntax.Left);
             var boundRight = BindExpression(syntax.Right);
-            var boundOperatorKind = BindBinaryOperatorKind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
+            var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
 
-            if (boundOperatorKind == null)
+            if (boundOperator == null)
             {
-                _diagnotics.Add($"ERROR: Binary operator '{syntax.OperatorToken.Text}' is not defined for type {boundLeft.Type} and {boundRight.Type}");
+                _diagnostics.Add($"Binary operator '{syntax.OperatorToken.Text}' is not defined for types {boundLeft.Type} and {boundRight.Type}.");
                 return boundLeft;
             }
 
-            return new BoundBinaryExpression(boundLeft, boundOperatorKind.Value, boundRight);
-        }
-
-        private BoundUnaryOperatorKind? BindUnaryOperatorKind(SyntaxKind kind, Type operandType)
-        {
-            if (operandType != typeof(int))
-                return null;
-
-            switch (kind)
-            {
-                case SyntaxKind.PlusToken:
-                    return BoundUnaryOperatorKind.Identity;
-                case SyntaxKind.MinusToken:
-                    return BoundUnaryOperatorKind.Negation;
-                default:
-                    throw new Exception($"ERROR: Unexpected unary operator {kind}");
-            }
-        }
-
-        private BoundBinaryOperatorKind? BindBinaryOperatorKind(SyntaxKind kind, Type leftType, Type rightType)
-        {
-            if (leftType != typeof(int) || rightType != typeof(int))
-                return null;
-
-            switch (kind)
-            {
-                case SyntaxKind.PlusToken:
-                    return BoundBinaryOperatorKind.Addition;
-                case SyntaxKind.MinusToken:
-                    return BoundBinaryOperatorKind.Subtraction;
-                case SyntaxKind.StarToken:
-                    return BoundBinaryOperatorKind.Multiplication;
-                case SyntaxKind.SlashToken:
-                    return BoundBinaryOperatorKind.Division;
-                default:
-                    throw new Exception($"Unexpected binary operator {kind}");
-            }
+            return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
         }
     }
 }

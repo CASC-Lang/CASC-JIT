@@ -5,6 +5,10 @@ namespace CASC.CodeParser.Binding
         Addition,
         Subtraction,
         Multiplication,
-        Division
+        Division,
+        LogicalAND,
+        LogicalOR,
+        Equals,
+        NotEquals
     }
 }

@@ -32,7 +32,7 @@ namespace CASC
                 var binder = new Binder();
                 var boundExpression = binder.BindExpression(syntaxTree.Root);
 
-                var diagnotics = syntaxTree.Diagnotics.Concat(binder.Diagnotics).ToArray();
+                var diagnotics = syntaxTree.Diagnotics.Concat(binder.Diagnostics).ToArray();
 
                 if (showParseTree)
                 {

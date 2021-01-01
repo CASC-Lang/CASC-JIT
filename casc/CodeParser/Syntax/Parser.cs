@@ -17,7 +17,7 @@ namespace CASC.CodeParser.Syntax
             SyntaxToken token;
             do
             {
-                token = lexer.NextToken();
+                token = lexer.Lex();
 
                 if (token.Kind != SyntaxKind.WhiteSpaceToken &&
                     token.Kind != SyntaxKind.BadToken)
@@ -106,7 +106,11 @@ namespace CASC.CodeParser.Syntax
                     var expression = ParseExpression();
                     var right = MatchToken(SyntaxKind.CloseParenthesisToken);
                     return new ParenthesizedSyntax(left, expression, right);
-
+                case SyntaxKind.TrueKeyword:
+                case SyntaxKind.FalseKeyword:
+                    var keywordToken = NextToken();
+                    var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
+                    return new LiteralExpressionSyntax(keywordToken, value);
                 default:
                     var numberToken = MatchToken(SyntaxKind.NumberToken);
                     return new LiteralExpressionSyntax(numberToken);

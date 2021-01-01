@@ -13,28 +13,33 @@ namespace CASC.CodeParser
             this._root = root;
         }
 
-        public int Evaluate()
+        public object Evaluate()
         {
             return EvaluateExpression(_root);
         }
 
-        private int EvaluateExpression(BoundExpression node)
+        private object EvaluateExpression(BoundExpression node)
         {
             if (node is BoundLiteralExpression N)
             {
-                return (int)N.Value;
+                return N.Value;
             }
 
             if (node is BoundUnaryExpression U)
             {
                 var operand = EvaluateExpression(U.Operand);
 
-                if (U.OperatorKind == BoundUnaryOperatorKind.Identity)
-                    return operand;
-                else if (U.OperatorKind == BoundUnaryOperatorKind.Negation)
-                    return -operand;
-                else
-                    throw new Exception($"ERROR: Unexpected unary operator {U.OperatorKind}");
+                switch (operand)
+                {
+                    case BoundUnaryOperatorKind.Identity:
+                        return (int)operand;
+                    case BoundUnaryOperatorKind.Negation:
+                        return -(int)operand;
+                    case BoundUnaryOperatorKind.LogicalNegation:
+                        return !(bool)operand;
+                    default:
+                        throw new Exception($"ERROR: Unexpected unary operator {U.Op}");
+                }
             }
 
             if (node is BoundBinaryExpression B)
@@ -42,18 +47,22 @@ namespace CASC.CodeParser
                 var left = EvaluateExpression(B.Left);
                 var right = EvaluateExpression(B.Right);
 
-                switch (B.OperatorKind)
+                switch (B.Op.Kind)
                 {
                     case BoundBinaryOperatorKind.Addition:
-                        return left + right;
+                        return (int)left + (int)right;
                     case BoundBinaryOperatorKind.Subtraction:
-                        return left - right;
+                        return (int)left - (int)right;
                     case BoundBinaryOperatorKind.Multiplication:
-                        return left * right;
+                        return (int)left * (int)right;
                     case BoundBinaryOperatorKind.Division:
-                        return left / right;
+                        return (int)left / (int)right;
+                    case BoundBinaryOperatorKind.LogicalAND:
+                        return (bool)left && (bool)right;
+                    case BoundBinaryOperatorKind.LogicalOR:
+                        return (bool)left || (bool)right;
                     default:
-                        throw new Exception($"ERROR: Unexpected Binary Operator {B.OperatorKind}.");
+                        throw new Exception($"ERROR: Unexpected Binary Operator {B.Op }.");
                 }
             }
 
