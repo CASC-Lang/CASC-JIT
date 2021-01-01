@@ -6,7 +6,8 @@ namespace CASC.CodeParser.Syntax
     internal sealed class Parser
     {
         private readonly SyntaxToken[] _tokens;
-        private List<string> _diagnotics = new List<string>();
+
+        private List<string> _diagnostics = new List<string>();
         private int _position;
 
         public Parser(string text)
@@ -22,16 +23,15 @@ namespace CASC.CodeParser.Syntax
                 if (token.Kind != SyntaxKind.WhiteSpaceToken &&
                     token.Kind != SyntaxKind.BadToken)
                 {
-                    tokens.Add(token);
+                    tokens.Add(token);   
                 }
-
             } while (token.Kind != SyntaxKind.EndOfFileToken);
 
             _tokens = tokens.ToArray();
-            _diagnotics.AddRange(lexer.Diagnotics);
+            _diagnostics.AddRange(lexer.Diagnostics);
         }
 
-        public IEnumerable<string> Diagnotics => _diagnotics;
+        public IEnumerable<string> Diagnostics => _diagnostics;
 
         private SyntaxToken Peek(int offset)
         {
@@ -56,22 +56,21 @@ namespace CASC.CodeParser.Syntax
             if (Current.Kind == kind)
                 return NextToken();
 
-            _diagnotics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
+            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
         public SyntaxTree Parse()
         {
-            var expression = ParseExpression();
+            var expresion = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_diagnotics, expression, endOfFileToken);
+            return new SyntaxTree(_diagnostics, expresion, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
             ExpressionSyntax left;
             var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
-
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
@@ -102,18 +101,26 @@ namespace CASC.CodeParser.Syntax
             switch (Current.Kind)
             {
                 case SyntaxKind.OpenParenthesisToken:
+                {
                     var left = NextToken();
                     var expression = ParseExpression();
                     var right = MatchToken(SyntaxKind.CloseParenthesisToken);
-                    return new ParenthesizedSyntax(left, expression, right);
-                case SyntaxKind.TrueKeyword:
+                    return new ParenthesizedExpressionSyntax(left, expression, right);
+                }
+
                 case SyntaxKind.FalseKeyword:
+                case SyntaxKind.TrueKeyword:
+                {
                     var keywordToken = NextToken();
                     var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
                     return new LiteralExpressionSyntax(keywordToken, value);
+                }
+
                 default:
+                {
                     var numberToken = MatchToken(SyntaxKind.NumberToken);
                     return new LiteralExpressionSyntax(numberToken);
+                }
             }
         }
     }

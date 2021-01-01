@@ -32,7 +32,7 @@ namespace CASC
                 var binder = new Binder();
                 var boundExpression = binder.BindExpression(syntaxTree.Root);
 
-                var diagnotics = syntaxTree.Diagnotics.Concat(binder.Diagnostics).ToArray();
+                var diagnostics = syntaxTree.Diagnotics.Concat(binder.Diagnostics).ToArray();
 
                 if (showParseTree)
                 {
@@ -41,7 +41,7 @@ namespace CASC
                     Console.ResetColor();
                 }
 
-                if (!syntaxTree.Diagnotics.Any())
+                if (!diagnostics.Any())
                 {
                     var e = new Evaluator(boundExpression);
                     var result = e.Evaluate();
@@ -51,8 +51,8 @@ namespace CASC
                 {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
 
-                    foreach (var diagnotic in syntaxTree.Diagnotics)
-                        Console.WriteLine(diagnotic);
+                    foreach (var diagnostic in diagnostics)
+                        Console.WriteLine(diagnostic);
 
                     Console.ResetColor();
                 }

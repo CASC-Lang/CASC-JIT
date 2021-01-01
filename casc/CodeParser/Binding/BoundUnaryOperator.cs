@@ -34,10 +34,8 @@ namespace CASC.CodeParser.Binding
         public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Type operandType)
         {
             foreach (var op in _operators)
-            {
                 if (op.SyntaxKind == syntaxKind && op.OperandType == operandType)
                     return op;
-            }
 
             return null;
         }

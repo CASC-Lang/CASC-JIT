@@ -22,7 +22,7 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.BinaryExpression:
                     return BindBinaryExpression((BinaryExpressionSyntax)syntax);
                 default:
-                    throw new Exception($"Unexpected syntax {syntax.Kind}");
+                    throw new Exception($"ERROR: Unexpected syntax {syntax.Kind}.");
             }
         }
 

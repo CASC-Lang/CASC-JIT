@@ -5,8 +5,13 @@ namespace CASC.CodeParser.Syntax
 {
     internal sealed class Lexer
     {
+        private static readonly List<char> _exceptionChineseChar = new List<char> {
+            '且',
+            '或'
+        };
+
         private readonly string _text;
-        private List<string> _diagnotics = new List<string>();
+        private List<string> _diagnostics = new List<string>();
         private int _position;
 
         public Lexer(string text)
@@ -14,7 +19,7 @@ namespace CASC.CodeParser.Syntax
             _text = text;
         }
 
-        public IEnumerable<string> Diagnotics => _diagnotics;
+        public IEnumerable<string> Diagnostics => _diagnostics;
 
         private char Current => Peek(0);
         private char LookAhead => Peek(1);
@@ -50,7 +55,7 @@ namespace CASC.CodeParser.Syntax
                 var text = _text.Substring(start, length);
                 if (!ChineseParser.tryParseDigits(text, out var value))
                 {
-                    _diagnotics.Add($"ERROR: The Number {_text} isn't valid Int32.");
+                    _diagnostics.Add($"ERROR: The Number {_text} isn't valid Int32.");
                 }
                 return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
             }
@@ -67,7 +72,7 @@ namespace CASC.CodeParser.Syntax
                 return new SyntaxToken(SyntaxKind.WhiteSpaceToken, start, text, null);
             }
 
-            if (char.IsLetter(Current))
+            if (char.IsLetter(Current) && !_exceptionChineseChar.Contains(Current))
             {
                 var start = _position;
 
@@ -121,7 +126,7 @@ namespace CASC.CodeParser.Syntax
                     return new SyntaxToken(SyntaxKind.PipePipeToken, _position++, "||", null);
             }
 
-            _diagnotics.Add($"ERROR: Bad Character input: '{Current}'");
+            _diagnostics.Add($"ERROR: Bad Character input: '{Current}'");
             return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
         }
     }

@@ -50,10 +50,8 @@ namespace CASC.CodeParser.Binding
         public static BoundBinaryOperator Bind(SyntaxKind syntaxKind, Type leftType, Type rightType)
         {
             foreach (var op in _operators)
-            {
                 if (op.SyntaxKind == syntaxKind && op.LeftType == leftType && op.RightTye == rightType)
                     return op;
-            }
 
             return null;
         }

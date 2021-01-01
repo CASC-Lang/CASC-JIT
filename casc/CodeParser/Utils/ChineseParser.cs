@@ -5,7 +5,7 @@ namespace CASC.CodeParser.Utils
 {
     static class ChineseParser
     {
-        private static readonly Dictionary<char, int> zh2digit_table = new Dictionary<char, int>
+        private static readonly Dictionary<char, int> _zh2digitTable = new Dictionary<char, int>
         {
             {'零', 0}, {'一', 1}, {'二', 2}, {'三', 3}, {'四', 4}, {'五', 5}, {'六', 6}, {'七', 7}, {'八', 8}, {'九', 9}, {'十', 10},
             {'o', 0}, {'壹', 1}, {'貳', 2}, {'參', 3}, {'叁', 3}, {'肆', 4}, {'伍', 5}, {'陸', 6}, {'陆', 6}, {'柒', 7}, {'捌', 8}, {'玖', 9}, {'拾', 10},
@@ -17,7 +17,7 @@ namespace CASC.CodeParser.Utils
             if (char.IsDigit(character))
                 return true;
 
-            return zh2digit_table.ContainsKey(character);
+            return _zh2digitTable.ContainsKey(character);
         }
 
         public static bool tryParseDigits(string str, out int value)
@@ -41,10 +41,10 @@ namespace CASC.CodeParser.Utils
             while (digitNum < str.Length)
             {
                 var tmpZH = str[digitNum];
-                if (!zh2digit_table.ContainsKey(tmpZH))
+                if (!_zh2digitTable.ContainsKey(tmpZH))
                     throw new Exception($"ERROR: String \"{str}\" is not valid chinese numeral.");
 
-                var tmpNum = zh2digit_table[tmpZH];
+                var tmpNum = _zh2digitTable[tmpZH];
 
                 if (tmpNum == 100000000)
                 {
