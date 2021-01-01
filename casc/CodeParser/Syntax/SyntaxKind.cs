@@ -17,6 +17,7 @@ namespace CASC.CodeParser.Syntax
         ParenthesizedToken,
         EqualsEqualsToken,
         BangEqualsToken,
+        EqualsToken,
         BinaryToken,
         IdentifierToken,
         EndOfFileToken,
@@ -36,6 +37,8 @@ namespace CASC.CodeParser.Syntax
         LiteralExpression,
         UnaryExpression,
         BinaryExpression,
-        ParenthesizedExpression
+        ParenthesizedExpression,
+        NameExpression,
+        AssignmentExpression
     }
 }

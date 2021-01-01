@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CASC.CodeParser.Syntax;
 using CASC.CodeParser.Binding;
 using System.Linq;
@@ -13,9 +14,9 @@ namespace CASC.CodeParser
         }
 
         public SyntaxTree Syntax { get; }
-        public EvaluationResult Evaluate()
+        public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
         {
-            var binder = new Binder();
+            var binder = new Binder(variables);
             var boundExpression = binder.BindExpression(Syntax.Root);
 
             var diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostics).ToArray();
@@ -23,7 +24,7 @@ namespace CASC.CodeParser
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null);
 
-            var evalutor = new Evaluator(boundExpression);
+            var evalutor = new Evaluator(boundExpression, variables);
             var value = evalutor.Evaluate();
             return new EvaluationResult(Array.Empty<Diagnostic>(), value);
         }

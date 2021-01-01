@@ -11,10 +11,11 @@ namespace CASC
 {
     internal static class Program
     {
-        static bool showParseTree = false;
-
         private static void Main(string[] args)
         {
+            var showParseTree = false;
+            var variables = new Dictionary<VariableSymbol, object>();
+
             while (true)
             {
                 Console.Write("> ");
@@ -30,7 +31,7 @@ namespace CASC
 
                 var syntaxTree = SyntaxTree.Parse(line);
                 var compilation = new Compilation(syntaxTree);
-                var result = compilation.Evaluate();
+                var result = compilation.Evaluate(variables);
 
                 var diagnostics = result.Diagnostics;
 

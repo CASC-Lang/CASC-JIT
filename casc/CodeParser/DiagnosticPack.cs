@@ -42,13 +42,21 @@ namespace CASC.CodeParser
             Report(span, message);
         }
 
-        public void ReportUndefinedUnaryOperator(TextSpan span, string operatorText, Type type) {
-            var message = $"Unary operator '{operatorText}' is not defined for type {type}.";
+        public void ReportUndefinedUnaryOperator(TextSpan span, string operatorText, Type type)
+        {
+            var message = $"ERROR: Unary operator '{operatorText}' is not defined for type {type}.";
             Report(span, message);
         }
 
-        public void ReportUndefinedBinaryOperator(TextSpan span, string operatorText, Type leftType, Type rightType) {
-            var message = $"Binary operator '{operatorText}' is not defined for types {leftType} and {rightType}.";
+        public void ReportUndefinedBinaryOperator(TextSpan span, string operatorText, Type leftType, Type rightType)
+        {
+            var message = $"ERROR: Binary operator '{operatorText}' is not defined for types {leftType} and {rightType}.";
+            Report(span, message);
+        }
+
+        public void ReportUndefinedName(TextSpan span, string name)
+        {
+            var message = $"ERROR: Variable `{name}` does not exist.";
             Report(span, message);
         }
     }
