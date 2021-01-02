@@ -26,7 +26,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: /home/runner/work/CASC/CASC/CASC-Console/bin/Debug/net5.0/CASC-Concole.exe
+        file: CASC-Console/bin/Debug/net5.0/CASC-Concole.exe
         asset_name: 'CASC-build-${{ github.ref }}'
         tag: ${{ github.ref }}
         overwrite: true
