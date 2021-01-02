@@ -65,16 +65,20 @@ namespace CASC.CodeParser
                 var left = EvaluateExpression(B.Left);
                 var right = EvaluateExpression(B.Right);
 
+
+
                 switch (B.Op.Kind)
                 {
                     case BoundBinaryOperatorKind.Addition:
-                        return (int)left + (int)right;
+                        return ToDouble(left) + ToDouble(right);
                     case BoundBinaryOperatorKind.Subtraction:
-                        return (int)left - (int)right;
+                        return ToDouble(left) - ToDouble(right);
                     case BoundBinaryOperatorKind.Multiplication:
-                        return (int)left * (int)right;
+                        return ToDouble(left) * ToDouble(right);
                     case BoundBinaryOperatorKind.Division:
-                        return (int)left / (int)right;
+                        return ToDouble(left) / ToDouble(right);
+                    case BoundBinaryOperatorKind.Point:
+                        return float.Parse($"{Convert.ToInt64(left)}.{Convert.ToInt64(right)}");
                     case BoundBinaryOperatorKind.LogicalAND:
                         return (bool)left && (bool)right;
                     case BoundBinaryOperatorKind.LogicalOR:
@@ -85,9 +89,9 @@ namespace CASC.CodeParser
                         return !Equals(left, right);
 
                     case BoundBinaryOperatorKind.Power:
-                        return (float)Math.Pow((int)left, (int)right);
+                        return (double)Math.Pow(ToDouble(left), ToDouble(right));
                     case BoundBinaryOperatorKind.NthRoot:
-                        return (float)Math.Pow((int)left, (float)1 / (int)right);
+                        return (double)Math.Pow(ToDouble(left), (double)1 / Convert.ToInt64(right));
 
                     default:
                         throw new Exception($"ERROR: Unexpected Binary Operator {B.Op}.");
@@ -96,5 +100,7 @@ namespace CASC.CodeParser
 
             throw new Exception($"ERROR: Unexpected Node {node.Kind}.");
         }
+
+        private double ToDouble(object value) => Convert.ToDouble(value);
     }
 }

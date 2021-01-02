@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace CASC.CodeParser.Syntax
@@ -77,7 +78,6 @@ namespace CASC.CodeParser.Syntax
             if (Peek(0).Kind == SyntaxKind.IdentifierToken &&
                 Peek(1).Kind == SyntaxKind.EqualsToken)
             {
-
                 var indentifierToken = NextToken();
                 var operatorToken = NextToken();
                 var right = ParseAssignmentExpression();
@@ -145,6 +145,7 @@ namespace CASC.CodeParser.Syntax
                 default:
                     {
                         var numberToken = MatchToken(SyntaxKind.NumberToken);
+                        numberToken.Value = Convert.ToDouble(numberToken.Value);
                         return new LiteralExpressionSyntax(numberToken);
                     }
             }

@@ -13,15 +13,17 @@ namespace CASC.CodeParser.Syntax
             '減', // Minus              減
             '乘', // Multiply           乘
             '除', // Divide             除
+            '點', // Point              點
             '開', // OpenParenthesis    開
             '閉', // CloseParenthesis   閉
-            '正', // Positive           正
+            '正', // Idnetity           正
             '負', // Negation           負
             '且', // Logical AND        且
             '或', // Logical OR         或
             '反', // Logical Negation   反
             '是', // Eqauls             是
             '不', // Not Equals         不是
+            '賦', // Assign             賦
 
             // Special Operators Only Exists In Chinse
             '平', // Square     Square Root 平方    平方根
@@ -116,6 +118,9 @@ namespace CASC.CodeParser.Syntax
                 case '除':
                 case '/':
                     return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
+                case '點':
+                case '.':
+                    return new SyntaxToken(SyntaxKind.PointToken, _position++, ".", null);
                 case '開':
                     if (LookAhead == '方')
                     {
@@ -171,8 +176,9 @@ namespace CASC.CodeParser.Syntax
                         _position += 2;
                         return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
                     }
-                    else
-                        return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
+                    goto case '賦';
+                case '賦':
+                    return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
 
 
                 // Special Operators Only Exists In Chinese

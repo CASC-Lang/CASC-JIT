@@ -27,12 +27,12 @@ namespace CASC.CodeParser.Binding
         {
             new BoundUnaryOperator(SyntaxKind.BangToken, BoundUnaryOperatorKind.LogicalNegation, typeof(bool)),
 
-            new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(int)),
-            new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(int)),
+            new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(double)),
+            new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(double)),
 
-            new BoundUnaryOperator(SyntaxKind.SquareToken, BoundUnaryOperatorKind.Square, typeof(int)),
-            new BoundUnaryOperator(SyntaxKind.SquareRootToken, BoundUnaryOperatorKind.SquareRoot, typeof(int)),
-            new BoundUnaryOperator(SyntaxKind.NthRootToken, BoundUnaryOperatorKind.NthRoot, typeof(int))
+            new BoundUnaryOperator(SyntaxKind.SquareToken, BoundUnaryOperatorKind.Square, typeof(double)),
+            new BoundUnaryOperator(SyntaxKind.SquareRootToken, BoundUnaryOperatorKind.SquareRoot, typeof(double)),
+            new BoundUnaryOperator(SyntaxKind.NthRootToken, BoundUnaryOperatorKind.NthRoot, typeof(double))
         };
 
         public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Type operandType)

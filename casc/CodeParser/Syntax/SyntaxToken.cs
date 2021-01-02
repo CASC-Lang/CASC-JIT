@@ -16,7 +16,7 @@ namespace CASC.CodeParser.Syntax
         public override SyntaxKind Kind { get; }
         public int Position { get; }
         public string Text { get; }
-        public object Value { get; }
+        public object Value { get; internal set; }
         public TextSpan Span => new TextSpan(Position, Text.Length);
 
         public override IEnumerable<SyntaxNode> GetChildren()

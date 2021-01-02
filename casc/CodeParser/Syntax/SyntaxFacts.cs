@@ -12,12 +12,12 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
                 case SyntaxKind.BangToken:
-                    return 8;
+                    return 9;
 
                 case SyntaxKind.SquareToken:
                 case SyntaxKind.SquareRootToken:
                 case SyntaxKind.NthRootToken:
-                    return 7;
+                    return 8;
 
                 default:
                     return 0;
@@ -28,6 +28,9 @@ namespace CASC.CodeParser.Syntax
         {
             switch (kind)
             {
+                case SyntaxKind.PointToken:
+                    return 7;
+
                 case SyntaxKind.PowerToken:
                 case SyntaxKind.NthRootToken:
                     return 6;
@@ -74,20 +77,16 @@ namespace CASC.CodeParser.Syntax
         {
             var kinds = (SyntaxKind[]) Enum.GetValues(typeof(SyntaxKind));
             foreach (var kind in kinds)
-            {
                 if (GetUnaryOperatorPrecedence(kind) > 0)
                     yield return kind;
-            }
         }
 
         public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds()
         {
             var kinds = (SyntaxKind[]) Enum.GetValues(typeof(SyntaxKind));
             foreach (var kind in kinds)
-            {
                 if (GetBinaryOperatorPrecedence(kind) > 0)
                     yield return kind;
-            }
         }
 
         public static string GetText(SyntaxKind kind)

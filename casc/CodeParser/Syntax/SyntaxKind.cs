@@ -9,6 +9,7 @@ namespace CASC.CodeParser.Syntax
         MinusToken,
         StarToken,
         SlashToken,
+        PointToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
         BangToken,
