@@ -53,10 +53,3 @@ jobs:
         files: "CASC-Console*"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Discord notification
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        DISCORD_EMBEDS: toJson($EMBED_JSON)
-      uses: Ilshidur/action-discord@master
-      with:
-        args: '{{ EVENT_PAYLOAD.repository.full_name }} has a new release: ${{ github.ref }}!'
