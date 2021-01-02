@@ -27,6 +27,7 @@ True
 | -         | 減 / 負               | TODO                  |
 | /         | 除                    | TODO                  |
 | *         | 乘                    | TODO                  |
+| .         | 點                    | TODO                  |
 | (         | 開                    | TODO                  | TF        |
 | )         | 閉                    | TODO                  | TF        |
 | &&        | 且                    | TODO                  |
