@@ -8,19 +8,19 @@
     "net5.0": []
   },
   "packageFolders": {
-    "C:\\Users\\KYLE\\.nuget\\packages\\": {}
+    "C:\\Users\\User\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj",
-      "projectName": "casc",
-      "projectPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\casc.csproj",
-      "packagesPath": "C:\\Users\\KYLE\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\KYLE\\OneDrive\\Desktop\\cas-compiler\\casc\\obj\\",
+      "projectUniqueName": "c:\\Users\\User\\Desktop\\CASC\\CASC\\CASC.csproj",
+      "projectName": "CASC",
+      "projectPath": "c:\\Users\\User\\Desktop\\CASC\\CASC\\CASC.csproj",
+      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+      "outputPath": "c:\\Users\\User\\Desktop\\CASC\\CASC\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\KYLE\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net5.0"

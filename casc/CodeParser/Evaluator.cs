@@ -42,16 +42,16 @@ namespace CASC.CodeParser
                 switch (U.Op.Kind)
                 {
                     case BoundUnaryOperatorKind.Identity:
-                        return (int)operand;
+                        return ToDouble(operand);
                     case BoundUnaryOperatorKind.Negation:
-                        return -(int)operand;
+                        return -ToDouble(operand);
                     case BoundUnaryOperatorKind.LogicalNegation:
                         return !(bool)operand;
 
                     case BoundUnaryOperatorKind.Square:
-                        return (int)operand * (int)operand;
+                        return ToDouble(operand) * ToDouble(operand);
                     case BoundUnaryOperatorKind.SquareRoot:
-                        return Math.Sqrt((int)operand);
+                        return Math.Sqrt(ToDouble(operand));
                     case BoundUnaryOperatorKind.NthRoot:
                         goto case BoundUnaryOperatorKind.SquareRoot;
 

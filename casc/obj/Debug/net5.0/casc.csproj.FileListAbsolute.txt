@@ -1,7 +1,4 @@
-C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.exe
 C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.deps.json
-C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.runtimeconfig.json
-C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.runtimeconfig.dev.json
 C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.dll
 C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\ref\casc.dll
 C:\Users\User\Desktop\CASC\casc\bin\Debug\net5.0\casc.pdb
@@ -13,7 +10,6 @@ C:\Users\User\Desktop\CASC\casc\obj\Debug\net5.0\casc.csproj.CoreCompileInputs.c
 C:\Users\User\Desktop\CASC\casc\obj\Debug\net5.0\casc.dll
 C:\Users\User\Desktop\CASC\casc\obj\Debug\net5.0\ref\casc.dll
 C:\Users\User\Desktop\CASC\casc\obj\Debug\net5.0\casc.pdb
-C:\Users\User\Desktop\CASC\casc\obj\Debug\net5.0\casc.genruntimeconfig.cache
 C:\Users\KYLE\OneDrive\Desktop\cas-compiler\CASC\bin\Debug\net5.0\CASC.deps.json
 C:\Users\KYLE\OneDrive\Desktop\cas-compiler\CASC\bin\Debug\net5.0\CASC.dll
 C:\Users\KYLE\OneDrive\Desktop\cas-compiler\CASC\bin\Debug\net5.0\ref\CASC.dll
