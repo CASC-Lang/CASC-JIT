@@ -1,14 +1,26 @@
-name: .NET
+name: Publish
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  release:
+    name: Release
+    strategy:
+      matrix:
+        kind: ['linux', 'windows', 'macOS']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+          - kind: windows
+            os: windows-latest
+            target: win-x64
+          - kind: macOS
+            os: macos-latest
+            target: osx-x64
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -16,21 +28,31 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '5.0.100'
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Upload CASC Compiler exe to release
-      uses: svenstaro/upload-release-action@v2
+      shell: bash
+      run: |
+        # Define some variables for things we need
+        tag=$(git describe --tags --abbrev=0)
+        release_name="CASC-Console-$tag-${{ matrix.target }}"
+
+        # Build everything
+        dotnet publish src/CASC-Console/CASC-Console.csproj --framework netcoreCASC-Console3.1 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+
+        # Pack files
+        if [ "${{ matrix.target }}" == "win-x64" ]; then
+          7z a -tzip "${release_name}.zip" "./${release_name}/*"
+        else
+          tar czvf "${release_name}.tar.gz" "$release_name"
+        fi
+
+        # Delete output directory
+        rm -r "$release_name"
+    - name: Publish
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: CASC-Console/bin/Debug/net5.0/CASC-Concole.exe
-        asset_name: 'CASC-build-${{ github.ref }}'
-        tag: ${{ github.ref }}
-        overwrite: true
-        body: 'CASC Release ${{ github.ref }}'
+        files: "CASC-Console*"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
