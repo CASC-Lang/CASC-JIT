@@ -23,17 +23,17 @@ namespace CASC.CodeParser.Syntax
             '反', // Logical Negation   反
             '是', // Eqauls             是
             '不', // Not Equals         不是
-            '賦', // Assign             賦
-
-            // Special Operators Only Exists In Chinse
-            '平', // Square     Square Root 平方    平方根
-            '方', // nth Root               開方
-            '次'  // Power                  次方
+            '賦'  // Assign             賦
         };
 
         private readonly string _text;
-        private DiagnosticPack _diagnostics = new DiagnosticPack();
+        private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
+
         private int _position;
+
+        private int _start;
+        private SyntaxKind _kind;
+        private object _value;
 
         public Lexer(string text)
         {
@@ -55,157 +55,192 @@ namespace CASC.CodeParser.Syntax
             return _text[index];
         }
 
-        private void Next()
-        {
-            _position++;
-        }
-
         public SyntaxToken Lex()
         {
-            if (_position >= _text.Length)
-                return new SyntaxToken(SyntaxKind.EndOfFileToken, _position, "\0", null);
-
-            var start = _position;
-
-            if (ChineseParser.isDigit(Current))
-            {
-                while (ChineseParser.isDigit(Current))
-                    Next();
-
-                var length = _position - start;
-                var text = _text.Substring(start, length);
-                if (!ChineseParser.tryParseDigits(text, out var value))
-                {
-                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), _text, typeof(int));
-                }
-                return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
-            }
-
-            if (char.IsWhiteSpace(Current))
-            {
-                while (char.IsWhiteSpace(Current))
-                    Next();
-
-                var length = _position - start;
-                var text = _text.Substring(start, length);
-                return new SyntaxToken(SyntaxKind.WhiteSpaceToken, start, text, null);
-            }
-
-            if (char.IsLetter(Current) && !_exceptionChineseChar.Contains(Current))
-            {
-                while (char.IsLetter(Current) && !_exceptionChineseChar.Contains(Current))
-                    Next();
-
-                var length = _position - start;
-                var text = _text.Substring(start, length);
-                var kind = SyntaxFacts.GetKeywordKind(text);
-                return new SyntaxToken(kind, start, text, null);
-            }
+            _start = _position;
+            _kind = SyntaxKind.BadToken;
+            _value = null;
 
             switch (Current)
             {
+                case '\0':
+                    _kind = SyntaxKind.EndOfFileToken;
+                    break;
+
                 case '加':
                 case '正':
                 case '+':
-                    return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
+                    _kind = SyntaxKind.PlusToken;
+                    _position++;
+                    break;
                 case '減':
                 case '負':
                 case '-':
-                    return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
+                    _kind = SyntaxKind.MinusToken;
+                    _position++;
+                    break;
                 case '乘':
                 case '*':
-                    return new SyntaxToken(SyntaxKind.StarToken, _position++, "*", null);
+                    _kind = SyntaxKind.StarToken;
+                    _position++;
+                    break;
                 case '除':
                 case '/':
-                    return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
+                    _kind = SyntaxKind.SlashToken;
+                    _position++;
+                    break;
                 case '點':
                 case '.':
-                    return new SyntaxToken(SyntaxKind.PointToken, _position++, ".", null);
+                    _kind = SyntaxKind.PointToken;
+                    _position++;
+                    break;
                 case '開':
-                    if (LookAhead == '方')
+                    if (Current == '方')
                     {
+                        _kind = SyntaxKind.NthRootToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.NthRootToken, start, "√", null);
+                        break;
                     }
                     goto case '(';
                 case '(':
-                    return new SyntaxToken(SyntaxKind.OpenParenthesisToken, _position++, "(", null);
+                    _kind = SyntaxKind.OpenParenthesisToken;
+                    _position++;
+                    break;
                 case '閉':
                 case ')':
-                    return new SyntaxToken(SyntaxKind.CloseParenthesisToken, _position++, ")", null);
+                    _kind = SyntaxKind.CloseParenthesisToken;
+                    _position++;
+                    break;
                 case '且':
-                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position++, "&&", null);
+                    _kind = SyntaxKind.AmpersandAmpersandToken;
+                    _position++;
+                    break;
                 case '&':
-                    if (LookAhead == '&')
+                    if (Current == '&')
                     {
+                        _kind = SyntaxKind.AmpersandAmpersandToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, start, "&&", null);
+                        break;
                     }
                     break;
                 case '或':
-                    return new SyntaxToken(SyntaxKind.PipePipeToken, _position++, "||", null);
+                    _kind = SyntaxKind.PipePipeToken;
+                    _position++;
+                    break;
                 case '|':
-                    if (LookAhead == '|')
+                    if (Current == '|')
                     {
+                        _kind = SyntaxKind.PipePipeToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
+                        break;
                     }
                     break;
                 case '反':
-                    return new SyntaxToken(SyntaxKind.BangToken, _position++, "!", null);
+                    _kind = SyntaxKind.BangToken;
+                    _position++;
+                    break;
                 case '!':
-                    if (LookAhead == '=')
+                    if (Current == '=')
                     {
+                        _kind = SyntaxKind.BangEqualsToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.BangEqualsToken, start, "!=", null);
+                        break;
                     }
-                    else
-                        return new SyntaxToken(SyntaxKind.BangToken, _position++, "!", null);
+                    _kind = SyntaxKind.BangToken;
+                    _position++;
+                    break;
                 case '不':
-                    if (LookAhead == '是')
+                    if (Current == '是')
                     {
+                        _kind = SyntaxKind.BangEqualsToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.BangEqualsToken, start, "!=", null);
+                        break;
                     }
                     break;
                 case '是':
-                    return new SyntaxToken(SyntaxKind.EqualsEqualsToken, _position++, "==", null);
-                case '=':
-                    if (LookAhead == '=')
-                    {
-                        _position += 2;
-                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
-                    }
-                    goto case '賦';
-                case '賦':
-                    return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
-
-
-                // Special Operators Only Exists In Chinese
-                case '平':
-                    if (LookAhead == '方')
-                    {
-                        if (Peek(2) == '根')
-                        {
-                            _position += 3;
-                            return new SyntaxToken(SyntaxKind.SquareRootToken, start, "2√", null);
-                        }
-
-                        _position += 2;
-                        return new SyntaxToken(SyntaxKind.SquareToken, start, "^2", null);
-                    }
+                    _kind = SyntaxKind.EqualsEqualsToken;
+                    _position++;
                     break;
-                case '次':
-                    if (LookAhead == '方')
+                case '=':
+                    if (Current != '=')
+                        goto case '賦';
+                    _kind = SyntaxKind.EqualsEqualsToken;
+                    _position += 2;
+                    break;
+                case '賦':
+                    _kind = SyntaxKind.EqualsToken;
+                    _position++;
+                    break;
+
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                case '零': case '一': case '二': case '三': case '四':
+                case '五': case '六': case '七': case '八': case '九':
+                case '壹': case '貳': case '參': case '肆': case '伍':
+                case '陆': case '柒': case '捌': case '玖': case '拾':
+                case '十': case '百': case '千': case '萬': case '億':
+                    ReadNumberToken();
+                    break;
+
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\r':
+                    ReadWhiteSpaceToken();
+                    break;
+                    
+                default:
+                    if (char.IsLetter(Current))
+                        ReadIdentifierOrKeyword();
+                    else if (char.IsWhiteSpace(Current))
+                        ReadWhiteSpaceToken();
+                    else
                     {
-                        _position += 2;
-                        return new SyntaxToken(SyntaxKind.PowerToken, start, "^^", null);
+                        _diagnostics.ReportBadCharacter(_position, Current);
+                        _position++;
                     }
                     break;
             }
 
-            _diagnostics.ReportBadCharacter(_position, Current);
-            return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
+            var length = _position - _start;
+            var text = SyntaxFacts.GetText(_kind);
+            if (text == null)
+                text = _text.Substring(_start, length);
+
+            return new SyntaxToken(_kind, _start, text, _value);
+        }
+
+        private void ReadNumberToken()
+        {
+            while (ChineseParser.isDigit(Current))
+                _position++;
+
+            var length = _position - _start;
+            var text = _text.Substring(_start, length);
+            if (!ChineseParser.tryParseDigits(text, out var value))
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), _text, typeof(int));
+
+            _value = value;
+            _kind = SyntaxKind.NumberToken;
+        }
+
+        private void ReadWhiteSpaceToken()
+        {
+            while (char.IsWhiteSpace(Current))
+                _position++;
+
+            _kind = SyntaxKind.WhiteSpaceToken;
+        }
+
+        private string ReadIdentifierOrKeyword()
+        {
+            while (char.IsLetter(Current))
+                _position++;
+
+            var length = _position - _start;
+            var text = _text.Substring(_start, length);
+            _kind = SyntaxFacts.GetKeywordKind(text);
+            return text;
         }
     }
 
