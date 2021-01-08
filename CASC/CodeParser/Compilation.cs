@@ -3,6 +3,7 @@ using CASC.CodeParser.Syntax;
 using CASC.CodeParser.Binding;
 using System.Linq;
 using System;
+using System.Collections.Immutable;
 
 namespace CASC.CodeParser
 {
@@ -22,11 +23,11 @@ namespace CASC.CodeParser
             var diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostics).ToArray();
 
             if (diagnostics.Any())
-                return new EvaluationResult(diagnostics, null);
+                return new EvaluationResult(diagnostics.ToImmutableArray(), null);
 
             var evalutor = new Evaluator(boundExpression, variables);
             var value = evalutor.Evaluate();
-            return new EvaluationResult(Array.Empty<Diagnostic>(), value);
+            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
     }
 }

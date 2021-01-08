@@ -103,12 +103,12 @@ namespace CASC.CodeParser.Syntax
                     }
                     goto case '(';
                 case '(':
-                    _kind = SyntaxKind.OpenParenthesisToken;
+                    _kind = SyntaxKind.OpenParenthesesToken;
                     _position++;
                     break;
                 case '閉':
                 case ')':
-                    _kind = SyntaxKind.CloseParenthesisToken;
+                    _kind = SyntaxKind.CloseParenthesesToken;
                     _position++;
                     break;
                 case '且':

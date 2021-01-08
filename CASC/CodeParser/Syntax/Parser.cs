@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -7,8 +8,7 @@ namespace CASC.CodeParser.Syntax
     internal sealed class Parser
     {
         private readonly SyntaxToken[] _tokens;
-
-        private DiagnosticPack _diagnostics = new DiagnosticPack();
+        private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
         private int _position;
 
         public Parser(string text)
@@ -65,7 +65,7 @@ namespace CASC.CodeParser.Syntax
         {
             var expresion = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_diagnostics, expresion, endOfFileToken);
+            return new SyntaxTree(_diagnostics.ToImmutableArray(), expresion, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()
@@ -120,35 +120,49 @@ namespace CASC.CodeParser.Syntax
         {
             switch (Current.Kind)
             {
-                case SyntaxKind.OpenParenthesisToken:
-                    {
-                        var left = NextToken();
-                        var expression = ParseExpression();
-                        var right = MatchToken(SyntaxKind.CloseParenthesisToken);
-                        return new ParenthesizedExpressionSyntax(left, expression, right);
-                    }
+                case SyntaxKind.OpenParenthesesToken:
+                    return ParseParenthesizedExpression();
 
                 case SyntaxKind.FalseKeyword:
                 case SyntaxKind.TrueKeyword:
-                    {
-                        var keywordToken = NextToken();
-                        var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
-                        return new LiteralExpressionSyntax(keywordToken, value);
-                    }
+                    return ParseBooleanExpression();
+
+                case SyntaxKind.NumberToken:
+                    return ParseNumberExpression();
 
                 case SyntaxKind.IdentifierToken:
-                    {
-                        var identifierToken = NextToken();
-                        return new NameExpressionSyntax(identifierToken);
-                    }
-
                 default:
-                    {
-                        var numberToken = MatchToken(SyntaxKind.NumberToken);
-                        numberToken.Value = Convert.ToDouble(numberToken.Value);
-                        return new LiteralExpressionSyntax(numberToken);
-                    }
+                    return ParseNameExpression();
+
             }
+        }
+
+        private ExpressionSyntax ParseNumberExpression()
+        {
+            var numberToken = MatchToken(SyntaxKind.NumberToken);
+            numberToken.Value = Convert.ToDouble(numberToken.Value);
+            return new LiteralExpressionSyntax(numberToken);
+        }
+
+        private ExpressionSyntax ParseParenthesizedExpression()
+        {
+            var left = MatchToken(SyntaxKind.OpenParenthesesToken);
+            var expression = ParseExpression();
+            var right = MatchToken(SyntaxKind.CloseParenthesesToken);
+            return new ParenthesizedExpressionSyntax(left, expression, right);
+        }
+
+        private ExpressionSyntax ParseBooleanExpression()
+        {
+            var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
+            var keywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
+            return new LiteralExpressionSyntax(keywordToken, isTrue);
+        }
+
+        private ExpressionSyntax ParseNameExpression()
+        {
+            var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
+            return new NameExpressionSyntax(identifierToken);
         }
     }
 }

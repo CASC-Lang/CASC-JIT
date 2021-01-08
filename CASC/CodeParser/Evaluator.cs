@@ -22,83 +22,93 @@ namespace CASC.CodeParser
 
         private object EvaluateExpression(BoundExpression node)
         {
-            if (node is BoundLiteralExpression N)
-                return N.Value;
-
-            if (node is BoundVariableExpression V)
-                return _variables[V.Variable];
-
-            if (node is BoundAssignmentExpression A)
+            return node.Kind switch
             {
-                var value = EvaluateExpression(A.Expression);
-                _variables[A.Variable] = value;
-                return value;
-            }
+                BoundNodeKind.LiteralExpression => EvaluateLiteralExpression((BoundLiteralExpression)node),
+                BoundNodeKind.VariableExpression => EvaluateVariableExpression((BoundVariableExpression)node),
+                BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression((BoundAssignmentExpression)node),
+                BoundNodeKind.UnaryExpression => EvaluateUnaryExpression((BoundUnaryExpression)node),
+                BoundNodeKind.BinaryExpression => EvaluateBinaryExpression((BoundBinaryExpression)node),
+                _ => throw new Exception($"ERROR: Unexpected Node {node.Kind}.")
+            };
+        }
 
-            if (node is BoundUnaryExpression U)
+        private object EvaluateLiteralExpression(BoundLiteralExpression l)
+        {
+            return l.Value;
+        }
+
+        private object EvaluateVariableExpression(BoundVariableExpression v)
+        {
+            return _variables[v.Variable];
+        }
+
+        private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
+        {
+            var value = EvaluateExpression(a.Expression);
+            _variables[a.Variable] = value;
+            return value;
+        }
+
+        private object EvaluateUnaryExpression(BoundUnaryExpression u)
+        {
+            var operand = EvaluateExpression(u.Operand);
+
+            switch (u.Op.Kind)
             {
-                var operand = EvaluateExpression(U.Operand);
+                case BoundUnaryOperatorKind.Identity:
+                    return ToDouble(operand);
+                case BoundUnaryOperatorKind.Negation:
+                    return -ToDouble(operand);
+                case BoundUnaryOperatorKind.LogicalNegation:
+                    return !(bool)operand;
 
-                switch (U.Op.Kind)
-                {
-                    case BoundUnaryOperatorKind.Identity:
-                        return ToDouble(operand);
-                    case BoundUnaryOperatorKind.Negation:
-                        return -ToDouble(operand);
-                    case BoundUnaryOperatorKind.LogicalNegation:
-                        return !(bool)operand;
+                case BoundUnaryOperatorKind.Square:
+                    return ToDouble(operand) * ToDouble(operand);
+                case BoundUnaryOperatorKind.SquareRoot:
+                    return Math.Sqrt(ToDouble(operand));
+                case BoundUnaryOperatorKind.NthRoot:
+                    goto case BoundUnaryOperatorKind.SquareRoot;
 
-                    case BoundUnaryOperatorKind.Square:
-                        return ToDouble(operand) * ToDouble(operand);
-                    case BoundUnaryOperatorKind.SquareRoot:
-                        return Math.Sqrt(ToDouble(operand));
-                    case BoundUnaryOperatorKind.NthRoot:
-                        goto case BoundUnaryOperatorKind.SquareRoot;
-
-                    default:
-                        throw new Exception($"ERROR: Unexpected unary operator {U.Op}");
-                }
+                default:
+                    throw new Exception($"ERROR: Unexpected unary operator {u.Op}");
             }
+        }
 
-            if (node is BoundBinaryExpression B)
+        private object EvaluateBinaryExpression(BoundBinaryExpression b)
+        {
+            var left = EvaluateExpression(b.Left);
+            var right = EvaluateExpression(b.Right);
+
+            switch (b.Op.Kind)
             {
-                var left = EvaluateExpression(B.Left);
-                var right = EvaluateExpression(B.Right);
+                case BoundBinaryOperatorKind.Addition:
+                    return ToDouble(left) + ToDouble(right);
+                case BoundBinaryOperatorKind.Subtraction:
+                    return ToDouble(left) - ToDouble(right);
+                case BoundBinaryOperatorKind.Multiplication:
+                    return ToDouble(left) * ToDouble(right);
+                case BoundBinaryOperatorKind.Division:
+                    return ToDouble(left) / ToDouble(right);
+                case BoundBinaryOperatorKind.Point:
+                    return float.Parse($"{Convert.ToInt64(left)}.{Convert.ToInt64(right)}");
+                case BoundBinaryOperatorKind.LogicalAND:
+                    return (bool)left && (bool)right;
+                case BoundBinaryOperatorKind.LogicalOR:
+                    return (bool)left || (bool)right;
+                case BoundBinaryOperatorKind.Equals:
+                    return Equals(left, right);
+                case BoundBinaryOperatorKind.NotEquals:
+                    return !Equals(left, right);
 
+                case BoundBinaryOperatorKind.Power:
+                    return (double)Math.Pow(ToDouble(left), ToDouble(right));
+                case BoundBinaryOperatorKind.NthRoot:
+                    return (double)Math.Pow(ToDouble(left), (double)1 / Convert.ToInt64(right));
 
-
-                switch (B.Op.Kind)
-                {
-                    case BoundBinaryOperatorKind.Addition:
-                        return ToDouble(left) + ToDouble(right);
-                    case BoundBinaryOperatorKind.Subtraction:
-                        return ToDouble(left) - ToDouble(right);
-                    case BoundBinaryOperatorKind.Multiplication:
-                        return ToDouble(left) * ToDouble(right);
-                    case BoundBinaryOperatorKind.Division:
-                        return ToDouble(left) / ToDouble(right);
-                    case BoundBinaryOperatorKind.Point:
-                        return float.Parse($"{Convert.ToInt64(left)}.{Convert.ToInt64(right)}");
-                    case BoundBinaryOperatorKind.LogicalAND:
-                        return (bool)left && (bool)right;
-                    case BoundBinaryOperatorKind.LogicalOR:
-                        return (bool)left || (bool)right;
-                    case BoundBinaryOperatorKind.Equals:
-                        return Equals(left, right);
-                    case BoundBinaryOperatorKind.NotEquals:
-                        return !Equals(left, right);
-
-                    case BoundBinaryOperatorKind.Power:
-                        return (double)Math.Pow(ToDouble(left), ToDouble(right));
-                    case BoundBinaryOperatorKind.NthRoot:
-                        return (double)Math.Pow(ToDouble(left), (double)1 / Convert.ToInt64(right));
-
-                    default:
-                        throw new Exception($"ERROR: Unexpected Binary Operator {B.Op}.");
-                }
+                default:
+                    throw new Exception($"ERROR: Unexpected Binary Operator {b.Op}.");
             }
-
-            throw new Exception($"ERROR: Unexpected Node {node.Kind}.");
         }
 
         private double ToDouble(object value) => Convert.ToDouble(value);

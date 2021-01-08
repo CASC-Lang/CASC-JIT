@@ -113,9 +113,9 @@ namespace CASC.CodeParser.Syntax
                     return "==";
                 case SyntaxKind.BangEqualsToken:
                     return "!=";
-                case SyntaxKind.OpenParenthesisToken:
+                case SyntaxKind.OpenParenthesesToken:
                     return "(";
-                case SyntaxKind.CloseParenthesisToken:
+                case SyntaxKind.CloseParenthesesToken:
                     return ")";
                 case SyntaxKind.FalseKeyword:
                     return "false";
