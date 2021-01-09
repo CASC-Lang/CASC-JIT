@@ -15,11 +15,5 @@ namespace CASC.CodeParser.Syntax
         public SyntaxToken OpenParentheizedToken { get; }
         public ExpressionSyntax Expression { get; }
         public SyntaxToken CloseParentheizedToken { get; }
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return OpenParentheizedToken;
-            yield return Expression;
-            yield return CloseParentheizedToken;
-        }
     }
 }

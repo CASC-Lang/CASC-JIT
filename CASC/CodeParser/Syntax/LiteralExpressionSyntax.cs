@@ -18,9 +18,5 @@ namespace CASC.CodeParser.Syntax
 
         public SyntaxToken NumberToken { get; }
         public object Value { get; }
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return NumberToken;
-        }
     }
 }
