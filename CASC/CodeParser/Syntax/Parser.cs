@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -9,13 +10,14 @@ namespace CASC.CodeParser.Syntax
     {
         private readonly SyntaxToken[] _tokens;
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
+        private readonly SourceText _source;
         private int _position;
 
-        public Parser(string text)
+        public Parser(SourceText source)
         {
             var tokens = new List<SyntaxToken>();
 
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(source);
             SyntaxToken token;
             do
             {
@@ -30,6 +32,7 @@ namespace CASC.CodeParser.Syntax
 
             _tokens = tokens.ToArray();
             _diagnostics.AddRange(lexer.Diagnostics);
+            this._source = source;
         }
 
         public DiagnosticPack Diagnostics => _diagnostics;
@@ -65,7 +68,7 @@ namespace CASC.CodeParser.Syntax
         {
             var expresion = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_diagnostics.ToImmutableArray(), expresion, endOfFileToken);
+            return new SyntaxTree(_source, _diagnostics.ToImmutableArray(), expresion, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()

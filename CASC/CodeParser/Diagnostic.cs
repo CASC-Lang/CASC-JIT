@@ -1,3 +1,5 @@
+using CASC.CodeParser.Text;
+
 namespace CASC.CodeParser
 {
     public class Diagnostic

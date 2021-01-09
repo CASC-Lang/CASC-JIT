@@ -2,6 +2,7 @@ using CASC.CodeParser.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser
 {

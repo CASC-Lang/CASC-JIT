@@ -1,5 +1,4 @@
-using System.Linq;
-using System.Collections.Generic;
+using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -17,6 +16,6 @@ namespace CASC.CodeParser.Syntax
         public int Position { get; }
         public string Text { get; }
         public object Value { get; internal set; }
-        public TextSpan Span => new TextSpan(Position, Text.Length);
+        public override TextSpan Span => new TextSpan(Position, Text?.Length ?? 0);
     }
 }

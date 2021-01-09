@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System;
 using CASC.CodeParser.Utils;
 using System.Collections.Generic;
+using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -26,7 +27,7 @@ namespace CASC.CodeParser.Syntax
             '賦'  // Assign             賦
         };
 
-        private readonly string _text;
+        private readonly SourceText _text;
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
 
         private int _position;
@@ -35,7 +36,7 @@ namespace CASC.CodeParser.Syntax
         private SyntaxKind _kind;
         private object _value;
 
-        public Lexer(string text)
+        public Lexer(SourceText text)
         {
             _text = text;
         }
@@ -49,7 +50,7 @@ namespace CASC.CodeParser.Syntax
         {
             var index = _position + offset;
 
-            if (_position >= _text.Length)
+            if (index >= _text.Length)
                 return '\0';
 
             return _text[index];
@@ -95,13 +96,6 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '開':
-                    if (Current == '方')
-                    {
-                        _kind = SyntaxKind.NthRootToken;
-                        _position += 2;
-                        break;
-                    }
-                    goto case '(';
                 case '(':
                     _kind = SyntaxKind.OpenParenthesesToken;
                     _position++;
@@ -116,7 +110,7 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '&':
-                    if (Current == '&')
+                    if (LookAhead == '&')
                     {
                         _kind = SyntaxKind.AmpersandAmpersandToken;
                         _position += 2;
@@ -128,7 +122,7 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '|':
-                    if (Current == '|')
+                    if (LookAhead == '|')
                     {
                         _kind = SyntaxKind.PipePipeToken;
                         _position += 2;
@@ -140,7 +134,7 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '!':
-                    if (Current == '=')
+                    if (LookAhead == '=')
                     {
                         _kind = SyntaxKind.BangEqualsToken;
                         _position += 2;
@@ -150,7 +144,7 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '不':
-                    if (Current == '是')
+                    if (LookAhead == '是')
                     {
                         _kind = SyntaxKind.BangEqualsToken;
                         _position += 2;
@@ -162,7 +156,7 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '=':
-                    if (Current != '=')
+                    if (LookAhead != '=')
                         goto case '賦';
                     _kind = SyntaxKind.EqualsEqualsToken;
                     _position += 2;
@@ -205,7 +199,7 @@ namespace CASC.CodeParser.Syntax
             var length = _position - _start;
             var text = SyntaxFacts.GetText(_kind);
             if (text == null)
-                text = _text.Substring(_start, length);
+                text = _text.ToString(_start, length);
 
             return new SyntaxToken(_kind, _start, text, _value);
         }
@@ -216,9 +210,9 @@ namespace CASC.CodeParser.Syntax
                 _position++;
 
             var length = _position - _start;
-            var text = _text.Substring(_start, length);
+            var text = _text.ToString(_start, length);
             if (!ChineseParser.tryParseDigits(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), _text, typeof(int));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(int));
 
             _value = value;
             _kind = SyntaxKind.NumberToken;
@@ -238,7 +232,7 @@ namespace CASC.CodeParser.Syntax
                 _position++;
 
             var length = _position - _start;
-            var text = _text.Substring(_start, length);
+            var text = _text.ToString(_start, length);
             _kind = SyntaxFacts.GetKeywordKind(text);
             return text;
         }

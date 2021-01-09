@@ -1,11 +1,10 @@
-﻿using CASC.CodeParser.Binding;
-using CASC.CodeParser.Syntax;
+﻿using CASC.CodeParser.Syntax;
 using CASC.CodeParser;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-
-
+using System.Text;
+using CASC.CodeParser.Text;
 
 namespace CASC
 {
@@ -15,21 +14,44 @@ namespace CASC
         {
             var showParseTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
+            var builder = new StringBuilder();
 
             while (true)
             {
-                Console.Write("> ");
-                var line = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
-                    return;
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
 
-                if (line == "/showTree")
-                {
-                    showParseTree = !showParseTree;
+                if (builder.Length == 0)
+                    Console.Write("> ");
+                else
+                    Console.Write("| ");
+
+                Console.ResetColor();
+
+                var input = Console.ReadLine();
+                var isBlank = string.IsNullOrWhiteSpace(input);
+
+                if (builder.Length == 0)
+                    if (isBlank)
+                        break;
+                    else if (input == "/showTree")
+                    {
+                        showParseTree = !showParseTree;
+                        continue;
+                    }
+                    else if (input == "/clear")
+                    {
+                        Console.Clear();
+                        continue;
+                    }
+
+                builder.AppendLine(input);
+                var text = builder.ToString();
+
+                var syntaxTree = SyntaxTree.Parse(text);
+
+                if (!isBlank && syntaxTree.Diagnostics.Any())
                     continue;
-                }
 
-                var syntaxTree = SyntaxTree.Parse(line);
                 var compilation = new Compilation(syntaxTree);
                 var result = compilation.Evaluate(variables);
 
@@ -38,27 +60,38 @@ namespace CASC
                 if (showParseTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    PrettyPrint(syntaxTree.Root);
+                    syntaxTree.Root.WriteTo(Console.Out);
                     Console.ResetColor();
                 }
 
                 if (!diagnostics.Any())
                 {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine(result.Value);
+                    Console.ResetColor();
                 }
                 else
                 {
                     foreach (var diagnostic in result.Diagnostics)
                     {
+                        var lineIndex = syntaxTree.Source.GetLineIndex(diagnostic.Span.Start);
+                        var line = syntaxTree.Source.Lines[lineIndex];
+                        var lineNumber = lineIndex + 1;
+                        var character = diagnostic.Span.Start - line.Start + 1;
+
                         Console.WriteLine();
 
                         Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write($"({lineNumber}, {lineIndex}): ");
                         Console.WriteLine(diagnostic);
                         Console.ResetColor();
 
-                        var prefix = line.Substring(0, diagnostic.Span.Start);
-                        var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                        var suffix = line.Substring(diagnostic.Span.End);
+                        var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
+                        var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                        var prefix = syntaxTree.Source.ToString(prefixSpan);
+                        var error = syntaxTree.Source.ToString(diagnostic.Span);
+                        var suffix = syntaxTree.Source.ToString(suffixSpan);
 
                         Console.Write("    ");
                         Console.Write(prefix);
@@ -74,31 +107,9 @@ namespace CASC
 
                     Console.WriteLine();
                 }
+
+                builder.Clear();
             }
-        }
-
-        static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
-        {
-            var marker = isLast ? "└── " : "├── ";
-
-            Console.Write(indent);
-            Console.Write(marker);
-            Console.Write(node.Kind);
-
-            if (node is SyntaxToken T && T != null)
-            {
-                Console.Write(" ");
-                Console.Write(T.Value);
-            }
-
-            Console.WriteLine();
-
-            indent += isLast ? "    " : "│   ";
-
-            var lastChild = node.GetChildren().LastOrDefault();
-
-            foreach (var child in node.GetChildren())
-                PrettyPrint(child, indent, child == lastChild);
         }
     }
 }
