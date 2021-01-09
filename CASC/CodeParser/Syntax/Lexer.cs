@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System;
-using CASC.CodeParser.Utils;
+using CASC.CodeParser.Utilities;
 using System.Collections.Generic;
 using CASC.CodeParser.Text;
 

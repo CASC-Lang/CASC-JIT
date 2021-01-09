@@ -62,14 +62,6 @@ namespace CASC.CodeParser
                     return -ToDouble(operand);
                 case BoundUnaryOperatorKind.LogicalNegation:
                     return !(bool)operand;
-
-                case BoundUnaryOperatorKind.Square:
-                    return ToDouble(operand) * ToDouble(operand);
-                case BoundUnaryOperatorKind.SquareRoot:
-                    return Math.Sqrt(ToDouble(operand));
-                case BoundUnaryOperatorKind.NthRoot:
-                    goto case BoundUnaryOperatorKind.SquareRoot;
-
                 default:
                     throw new Exception($"ERROR: Unexpected unary operator {u.Op}");
             }
@@ -100,12 +92,6 @@ namespace CASC.CodeParser
                     return Equals(left, right);
                 case BoundBinaryOperatorKind.NotEquals:
                     return !Equals(left, right);
-
-                case BoundBinaryOperatorKind.Power:
-                    return (double)Math.Pow(ToDouble(left), ToDouble(right));
-                case BoundBinaryOperatorKind.NthRoot:
-                    return (double)Math.Pow(ToDouble(left), (double)1 / Convert.ToInt64(right));
-
                 default:
                     throw new Exception($"ERROR: Unexpected Binary Operator {b.Op}.");
             }

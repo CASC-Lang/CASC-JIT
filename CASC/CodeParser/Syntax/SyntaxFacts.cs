@@ -12,12 +12,7 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
                 case SyntaxKind.BangToken:
-                    return 9;
-
-                case SyntaxKind.SquareToken:
-                case SyntaxKind.SquareRootToken:
-                case SyntaxKind.NthRootToken:
-                    return 8;
+                    return 7;
 
                 default:
                     return 0;
@@ -29,10 +24,6 @@ namespace CASC.CodeParser.Syntax
             switch (kind)
             {
                 case SyntaxKind.PointToken:
-                    return 7;
-
-                case SyntaxKind.PowerToken:
-                case SyntaxKind.NthRootToken:
                     return 6;
 
                 case SyntaxKind.StarToken:
@@ -75,7 +66,7 @@ namespace CASC.CodeParser.Syntax
 
         public static IEnumerable<SyntaxKind> GetUnaryOperatorKinds()
         {
-            var kinds = (SyntaxKind[]) Enum.GetValues(typeof(SyntaxKind));
+            var kinds = (SyntaxKind[])Enum.GetValues(typeof(SyntaxKind));
             foreach (var kind in kinds)
                 if (GetUnaryOperatorPrecedence(kind) > 0)
                     yield return kind;
@@ -83,7 +74,7 @@ namespace CASC.CodeParser.Syntax
 
         public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds()
         {
-            var kinds = (SyntaxKind[]) Enum.GetValues(typeof(SyntaxKind));
+            var kinds = (SyntaxKind[])Enum.GetValues(typeof(SyntaxKind));
             foreach (var kind in kinds)
                 if (GetBinaryOperatorPrecedence(kind) > 0)
                     yield return kind;
@@ -121,6 +112,43 @@ namespace CASC.CodeParser.Syntax
                     return "false";
                 case SyntaxKind.TrueKeyword:
                     return "true";
+                default:
+                    return null;
+            }
+        }
+
+        public static string GetZHText(SyntaxKind kind)
+        {
+            switch (kind)
+            {
+                case SyntaxKind.PlusToken:
+                    return "加";
+                case SyntaxKind.MinusToken:
+                    return "減";
+                case SyntaxKind.StarToken:
+                    return "乘";
+                case SyntaxKind.SlashToken:
+                    return "除";
+                case SyntaxKind.BangToken:
+                    return "反";
+                case SyntaxKind.EqualsToken:
+                    return "賦";
+                case SyntaxKind.AmpersandAmpersandToken:
+                    return "且";
+                case SyntaxKind.PipePipeToken:
+                    return "或";
+                case SyntaxKind.EqualsEqualsToken:
+                    return "是";
+                case SyntaxKind.BangEqualsToken:
+                    return "不是";
+                case SyntaxKind.OpenParenthesesToken:
+                    return "開";
+                case SyntaxKind.CloseParenthesesToken:
+                    return "閉";
+                case SyntaxKind.FalseKeyword:
+                    return "假";
+                case SyntaxKind.TrueKeyword:
+                    return "真";
                 default:
                     return null;
             }

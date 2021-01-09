@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System;
 
-namespace CASC.CodeParser.Utils
+namespace CASC.CodeParser.Utilities
 {
-    static class ChineseParser
+    public static class ChineseParser
     {
         private static readonly Dictionary<char, int> _zh2digitTable = new Dictionary<char, int>
         {

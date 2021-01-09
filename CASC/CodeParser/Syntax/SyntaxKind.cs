@@ -15,20 +15,12 @@ namespace CASC.CodeParser.Syntax
         BangToken,
         AmpersandAmpersandToken,
         PipePipeToken,
-        ParenthesizedToken,
         EqualsEqualsToken,
         BangEqualsToken,
         EqualsToken,
-        BinaryToken,
         IdentifierToken,
         EndOfFileToken,
         BadToken,
-
-        // Special Chinese Token
-        SquareToken,
-        SquareRootToken,
-        NthRootToken,
-        PowerToken,
 
         // Keywords
         TrueKeyword,

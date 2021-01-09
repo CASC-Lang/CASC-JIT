@@ -10,10 +10,6 @@ namespace CASC.CodeParser.Binding
         LogicalAND,
         LogicalOR,
         Equals,
-        NotEquals,
-
-        // Special Chinese Operator
-        Power,
-        NthRoot
+        NotEquals
     }
 }
