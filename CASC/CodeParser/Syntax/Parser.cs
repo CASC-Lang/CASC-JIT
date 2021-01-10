@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using CASC.CodeParser.Text;
@@ -143,7 +142,6 @@ namespace CASC.CodeParser.Syntax
         private ExpressionSyntax ParseNumberExpression()
         {
             var numberToken = MatchToken(SyntaxKind.NumberToken);
-            numberToken.Value = Convert.ToDouble(numberToken.Value);
             return new LiteralExpressionSyntax(numberToken);
         }
 

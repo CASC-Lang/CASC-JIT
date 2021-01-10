@@ -57,9 +57,9 @@ namespace CASC.CodeParser
             switch (u.Op.Kind)
             {
                 case BoundUnaryOperatorKind.Identity:
-                    return ToDouble(operand);
+                    return ToDemical(operand);
                 case BoundUnaryOperatorKind.Negation:
-                    return -ToDouble(operand);
+                    return -ToDemical(operand);
                 case BoundUnaryOperatorKind.LogicalNegation:
                     return !(bool)operand;
                 default:
@@ -75,15 +75,15 @@ namespace CASC.CodeParser
             switch (b.Op.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return ToDouble(left) + ToDouble(right);
+                    return ToDemical(left) + ToDemical(right);
                 case BoundBinaryOperatorKind.Subtraction:
-                    return ToDouble(left) - ToDouble(right);
+                    return ToDemical(left) - ToDemical(right);
                 case BoundBinaryOperatorKind.Multiplication:
-                    return ToDouble(left) * ToDouble(right);
+                    return ToDemical(left) * ToDemical(right);
                 case BoundBinaryOperatorKind.Division:
-                    return ToDouble(left) / ToDouble(right);
+                    return ToDemical(left) / ToDemical(right);
                 case BoundBinaryOperatorKind.Point:
-                    return float.Parse($"{Convert.ToInt64(left)}.{Convert.ToInt64(right)}");
+                    return decimal.Parse($"{Math.Floor(ToDemical(left))}.{(int)right}");
                 case BoundBinaryOperatorKind.LogicalAND:
                     return (bool)left && (bool)right;
                 case BoundBinaryOperatorKind.LogicalOR:
@@ -97,6 +97,6 @@ namespace CASC.CodeParser
             }
         }
 
-        private double ToDouble(object value) => Convert.ToDouble(value);
+        private decimal ToDemical(object value) => Convert.ToDecimal(value);
     }
 }
