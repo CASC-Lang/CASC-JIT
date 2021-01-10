@@ -63,11 +63,11 @@ namespace CASC.CodeParser.Syntax
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
-        public SyntaxTree Parse()
+        public CompilationUnitSyntax ParseCompilationUnit()
         {
             var expresion = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_source, _diagnostics.ToImmutableArray(), expresion, endOfFileToken);
+            return new CompilationUnitSyntax(expresion, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()

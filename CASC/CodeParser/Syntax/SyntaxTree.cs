@@ -7,18 +7,20 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class SyntaxTree
     {
-        public SyntaxTree(SourceText source, ImmutableArray<Diagnostic> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
+        private SyntaxTree(SourceText source)
         {
+            var parser = new Parser(source);
+            var root = parser.ParseCompilationUnit();
+            var diagnostics = parser.Diagnostics.ToImmutableArray();
+
             Source = source;
             Diagnostics = diagnostics;
             Root = root;
-            EndOfFileToken = endOfFileToken;
         }
 
         public SourceText Source { get; }
         public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public ExpressionSyntax Root { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public CompilationUnitSyntax Root { get; }
 
         public static SyntaxTree Parse(string text)
         {
@@ -28,8 +30,7 @@ namespace CASC.CodeParser.Syntax
 
         public static SyntaxTree Parse(SourceText text)
         {
-            var parser = new Parser(text);
-            return parser.Parse();
+            return new SyntaxTree(text);
         }
 
         public static IEnumerable<SyntaxToken> ParseTokens(string text)

@@ -26,6 +26,9 @@ namespace CASC.CodeParser.Syntax
         TrueKeyword,
         FalseKeyword,
 
+        // Nodes
+        CompilationUnit,
+
         // Expressions
         LiteralExpression,
         UnaryExpression,

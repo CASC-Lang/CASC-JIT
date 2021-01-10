@@ -5,7 +5,6 @@ using System;
 
 namespace CASC.CodeParser.Binding
 {
-
     internal sealed class Binder
     {
         private readonly Dictionary<VariableSymbol, object> _variables;

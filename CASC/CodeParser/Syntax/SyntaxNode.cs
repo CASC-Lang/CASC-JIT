@@ -52,11 +52,12 @@ namespace CASC.CodeParser.Syntax
             writer.Write(indent);
 
             if (isToConsole)
-            {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                writer.Write(marker);
+                
+            writer.Write(marker);    
+
+            if (isToConsole)
                 Console.ForegroundColor = node is SyntaxToken ? ConsoleColor.DarkBlue : ConsoleColor.DarkCyan;
-            }
 
             writer.Write(node.Kind);
 
