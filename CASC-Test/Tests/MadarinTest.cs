@@ -6,8 +6,8 @@ namespace CASC_Test.Tests
 {
     public class MadarinTest
     {
-        private int tmp;
-        private static readonly Dictionary<string, int> zh_numerics = new Dictionary<string, int>
+        private decimal tmp;
+        private static readonly Dictionary<string, decimal> zh_numerics = new Dictionary<string, decimal>
         {
             ["一"] = 1,
             ["壹"] = 1,
@@ -28,7 +28,7 @@ namespace CASC_Test.Tests
             ["九"] = 9,
             ["玖"] = 9
         };
-        private static readonly Dictionary<string, int> zh_test_number_templates = new Dictionary<string, int>
+        private static readonly Dictionary<string, decimal> zh_test_number_templates = new Dictionary<string, decimal>
         {
             ["一"] = 1,
             ["一十"] = 10,
@@ -59,11 +59,11 @@ namespace CASC_Test.Tests
             }
         }
 
-        private IEnumerable<KeyValuePair<string, int>> GetTemplates()
+        private IEnumerable<KeyValuePair<string, decimal>> GetTemplates()
         {
             foreach (var numEntry in zh_numerics)
                 foreach (var template in zh_test_number_templates)
-                    yield return new KeyValuePair<string, int>(template.Key.Replace('一', numEntry.Key.ToCharArray()[0]), template.Value * numEntry.Value);
+                    yield return new KeyValuePair<string, decimal>(template.Key.Replace('一', numEntry.Key.ToCharArray()[0]), template.Value * numEntry.Value);
         }
     }
 }

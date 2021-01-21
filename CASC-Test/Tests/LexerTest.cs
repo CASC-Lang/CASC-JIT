@@ -21,7 +21,6 @@ namespace CASC_Test.Tests
             var untestedTokenKinds = new SortedSet<SyntaxKind>(tokenKinds);
             untestedTokenKinds.Remove(SyntaxKind.BadToken);
             untestedTokenKinds.Remove(SyntaxKind.EndOfFileToken);
-            untestedTokenKinds.Remove(SyntaxKind.PointToken);
             untestedTokenKinds.ExceptWith(testedTokenKinds);
 
             Assert.IsEmpty(untestedTokenKinds);

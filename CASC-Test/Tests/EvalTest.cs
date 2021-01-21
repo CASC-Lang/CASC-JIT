@@ -29,7 +29,7 @@ namespace CASC_Test
         [TestCase("2 + 1 * 3", "5")]
         [TestCase("(2 + 1) * 3", "9")]
         [TestCase("1 == 1", "True")]
-        [TestCase("1 == 1.0", "False")]
+        [TestCase("1 == 1.0", "True")]
         [TestCase("1 == 1 + 2", "False")]
         public void EvalTestI(string input, string expected)
         {
@@ -45,7 +45,7 @@ namespace CASC_Test
         [TestCase("二加一乘三", "5")]
         [TestCase("開二加一閉乘三", "9")]
         [TestCase("一是一", "True")]
-        [TestCase("一是一點零", "False")]
+        [TestCase("一是一點零", "True")]
         [TestCase("一是一加二", "False")]
 
         public void EvalTestZHI(string input, string expected)
