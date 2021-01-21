@@ -1,0 +1,27 @@
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetAuthenticate@0
+  displayName: 'NuGet Authenticate'
+- script: dotnet test --logger trx --collect:"XPlat Code Coverage"
+  workingDirectory: MyProjectFolder
+  displayName: 'Run Tests'
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/**/TestResults/**/coverage.cobertura.xml
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
