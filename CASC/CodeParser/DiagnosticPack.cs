@@ -57,7 +57,13 @@ namespace CASC.CodeParser
 
         public void ReportUndefinedName(TextSpan span, string name)
         {
-            var message = $"ERROR: Variable `{name}` does not exist.";
+            var message = $"ERROR: Variable '{name}' does not exist.";
+            Report(span, message);
+        }
+
+        public void ReportCannotConvert(TextSpan span, Type fromType, Type toType)
+        {
+            var message = $"ERROR: Cannot convert type '{fromType}' to '{toType}'.";
             Report(span, message);
         }
     }

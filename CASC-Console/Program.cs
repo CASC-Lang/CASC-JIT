@@ -15,6 +15,7 @@ namespace CASC
             var showParseTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
             var builder = new StringBuilder();
+            Compilation previous = null;
 
             while (true)
             {
@@ -43,6 +44,12 @@ namespace CASC
                         Console.Clear();
                         continue;
                     }
+                    else if (input == "/reset")
+                    {
+                        previous = null;
+                        variables.Clear();
+                        continue;
+                    }
 
                 builder.AppendLine(input);
                 var text = builder.ToString();
@@ -52,7 +59,9 @@ namespace CASC
                 if (!isBlank && syntaxTree.Diagnostics.Any())
                     continue;
 
-                var compilation = new Compilation(syntaxTree);
+                var compilation = previous == null
+                                    ? new Compilation(syntaxTree)
+                                    : previous.ContinueWith(syntaxTree);
                 var result = compilation.Evaluate(variables);
 
                 var diagnostics = result.Diagnostics;
@@ -69,6 +78,7 @@ namespace CASC
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine(result.Value);
                     Console.ResetColor();
+                    previous = compilation;
                 }
                 else
                 {
