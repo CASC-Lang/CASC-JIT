@@ -1,3 +1,3 @@
 @echo off
-dotnet build
-dotnet test .\src\CASC-Test\CASC-Test.csproj
+dotnet build src
+dotnet test src\CASC-Test\CASC-Test.csproj

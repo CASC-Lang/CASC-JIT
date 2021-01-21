@@ -1,9 +1,9 @@
 .vscode/*
-CASC/obj/*
-CASC/bin/*
-CASC-Console/obj/*
-CASC-Console/bin/*
-CASC-Test/obj/*
-CASC-Test/bin/*
-CASC-Lang/node_modules
-CASC-Lang/*.vsix
+src/CASC/obj/*
+src/CASC/bin/*
+src/CASC-Console/obj/*
+src/CASC-Console/bin/*
+src/CASC-Test/obj/*
+src/CASC-Test/bin/*
+src/CASC-Lang/node_modules
+src/CASC-Lang/*.vsix

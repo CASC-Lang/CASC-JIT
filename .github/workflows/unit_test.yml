@@ -29,6 +29,6 @@ jobs:
     - name: Unit Test
       shell: bash
       run: |
-        dotnet build
+        dotnet build src
 
         dotnet test src/CASC-Test/CASC-Test.csproj
