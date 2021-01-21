@@ -24,11 +24,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
-      with:
+      with:W
         dotnet-version: '5.0.100'
     - name: Unit Test
       shell: bash
       run: |
         dotnet build
 
-        dotnet test /CASC-Test/CASC-Test.csproj
+        dotnet test CASC-Test/CASC-Test.csproj
