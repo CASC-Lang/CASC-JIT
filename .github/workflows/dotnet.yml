@@ -36,7 +36,7 @@ jobs:
         release_name="CASC-Console-$tag-${{ matrix.target }}"
 
         # Build everything
-        dotnet publish CASC-Console/CASC-Console.csproj --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+        dotnet publish src/CASC-Console/CASC-Console.csproj --runtime "${{ matrix.target }}" -c Release -o "$release_name"
 
         # Pack files
         if [ "${{ matrix.target }}" == "win-x64" ]; then
