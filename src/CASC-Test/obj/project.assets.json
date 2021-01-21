@@ -458,6 +458,12 @@
           "build/netcoreapp2.1/NUnit3TestAdapter.props": {}
         }
       },
+      "NunitXml.TestLogger/2.1.80": {
+        "type": "package",
+        "build": {
+          "build/netstandard1.0/NUnitXml.TestLogger.props": {}
+        }
+      },
       "runtime.native.System/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1922,6 +1928,22 @@
         "build/netcoreapp2.1/nunit.engine.dll",
         "nunit3testadapter.3.16.1.nupkg.sha512",
         "nunit3testadapter.nuspec"
+      ]
+    },
+    "NunitXml.TestLogger/2.1.80": {
+      "sha512": "YUwoF9aVH9jJm0zKex9IjiWMDBBaNMVkIq9e+jpKVzHs7Zf6IbF4LTyzBIIXf3sxkbA89mAeIkyUn+AWg7D/jQ==",
+      "type": "package",
+      "path": "nunitxml.testlogger/2.1.80",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/_common/Microsoft.VisualStudio.TestPlatform.Extension.NUnit.Xml.TestAdapter.dll",
+        "build/_common/Microsoft.VisualStudio.TestPlatform.Extension.NUnit.Xml.TestLogger.dll",
+        "build/net45/NUnitXml.TestLogger.props",
+        "build/netstandard1.0/NUnitXml.TestLogger.props",
+        "nunitxml.testlogger.2.1.80.nupkg.sha512",
+        "nunitxml.testlogger.nuspec",
+        "packageIcon.png"
       ]
     },
     "runtime.native.System/4.3.0": {
@@ -4673,7 +4695,8 @@
       "CASC >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 16.5.0",
       "NUnit >= 3.12.0",
-      "NUnit3TestAdapter >= 3.16.1"
+      "NUnit3TestAdapter >= 3.16.1",
+      "NunitXml.TestLogger >= 2.1.80"
     ]
   },
   "packageFolders": {
@@ -4682,11 +4705,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\CASC\\CASC-Test\\CASC-Test.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Desktop\\CASC\\src\\CASC-Test\\CASC-Test.csproj",
       "projectName": "CASC-Test",
-      "projectPath": "C:\\Users\\User\\Desktop\\CASC\\CASC-Test\\CASC-Test.csproj",
+      "projectPath": "C:\\Users\\User\\Desktop\\CASC\\src\\CASC-Test\\CASC-Test.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\CASC\\CASC-Test\\obj\\",
+      "outputPath": "C:\\Users\\User\\Desktop\\CASC\\src\\CASC-Test\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -4703,8 +4726,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "C:\\Users\\User\\Desktop\\CASC\\CASC\\CASC.csproj": {
-              "projectPath": "C:\\Users\\User\\Desktop\\CASC\\CASC\\CASC.csproj"
+            "C:\\Users\\User\\Desktop\\CASC\\src\\CASC\\CASC.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\CASC\\src\\CASC\\CASC.csproj"
             }
           }
         }
@@ -4730,6 +4753,10 @@
           "NUnit3TestAdapter": {
             "target": "Package",
             "version": "[3.16.1, )"
+          },
+          "NunitXml.TestLogger": {
+            "target": "Package",
+            "version": "[2.1.80, )"
           }
         },
         "imports": [
