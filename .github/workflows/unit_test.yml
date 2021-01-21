@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
-      with:W
+      with:
         dotnet-version: '5.0.100'
     - name: Unit Test
       shell: bash
