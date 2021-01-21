@@ -1,5 +1,5 @@
 trigger:
-- main
+- master
 
 pool:
   vmImage: 'Ubuntu 16.04'
@@ -12,10 +12,10 @@ variables:
 steps:
 - script: dotnet build --configuration $(buildConfiguration) $(sln)
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test $(tests) --logger "xunit;LogFileName=TestResults.xml"
+- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml"
   displayName: 'dotnet test'
 - task: PublishTestResults@2
   displayName: 'publish test results to azure pipelines'
   inputs:
-    testResultsFormat: 'xUnit'
+    testResultsFormat: 'NUnit'
     testResultsFiles: '**/TestResults.xml'
