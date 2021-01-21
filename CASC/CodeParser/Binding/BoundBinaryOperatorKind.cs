@@ -6,7 +6,6 @@ namespace CASC.CodeParser.Binding
         Subtraction,
         Multiplication,
         Division,
-        Point,
         LogicalAND,
         LogicalOR,
         Equals,

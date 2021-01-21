@@ -90,11 +90,6 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.SlashToken;
                     _position++;
                     break;
-                case '點':
-                case '.':
-                    _kind = SyntaxKind.PointToken;
-                    _position++;
-                    break;
                 case '開':
                 case '(':
                     _kind = SyntaxKind.OpenParenthesesToken;
@@ -212,7 +207,7 @@ namespace CASC.CodeParser.Syntax
             var length = _position - _start;
             var text = _text.ToString(_start, length);
             if (!ChineseParser.tryParseDigits(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(int));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(decimal));
 
             _value = value;
             _kind = SyntaxKind.NumberToken;

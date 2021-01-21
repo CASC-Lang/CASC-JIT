@@ -82,8 +82,6 @@ namespace CASC.CodeParser
                     return ToDemical(left) * ToDemical(right);
                 case BoundBinaryOperatorKind.Division:
                     return ToDemical(left) / ToDemical(right);
-                case BoundBinaryOperatorKind.Point:
-                    return decimal.Parse($"{Math.Floor(ToDemical(left))}.{(int)right}");
                 case BoundBinaryOperatorKind.LogicalAND:
                     return (bool)left && (bool)right;
                 case BoundBinaryOperatorKind.LogicalOR:

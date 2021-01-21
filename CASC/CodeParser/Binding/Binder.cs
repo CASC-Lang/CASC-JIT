@@ -22,7 +22,7 @@ namespace CASC.CodeParser.Binding
             switch (syntax.Kind)
             {
                 case SyntaxKind.ParenthesizedExpression:
-                    return BindParenthesisExpression((ParenthesizedExpressionSyntax)syntax);
+                    return BindParenthesesExpression((ParenthesizedExpressionSyntax)syntax);
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
                 case SyntaxKind.NameExpression:
@@ -38,7 +38,7 @@ namespace CASC.CodeParser.Binding
             }
         }
 
-        private BoundExpression BindParenthesisExpression(ParenthesizedExpressionSyntax syntax)
+        private BoundExpression BindParenthesesExpression(ParenthesizedExpressionSyntax syntax)
         {
             return BindExpression(syntax.Expression);
         }

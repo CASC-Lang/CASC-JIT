@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using System.Text.RegularExpressions;
 
 namespace CASC.CodeParser.Utilities
 {
@@ -14,15 +15,15 @@ namespace CASC.CodeParser.Utilities
 
         public static bool isDigit(char character)
         {
-            if (char.IsDigit(character))
+            if (char.IsDigit(character) || character == '.' || character == '點')
                 return true;
 
             return _zh2digitTable.ContainsKey(character);
         }
 
-        public static bool tryParseDigits(string str, out int value)
+        public static bool tryParseDigits(string str, out decimal value)
         {
-            if (int.TryParse(str, out value))
+            if (decimal.TryParse(str, out value))
                 return true;
 
             var result = ParseDigitsFromChinese(str);
@@ -31,7 +32,31 @@ namespace CASC.CodeParser.Utilities
             return result.pass;
         }
 
-        public static (bool pass, int value) ParseDigitsFromChinese(string str)
+        public static (bool pass, decimal value) ParseDigitsFromChinese(string str)
+        {
+            var point_counter = str.Length - Regex.Replace(str, "([.]|[點])", "").Length;
+
+            decimal result;
+
+            if (point_counter == 0)
+                result = PraseDigitFromChinese(str);
+            else if (point_counter == 1)
+            {
+                var nums = new Regex("([.]|[點])").Split(str);
+
+                var left = PraseDigitFromChinese(nums[0]);
+                var right = PraseDigitFromChinese(nums[2]);
+
+                decimal.TryParse($"{left}.{right}", out result);
+            }
+            else
+                throw new Exception($"ERROR: String \"{str}\" is not valid chinese numeral.");
+
+
+            return (true, result);
+        }
+
+        private static decimal PraseDigitFromChinese(string str)
         {
             var digitNum = 0;
             var result = 0;
@@ -49,7 +74,7 @@ namespace CASC.CodeParser.Utilities
                 if (tmpNum == 100000000)
                 {
                     result += tmp;
-                    result *= (int)tmpNum;
+                    result *= tmpNum;
                     billion *= 100000000;
                     billion += result;
                     result = 0;
@@ -58,7 +83,7 @@ namespace CASC.CodeParser.Utilities
                 else if (tmpNum == 10000)
                 {
                     result += tmp;
-                    result *= (int)tmpNum;
+                    result *= tmpNum;
                     tmp = 0;
                 }
                 else if (tmpNum >= 10)
@@ -66,7 +91,7 @@ namespace CASC.CodeParser.Utilities
                     if (tmp == 0)
                         tmp = 1;
 
-                    result += (int)tmpNum * tmp;
+                    result += tmpNum * tmp;
                     tmp = 0;
                 }
                 else
@@ -82,7 +107,7 @@ namespace CASC.CodeParser.Utilities
             result += tmp;
             result += billion;
 
-            return (true, result);
+            return result;
         }
     }
 }
