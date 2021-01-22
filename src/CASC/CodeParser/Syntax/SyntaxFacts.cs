@@ -145,9 +145,9 @@ namespace CASC.CodeParser.Syntax
             switch (kind)
             {
                 case SyntaxKind.PlusToken:
-                    return "加 (正)";
+                    return "加";
                 case SyntaxKind.MinusToken:
-                    return "減 (負)";
+                    return "減";
                 case SyntaxKind.StarToken:
                     return "乘";
                 case SyntaxKind.SlashToken:
@@ -177,9 +177,9 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.TrueKeyword:
                     return "真";
                 case SyntaxKind.LetKeyword:
-                    return "讓 (使)";
+                    return "讓";
                 case SyntaxKind.VarKeyword:
-                    return "變數 (變值)";
+                    return "變數";
                 case SyntaxKind.ValKeyword:
                     return "終值";
                 default:
