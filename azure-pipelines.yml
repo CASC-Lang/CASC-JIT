@@ -7,7 +7,7 @@ variables:
   tests: './src/CASC-Test/CASC-Test.csproj'
 
 pool:
-  vmImage: 'Ubuntu 16.04'
+  vmImage: 'windows-latest'
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration) $(sln)
@@ -19,11 +19,10 @@ steps:
   inputs:
     testResultsFormat: 'NUnit'
     testResultsFiles: '**/TestResults.xml'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+- script: |
+    dotnet publish src/CASC-Console/CASC-Console.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+
+    7z a -tzip "CASC-Console-$(Build.BuildId).zip" "./CASC-Console/*"
 
 - task: PublishPipelineArtifact@1
   inputs:
