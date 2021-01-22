@@ -6,10 +6,12 @@ namespace CASC.CodeParser
 {
     internal sealed class Evaluator
     {
+        private readonly BoundStatement _root;
         private readonly Dictionary<VariableSymbol, object> _variables;
-        private readonly BoundExpression _root;
 
-        public Evaluator(BoundExpression root, Dictionary<VariableSymbol, object> variables)
+        private object _lastValue;
+
+        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _root = root;
             _variables = variables;
@@ -17,7 +19,34 @@ namespace CASC.CodeParser
 
         public object Evaluate()
         {
-            return EvaluateExpression(_root);
+            EvaluateStatement(_root);
+            return _lastValue;
+        }
+
+        private void EvaluateStatement(BoundStatement statement)
+        {
+            switch (statement.Kind)
+            {
+                case BoundNodeKind.BlockStatement:
+                    EvaluateBlockStatement((BoundBlockStatement)statement);
+                    break;
+                case BoundNodeKind.ExpressionStatement:
+                    EvaluateExpressionStatement((BoundExpressionStatement)statement);
+                    break;
+                default:
+                    throw new Exception($"ERROR: Unexpected Node {statement.Kind}.");
+            };
+        }
+
+        private void EvaluateBlockStatement(BoundBlockStatement statements)
+        {
+            foreach (var statement in statements.Statements)
+                EvaluateStatement(statement);
+        }
+
+        private void EvaluateExpressionStatement(BoundExpressionStatement statement)
+        {
+            _lastValue = EvaluateExpression(statement.Expression);
         }
 
         private object EvaluateExpression(BoundExpression node)

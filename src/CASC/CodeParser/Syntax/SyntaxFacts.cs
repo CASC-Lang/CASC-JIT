@@ -105,6 +105,10 @@ namespace CASC.CodeParser.Syntax
                     return "(";
                 case SyntaxKind.CloseParenthesesToken:
                     return ")";
+                case SyntaxKind.OpenBraceToken:
+                    return "{";
+                case SyntaxKind.CloseBraceToken:
+                    return "}";
                 case SyntaxKind.FalseKeyword:
                     return "false";
                 case SyntaxKind.TrueKeyword:
@@ -139,9 +143,13 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.BangEqualsToken:
                     return "不是";
                 case SyntaxKind.OpenParenthesesToken:
-                    return "開";
+                    return "(";
                 case SyntaxKind.CloseParenthesesToken:
-                    return "閉";
+                    return ")";
+                case SyntaxKind.OpenBraceToken:
+                    return "{";
+                case SyntaxKind.CloseBraceToken:
+                    return "}";
                 case SyntaxKind.FalseKeyword:
                     return "假";
                 case SyntaxKind.TrueKeyword:

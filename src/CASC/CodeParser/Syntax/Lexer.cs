@@ -90,14 +90,20 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.SlashToken;
                     _position++;
                     break;
-                case '開':
                 case '(':
                     _kind = SyntaxKind.OpenParenthesesToken;
                     _position++;
                     break;
-                case '閉':
                 case ')':
                     _kind = SyntaxKind.CloseParenthesesToken;
+                    _position++;
+                    break;
+                case '{':
+                    _kind = SyntaxKind.OpenBraceToken;
+                    _position++;
+                    break;
+                case '}':
+                    _kind = SyntaxKind.CloseBraceToken;
                     _position++;
                     break;
                 case '且':

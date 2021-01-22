@@ -28,18 +28,12 @@ True
 | /         | 除                    | TODO                  |
 | *         | 乘                    | TODO                  |
 | .         | 點                    | TODO                  |
-| (         | 開                    | TODO                  | TF        |
-| )         | 閉                    | TODO                  | TF        |
+| (         |
+| )         |
 | &&        | 且                    | TODO                  |
 | \|\|      | 或                    | TODO                  |
 | !         | 反                    | TODO                  |
 | ==        | 是                    | TODO                  |
 | !=        | 不是                  | TODO                  |
-| ^2        | 平方                  | TODO                  | OUA / RF  |
-| 2√        | 平方根                | TODO                  | OUA / RF  |
-| ^^        | 次方                  | TODO                  | OUA / RF  |
-| √         | 開方                  | TODO                  | OUA / RF  |
 
-TF: Testing feature. 測試特性。  
 OUA: Operator Unacceptable. 不接受純運算子，即不接受第一欄位。
-RF: Removed feature. 移除特性。

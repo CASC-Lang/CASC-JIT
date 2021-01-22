@@ -8,6 +8,7 @@ namespace CASC_Test
     public class EvalTest
     {
         private Dictionary<VariableSymbol, object> variables;
+        Compilation previous = null;
 
         [SetUp]
         public void Setup()
@@ -18,7 +19,9 @@ namespace CASC_Test
         public EvaluationResult Evaluate(string input)
         {
             var syntaxTree = SyntaxTree.Parse(input);
-            var compilation = new Compilation(syntaxTree);
+            var compilation = previous == null
+                                ? new Compilation(syntaxTree)
+                                : previous.ContinueWith(syntaxTree);
             return compilation.Evaluate(variables);
         }
 
@@ -43,7 +46,7 @@ namespace CASC_Test
         [TestCase("二乘一", "2")]
         [TestCase("二除一", "2")]
         [TestCase("二加一乘三", "5")]
-        [TestCase("開二加一閉乘三", "9")]
+        [TestCase("(二加一)乘三", "9")]
         [TestCase("一是一", "True")]
         [TestCase("一是一點零", "True")]
         [TestCase("一是一加二", "False")]

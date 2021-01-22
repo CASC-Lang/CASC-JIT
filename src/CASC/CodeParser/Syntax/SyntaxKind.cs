@@ -11,6 +11,8 @@ namespace CASC.CodeParser.Syntax
         SlashToken,
         OpenParenthesesToken,
         CloseParenthesesToken,
+        OpenBraceToken,
+        CloseBraceToken,
         BangToken,
         AmpersandAmpersandToken,
         PipePipeToken,
@@ -27,6 +29,10 @@ namespace CASC.CodeParser.Syntax
 
         // Nodes
         CompilationUnit,
+
+        // Statements
+        BlockStatement,
+        ExpressionStatement,
 
         // Expressions
         LiteralExpression,
