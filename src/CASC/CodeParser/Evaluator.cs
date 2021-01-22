@@ -33,6 +33,9 @@ namespace CASC.CodeParser
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement((BoundExpressionStatement)statement);
                     break;
+                case BoundNodeKind.VariableDeclaration:
+                    EvaluateVariableDeclaration((BoundVariableDeclaration)statement);
+                    break;
                 default:
                     throw new Exception($"ERROR: Unexpected Node {statement.Kind}.");
             };
@@ -47,6 +50,13 @@ namespace CASC.CodeParser
         private void EvaluateExpressionStatement(BoundExpressionStatement statement)
         {
             _lastValue = EvaluateExpression(statement.Expression);
+        }
+
+        private void EvaluateVariableDeclaration(BoundVariableDeclaration statement)
+        {
+            var value = EvaluateExpression(statement.Initializer);
+            _variables[statement.Variable] = value;
+            _lastValue = value;
         }
 
         private object EvaluateExpression(BoundExpression node)

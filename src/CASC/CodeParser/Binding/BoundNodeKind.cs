@@ -5,6 +5,7 @@ namespace CASC.CodeParser.Binding
         // Statements
         BlockStatement,
         ExpressionStatement,
+        VariableDeclaration,
 
         // Expressions
         LiteralExpression,

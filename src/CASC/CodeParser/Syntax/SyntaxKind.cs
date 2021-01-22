@@ -26,6 +26,9 @@ namespace CASC.CodeParser.Syntax
         // Keywords
         TrueKeyword,
         FalseKeyword,
+        LetKeyword,
+        VarKeyword,
+        ValKeyword,
 
         // Nodes
         CompilationUnit,
@@ -33,6 +36,7 @@ namespace CASC.CodeParser.Syntax
         // Statements
         BlockStatement,
         ExpressionStatement,
+        VariableDeclaration,
 
         // Expressions
         LiteralExpression,

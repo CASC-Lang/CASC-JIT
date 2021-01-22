@@ -75,8 +75,22 @@ namespace CASC.CodeParser.Syntax
         {
             if (Current.Kind == SyntaxKind.OpenBraceToken)
                 return ParseBlockStatement();
+            else if (Current.Kind == SyntaxKind.LetKeyword ||
+                     Current.Kind == SyntaxKind.VarKeyword ||
+                     Current.Kind == SyntaxKind.ValKeyword)
+                return ParseVariableDeclaration();
+            else
+                return ParseExpressionStatement();
+        }
 
-            return ParseExpressionStatement();
+        private StatementSyntax ParseVariableDeclaration()
+        {
+            var expected = Current.Kind;
+            var keyword = MatchToken(expected);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equals = MatchToken(SyntaxKind.EqualsToken);
+            var initializer = ParseExpression();
+            return new VariableDeclarationStatementSyntax(keyword, identifier, equals, initializer);
         }
 
         private BlockStatementSyntax ParseBlockStatement()

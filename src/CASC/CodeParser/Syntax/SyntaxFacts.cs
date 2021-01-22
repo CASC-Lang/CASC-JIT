@@ -53,9 +53,25 @@ namespace CASC.CodeParser.Syntax
                 case "真":
                 case "true":
                     return SyntaxKind.TrueKeyword;
+
                 case "假":
                 case "false":
                     return SyntaxKind.FalseKeyword;
+
+                case "讓":
+                case "使":
+                case "let":
+                    return SyntaxKind.LetKeyword;
+
+                case "變數":
+                case "變值":
+                case "var":
+                    return SyntaxKind.VarKeyword;
+
+                case "終值":
+                case "val":
+                    return SyntaxKind.ValKeyword;
+
                 default:
                     return SyntaxKind.IdentifierToken;
             }
@@ -113,6 +129,12 @@ namespace CASC.CodeParser.Syntax
                     return "false";
                 case SyntaxKind.TrueKeyword:
                     return "true";
+                case SyntaxKind.LetKeyword:
+                    return "let";
+                case SyntaxKind.VarKeyword:
+                    return "var";
+                case SyntaxKind.ValKeyword:
+                    return "val";
                 default:
                     return null;
             }
@@ -123,9 +145,9 @@ namespace CASC.CodeParser.Syntax
             switch (kind)
             {
                 case SyntaxKind.PlusToken:
-                    return "加";
+                    return "加 (正)";
                 case SyntaxKind.MinusToken:
-                    return "減";
+                    return "減 (負)";
                 case SyntaxKind.StarToken:
                     return "乘";
                 case SyntaxKind.SlashToken:
@@ -154,6 +176,12 @@ namespace CASC.CodeParser.Syntax
                     return "假";
                 case SyntaxKind.TrueKeyword:
                     return "真";
+                case SyntaxKind.LetKeyword:
+                    return "讓 (使)";
+                case SyntaxKind.VarKeyword:
+                    return "變數 (變值)";
+                case SyntaxKind.ValKeyword:
+                    return "終值";
                 default:
                     return null;
             }

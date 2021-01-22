@@ -24,6 +24,7 @@ namespace CASC_Test.Tests
             Assert.AreEqual(text, token.Text);
         }
 
+        [Ignore("ZH Tokens may have several different keyword. TODO: Maybe accept more values.")]
         [Theory]
         [TestCaseSource(nameof(GetSyntaxKindData))]
         public void TokenTestZHI(SyntaxKind kind)

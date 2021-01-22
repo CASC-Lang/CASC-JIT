@@ -45,13 +45,13 @@ namespace CASC.CodeParser
 
         public void ReportUndefinedUnaryOperator(TextSpan span, string operatorText, Type type)
         {
-            var message = $"ERROR: Unary operator '{operatorText}' is not defined for type {type}.";
+            var message = $"ERROR: Unary operator '{operatorText}' is not defined for type '{type}'.";
             Report(span, message);
         }
 
         public void ReportUndefinedBinaryOperator(TextSpan span, string operatorText, Type leftType, Type rightType)
         {
-            var message = $"ERROR: Binary operator '{operatorText}' is not defined for types {leftType} and {rightType}.";
+            var message = $"ERROR: Binary operator '{operatorText}' is not defined for types '{leftType}' and '{rightType}'.";
             Report(span, message);
         }
 
@@ -64,6 +64,18 @@ namespace CASC.CodeParser
         public void ReportCannotConvert(TextSpan span, Type fromType, Type toType)
         {
             var message = $"ERROR: Cannot convert type '{fromType}' to '{toType}'.";
+            Report(span, message);
+        }
+
+        public void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        {
+            var message = $"ERROR: Variable '{name}' is already declared.";
+            Report(span, message);
+        }
+
+        public void ReportCannotAssign(TextSpan span, string name)
+        {
+            var message = $"ERROR: Variable '{name}' is finalized and cannot be assigned to.";
             Report(span, message);
         }
     }
