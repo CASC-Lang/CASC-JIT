@@ -1,0 +1,23 @@
+steps:
+- script: dotnet build --configuration $(buildConfiguration) $(sln)
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml"
+  displayName: 'dotnet test'
+- task: PublishTestResults@2
+  displayName: 'publish test results to azure pipelines'
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: '**/TestResults.xml'
+- task: DotNetCoreCLI@2
+  displayName: 'pack up'
+  inputs:
+    command: 'pack'
+    arguments: '--configuration $(buildConfiguration)'
+    packagesToPack: '**src/CASC-Console/CASC-Console.csproj'
+- task: NuGetAuthenticate@0
+  displayName: 'NuGet Authenticate'
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  inputs:
+    command: 'push'    
+    publishVstsFeed: 'CASC-Lang/CASC-Pack-Feed'

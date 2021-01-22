@@ -1,4 +1,5 @@
 .vscode/*
+.vs/*
 src/CASC/obj/*
 src/CASC/bin/*
 src/CASC-Console/obj/*

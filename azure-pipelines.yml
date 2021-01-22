@@ -1,21 +1,27 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu 16.04'
-
 variables:
   buildConfiguration: 'Release'
   sln: './src/casc.sln'
   tests: './src/CASC-Test/CASC-Test.csproj'
 
-steps:
-- script: dotnet build --configuration $(buildConfiguration) $(sln)
-  displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml"
-  displayName: 'dotnet test'
-- task: PublishTestResults@2
-  displayName: 'publish test results to azure pipelines'
-  inputs:
-    testResultsFormat: 'NUnit'
-    testResultsFiles: '**/TestResults.xml'
+jobs:
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+  - template: ./azure-release.yml
+
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - template: ./azure-release.yml
+
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: ./azure-release.yml
+  - script: sign
