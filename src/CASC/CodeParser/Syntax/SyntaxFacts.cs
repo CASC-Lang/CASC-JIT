@@ -140,50 +140,73 @@ namespace CASC.CodeParser.Syntax
             }
         }
 
-        public static string GetZHText(SyntaxKind kind)
+        public static IEnumerable<string> GetZHText(SyntaxKind kind)
         {
             switch (kind)
             {
                 case SyntaxKind.PlusToken:
-                    return "加";
+                    yield return "加";
+                    yield return "正";
+                    break;
                 case SyntaxKind.MinusToken:
-                    return "減";
+                    yield return "減";
+                    yield return "負";
+                    break;
                 case SyntaxKind.StarToken:
-                    return "乘";
+                    yield return "乘";
+                    break;
                 case SyntaxKind.SlashToken:
-                    return "除";
+                    yield return "除";
+                    break;
                 case SyntaxKind.BangToken:
-                    return "反";
+                    yield return "反";
+                    break;
                 case SyntaxKind.EqualsToken:
-                    return "賦";
+                    yield return "賦";
+                    break;
                 case SyntaxKind.AmpersandAmpersandToken:
-                    return "且";
+                    yield return "且";
+                    break;
                 case SyntaxKind.PipePipeToken:
-                    return "或";
+                    yield return "或";
+                    break;
                 case SyntaxKind.EqualsEqualsToken:
-                    return "是";
+                    yield return "是";
+                    break;
                 case SyntaxKind.BangEqualsToken:
-                    return "不是";
+                    yield return "不是";
+                    break;
                 case SyntaxKind.OpenParenthesesToken:
-                    return "(";
+                    yield return "(";
+                    break;
                 case SyntaxKind.CloseParenthesesToken:
-                    return ")";
+                    yield return ")";
+                    break;
                 case SyntaxKind.OpenBraceToken:
-                    return "{";
+                    yield return "{";
+                    break;
                 case SyntaxKind.CloseBraceToken:
-                    return "}";
+                    yield return "}";
+                    break;
                 case SyntaxKind.FalseKeyword:
-                    return "假";
+                    yield return "假";
+                    break;
                 case SyntaxKind.TrueKeyword:
-                    return "真";
+                    yield return "真";
+                    break;
                 case SyntaxKind.LetKeyword:
-                    return "讓";
+                    yield return "讓";
+                    yield return "使";
+                    break;
                 case SyntaxKind.VarKeyword:
-                    return "變數";
+                    yield return "變數";
+                    yield return "變值";
+                    break;
                 case SyntaxKind.ValKeyword:
-                    return "終值";
+                    yield return "終值";
+                    break;
                 default:
-                    return null;
+                    yield break;
             }
         }
     }
