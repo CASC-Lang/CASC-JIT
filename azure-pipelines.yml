@@ -6,22 +6,26 @@ variables:
   sln: './src/casc.sln'
   tests: './src/CASC-Test/CASC-Test.csproj'
 
-jobs:
-- job: macOS
-  pool:
-    vmImage: 'macOS-10.14'
-  steps:
-  - template: ./azure-release.yml
+pool:
+  vmImage: 'Ubuntu 16.04'
 
-- job: Linux
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - template: ./azure-release.yml
+steps:
+- script: dotnet build --configuration $(buildConfiguration) $(sln)
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml"
+  displayName: 'dotnet test'
+- task: PublishTestResults@2
+  displayName: 'publish test results to azure pipelines'
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: '**/TestResults.xml'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
-- job: Windows
-  pool:
-    vmImage: 'vs2017-win2016'
-  steps:
-  - template: ./azure-release.yml
-  - script: sign
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    publishLocation: 'pipeline'
