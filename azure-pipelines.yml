@@ -20,11 +20,11 @@ steps:
     testResultsFormat: 'NUnit'
     testResultsFiles: '**/TestResults.xml'
 - script: |
-    dotnet publish src/CASC-Console/CASC-Console.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+    dotnet publish src/CASC-Console/CASC-Console.csproj --configuration $(buildConfiguration) -c Release --output "CASC"
 
-    7z a -tzip "CASC-Console-$(Build.BuildId).zip" "./$(Build.ArtifactStagingDirectory)/*"
+    7z a -tzip "CASC-Console-$(Build.BuildId).zip" "./CASC/*"
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
+    targetPath: 'CASC-Console-$(Build.BuildId).zip'
     publishLocation: 'pipeline'
