@@ -1,5 +1,7 @@
 # CASC  
 > A compiler aim for Manderins progremmers  
+![Unit Test](https://github.com/CASC-Lang/CASC/workflows/Unit%20Test/badge.svg?branch=master)
+![Publish](https://github.com/CASC-Lang/CASC/workflows/Publish/badge.svg?branch=v0.0.1&event=release)
 
 CASC is a handwritten compiler which can compile English or Manderin or even mixed codes!  
 Currently it's under developement by ChAoS_UnItY.  

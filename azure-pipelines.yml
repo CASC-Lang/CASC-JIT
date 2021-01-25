@@ -1,13 +1,13 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu 16.04'
-
 variables:
   buildConfiguration: 'Release'
   sln: './src/casc.sln'
   tests: './src/CASC-Test/CASC-Test.csproj'
+
+pool:
+  vmImage: 'windows-latest'
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration) $(sln)
@@ -19,3 +19,13 @@ steps:
   inputs:
     testResultsFormat: 'NUnit'
     testResultsFiles: '**/TestResults.xml'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: False
+    arguments: 'src/CASC-Console/CASC-Console.csproj --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'CASC-Release'
