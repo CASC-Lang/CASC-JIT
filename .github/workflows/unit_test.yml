@@ -1,6 +1,10 @@
 name: Unit Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   release:
@@ -45,7 +49,7 @@ jobs:
       run: |
         dotnet build src
 
-        dotnet test src/CASC-Test/CASC-Test.csproj --no-build --configuration "Release" --logger:"liquid.md;LogFileName=${{github.workspace}}/${{env.file_name}};Title=${{env.title}};"
+        dotnet test src/CASC-Test/CASC-Test.csproj --logger:"liquid.md;LogFileName=${{github.workspace}}/${{env.file_name}};Title=${{env.title}};"
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       if: ${{always()}}
