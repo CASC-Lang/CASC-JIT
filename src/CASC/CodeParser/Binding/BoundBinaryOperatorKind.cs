@@ -9,6 +9,10 @@ namespace CASC.CodeParser.Binding
         LogicalAND,
         LogicalOR,
         Equals,
-        NotEquals
+        NotEquals,
+        Greater,
+        GreaterEquals,
+        Less,
+        LessEquals
     }
 }

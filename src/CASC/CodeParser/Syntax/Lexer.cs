@@ -15,8 +15,6 @@ namespace CASC.CodeParser.Syntax
             '乘', // Multiply           乘
             '除', // Divide             除
             '點', // Point              點
-            '開', // OpenParenthesis    開
-            '閉', // CloseParenthesis   閉
             '正', // Idnetity           正
             '負', // Negation           負
             '且', // Logical AND        且
@@ -45,6 +43,7 @@ namespace CASC.CodeParser.Syntax
 
         private char Current => Peek(0);
         private char LookAhead => Peek(1);
+        private char LookTwiceAhead => Peek(2);
 
         private char Peek(int offset)
         {
@@ -166,14 +165,92 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.EqualsToken;
                     _position++;
                     break;
+                case '大':
+                    _position++;
+                    if (Current == '等' && LookAhead == '於')
+                    {
+                        _kind = SyntaxKind.GreaterEqualsToken;
+                        _position += 2;
+                    }
+                    else if (Current == '於')
+                    {
+                        _kind = SyntaxKind.GreaterToken;
+                        _position++;
+                    }
+                    break;
+                case '小':
+                    _position++;
+                    if (Current == '等' && LookAhead == '於')
+                    {
+                        _kind = SyntaxKind.LessEqualsToken;
+                        _position += 2;
+                    }
+                    else if (Current == '於')
+                    {
+                        _kind = SyntaxKind.LessToken;
+                        _position++;
+                    }
+                    break;
+                case '>':
+                    _position++;
+                    if (Current != '=')
+                    {
+                        _kind = SyntaxKind.GreaterToken;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.GreaterEqualsToken;
+                        _position++;
+                    }
+                    break;
+                case '<':
+                    _position++;
+                    if (Current != '=')
+                    {
+                        _kind = SyntaxKind.LessToken;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.LessEqualsToken;
+                        _position++;
+                    }
+                    break;
 
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                case '零': case '一': case '二': case '三': case '四':
-                case '五': case '六': case '七': case '八': case '九':
-                case '壹': case '貳': case '參': case '肆': case '伍':
-                case '陆': case '柒': case '捌': case '玖': case '拾':
-                case '十': case '百': case '千': case '萬': case '億':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case '零':
+                case '一':
+                case '二':
+                case '三':
+                case '四':
+                case '五':
+                case '六':
+                case '七':
+                case '八':
+                case '九':
+                case '壹':
+                case '貳':
+                case '參':
+                case '肆':
+                case '伍':
+                case '陆':
+                case '柒':
+                case '捌':
+                case '玖':
+                case '拾':
+                case '十':
+                case '百':
+                case '千':
+                case '萬':
+                case '億':
                     ReadNumberToken();
                     break;
 
@@ -183,7 +260,7 @@ namespace CASC.CodeParser.Syntax
                 case '\r':
                     ReadWhiteSpaceToken();
                     break;
-                    
+
                 default:
                     if (char.IsLetter(Current))
                         ReadIdentifierOrKeyword();

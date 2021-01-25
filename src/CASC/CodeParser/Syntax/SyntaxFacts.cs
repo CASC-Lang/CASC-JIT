@@ -33,6 +33,10 @@ namespace CASC.CodeParser.Syntax
 
                 case SyntaxKind.EqualsEqualsToken:
                 case SyntaxKind.BangEqualsToken:
+                case SyntaxKind.GreaterEqualsToken:
+                case SyntaxKind.GreaterToken:
+                case SyntaxKind.LessEqualsToken:
+                case SyntaxKind.LessToken:
                     return 3;
 
                 case SyntaxKind.AmpersandAmpersandToken:
@@ -109,6 +113,14 @@ namespace CASC.CodeParser.Syntax
                     return "!";
                 case SyntaxKind.EqualsToken:
                     return "=";
+                case SyntaxKind.GreaterEqualsToken:
+                    return ">=";
+                case SyntaxKind.GreaterToken:
+                    return ">";
+                case SyntaxKind.LessEqualsToken:
+                    return "<=";
+                case SyntaxKind.LessToken:
+                    return "<";
                 case SyntaxKind.AmpersandAmpersandToken:
                     return "&&";
                 case SyntaxKind.PipePipeToken:
@@ -163,6 +175,18 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.EqualsToken:
                     yield return "賦";
+                    break;
+                case SyntaxKind.GreaterEqualsToken:
+                    yield return "大等於";
+                    break;
+                case SyntaxKind.GreaterToken:
+                    yield return "大於";
+                    break;
+                case SyntaxKind.LessEqualsToken:
+                    yield return "小等於";
+                    break;
+                case SyntaxKind.LessToken:
+                    yield return "小於";
                     break;
                 case SyntaxKind.AmpersandAmpersandToken:
                     yield return "且";

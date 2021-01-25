@@ -96,9 +96,9 @@ namespace CASC.CodeParser
             switch (u.Op.Kind)
             {
                 case BoundUnaryOperatorKind.Identity:
-                    return ToDemical(operand);
+                    return (decimal)operand;
                 case BoundUnaryOperatorKind.Negation:
-                    return -ToDemical(operand);
+                    return -(decimal)operand;
                 case BoundUnaryOperatorKind.LogicalNegation:
                     return !(bool)operand;
                 default:
@@ -114,26 +114,32 @@ namespace CASC.CodeParser
             switch (b.Op.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return ToDemical(left) + ToDemical(right);
+                    return (decimal)left + (decimal)right;
                 case BoundBinaryOperatorKind.Subtraction:
-                    return ToDemical(left) - ToDemical(right);
+                    return (decimal)left - (decimal)right;
                 case BoundBinaryOperatorKind.Multiplication:
-                    return ToDemical(left) * ToDemical(right);
+                    return (decimal)left * (decimal)right;
                 case BoundBinaryOperatorKind.Division:
-                    return ToDemical(left) / ToDemical(right);
+                    return (decimal)left / (decimal)right;
                 case BoundBinaryOperatorKind.LogicalAND:
                     return (bool)left && (bool)right;
                 case BoundBinaryOperatorKind.LogicalOR:
                     return (bool)left || (bool)right;
                 case BoundBinaryOperatorKind.Equals:
                     return Equals(left, right);
+                case BoundBinaryOperatorKind.GreaterEquals:
+                    return (decimal)left >= (decimal)right;
+                case BoundBinaryOperatorKind.Greater:
+                    return (decimal)left > (decimal)right;
+                case BoundBinaryOperatorKind.LessEquals:
+                    return (decimal)left <= (decimal)right;
+                case BoundBinaryOperatorKind.Less:
+                    return (decimal)left < (decimal)right;
                 case BoundBinaryOperatorKind.NotEquals:
                     return !Equals(left, right);
                 default:
                     throw new Exception($"ERROR: Unexpected Binary Operator {b.Op}.");
             }
         }
-
-        private decimal ToDemical(object value) => Convert.ToDecimal(value);
     }
 }

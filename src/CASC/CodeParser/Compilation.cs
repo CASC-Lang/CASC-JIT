@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using CASC.CodeParser.Syntax;
 using CASC.CodeParser.Binding;
 using System.Linq;
-using System;
 using System.Collections.Immutable;
 using System.Threading;
 
@@ -15,7 +14,6 @@ namespace CASC.CodeParser
         public Compilation(SyntaxTree syntaxTree)
             : this(null, syntaxTree)
         {
-            SyntaxTree = syntaxTree;
         }
 
         private Compilation(Compilation previous, SyntaxTree syntaxTree)
@@ -35,7 +33,7 @@ namespace CASC.CodeParser
                 {
                     var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTree.Root);
                     Interlocked.CompareExchange(ref _globalScope, globalScope, null);
-                }    
+                }
 
                 return _globalScope;
             }
