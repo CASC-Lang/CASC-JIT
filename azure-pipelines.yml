@@ -10,9 +10,16 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration) $(sln)
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+    feedsToUse: config
+    nugetConfigPath: 'nuget.config'
+- script: dotnet build --configuration $(buildConfiguration) $(sln) --no-restore
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml"
+- script: dotnet test $(tests) --test-adapter-path:. --logger:"nunit;LogFileName=TestResults.xml --no-restore"
   displayName: 'dotnet test'
 - task: PublishTestResults@2
   displayName: 'publish test results to azure pipelines'

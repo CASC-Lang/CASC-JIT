@@ -35,6 +35,7 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       uses: kkak10/pr-number-action@v1.3
     - name: Set Test Title
+      shell: bash
       run: | 
         if (${{ github.event_name == 'pull_request' }})
         then
