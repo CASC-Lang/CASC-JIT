@@ -54,6 +54,51 @@ namespace CASC.CodeParser.Syntax
         {
             switch (text)
             {
+                case "正":
+                case "加":
+                    return SyntaxKind.PlusToken;
+
+                case "負":
+                case "減":
+                    return SyntaxKind.MinusToken;
+
+                case "乘":
+                    return SyntaxKind.StarToken;
+
+                case "除":
+                    return SyntaxKind.SlashToken;
+
+                case "且":
+                    return SyntaxKind.AmpersandAmpersandToken;
+
+                case "或":
+                    return SyntaxKind.PipePipeToken;
+
+                case "反":
+                    return SyntaxKind.BangToken;
+
+                case "是":
+                    return SyntaxKind.EqualsEqualsToken;
+
+                case "不是":
+                    return SyntaxKind.BangEqualsToken;
+
+                case "為":
+                case "賦":
+                    return SyntaxKind.EqualsToken;
+
+                case "大等於":
+                    return SyntaxKind.GreaterEqualsToken;
+                
+                case "大於":
+                    return SyntaxKind.GreaterToken;
+
+                case "小等於":
+                    return SyntaxKind.LessEqualsToken;
+
+                case "小於":
+                    return SyntaxKind.LessToken;
+
                 case "真":
                 case "true":
                     return SyntaxKind.TrueKeyword;

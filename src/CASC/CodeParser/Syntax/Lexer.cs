@@ -1,27 +1,10 @@
 using CASC.CodeParser.Utilities;
-using System.Collections.Generic;
 using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Syntax
 {
     internal sealed class Lexer
     {
-        private static readonly List<char> _exceptionChineseChar = new List<char> {
-            // Common Operators
-            '加', // Add                加
-            '減', // Minus              減
-            '乘', // Multiply           乘
-            '除', // Divide             除
-            '點', // Point              點
-            '正', // Idnetity           正
-            '負', // Negation           負
-            '且', // Logical AND        且
-            '或', // Logical OR         或
-            '反', // Logical Negation   反
-            '是', // Eqauls             是
-            '不', // Not Equals         不是
-            '賦'  // Assign             賦
-        };
 
         private readonly SourceText _text;
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
@@ -41,7 +24,6 @@ namespace CASC.CodeParser.Syntax
 
         private char Current => Peek(0);
         private char LookAhead => Peek(1);
-        private char LookTwiceAhead => Peek(2);
 
         private char Peek(int offset)
         {
@@ -65,48 +47,46 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.EndOfFileToken;
                     break;
 
-                case '加':
-                case '正':
                 case '+':
                     _kind = SyntaxKind.PlusToken;
                     _position++;
                     break;
-                case '減':
-                case '負':
+
                 case '-':
                     _kind = SyntaxKind.MinusToken;
                     _position++;
                     break;
-                case '乘':
+
                 case '*':
                     _kind = SyntaxKind.StarToken;
                     _position++;
                     break;
-                case '除':
+
                 case '/':
                     _kind = SyntaxKind.SlashToken;
                     _position++;
                     break;
+
                 case '(':
                     _kind = SyntaxKind.OpenParenthesesToken;
                     _position++;
                     break;
+
                 case ')':
                     _kind = SyntaxKind.CloseParenthesesToken;
                     _position++;
                     break;
+
                 case '{':
                     _kind = SyntaxKind.OpenBraceToken;
                     _position++;
                     break;
+
                 case '}':
                     _kind = SyntaxKind.CloseBraceToken;
                     _position++;
                     break;
-                case '且':
-                    _kind = SyntaxKind.AmpersandAmpersandToken;
-                    _position++;
-                    break;
+
                 case '&':
                     if (LookAhead == '&')
                     {
@@ -115,10 +95,7 @@ namespace CASC.CodeParser.Syntax
                         break;
                     }
                     break;
-                case '或':
-                    _kind = SyntaxKind.PipePipeToken;
-                    _position++;
-                    break;
+
                 case '|':
                     if (LookAhead == '|')
                     {
@@ -127,10 +104,7 @@ namespace CASC.CodeParser.Syntax
                         break;
                     }
                     break;
-                case '反':
-                    _kind = SyntaxKind.BangToken;
-                    _position++;
-                    break;
+
                 case '!':
                     if (LookAhead == '=')
                     {
@@ -141,54 +115,17 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.BangToken;
                     _position++;
                     break;
-                case '不':
-                    if (LookAhead == '是')
-                    {
-                        _kind = SyntaxKind.BangEqualsToken;
-                        _position += 2;
-                        break;
-                    }
-                    break;
-                case '是':
-                    _kind = SyntaxKind.EqualsEqualsToken;
-                    _position++;
-                    break;
+
                 case '=':
                     if (LookAhead != '=')
-                        goto case '賦';
+                    {
+                        _kind = SyntaxKind.EqualsToken;
+                        _position++;
+                    }
                     _kind = SyntaxKind.EqualsEqualsToken;
                     _position += 2;
                     break;
-                case '賦':
-                    _kind = SyntaxKind.EqualsToken;
-                    _position++;
-                    break;
-                case '大':
-                    _position++;
-                    if (Current == '等' && LookAhead == '於')
-                    {
-                        _kind = SyntaxKind.GreaterEqualsToken;
-                        _position += 2;
-                    }
-                    else if (Current == '於')
-                    {
-                        _kind = SyntaxKind.GreaterToken;
-                        _position++;
-                    }
-                    break;
-                case '小':
-                    _position++;
-                    if (Current == '等' && LookAhead == '於')
-                    {
-                        _kind = SyntaxKind.LessEqualsToken;
-                        _position += 2;
-                    }
-                    else if (Current == '於')
-                    {
-                        _kind = SyntaxKind.LessToken;
-                        _position++;
-                    }
-                    break;
+
                 case '>':
                     _position++;
                     if (Current != '=')

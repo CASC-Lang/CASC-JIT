@@ -43,14 +43,14 @@ namespace CASC_Test.Tests
         public void Lexer_Lexes_TokenPairs(SyntaxKind t1Kind, string t1Text,
                                            SyntaxKind t2Kind, string t2Text)
         {
-            var text = t1Text + t2Text;
+            var text = $"{t1Text} {t2Text}";
             var tokens = SyntaxTree.ParseTokens(text).ToArray();
 
-            Assert.AreEqual(2, tokens.Length);
+            Assert.AreEqual(3, tokens.Length);
             Assert.AreEqual(tokens[0].Kind, t1Kind);
             Assert.AreEqual(tokens[0].Text, t1Text);
-            Assert.AreEqual(tokens[1].Kind, t2Kind);
-            Assert.AreEqual(tokens[1].Text, t2Text);
+            Assert.AreEqual(tokens[2].Kind, t2Kind);
+            Assert.AreEqual(tokens[2].Text, t2Text);
         }
 
         [Theory]
@@ -59,16 +59,16 @@ namespace CASC_Test.Tests
                                                           SyntaxKind separatorKind, string separatorText,
                                                           SyntaxKind t2Kind, string t2Text)
         {
-            var text = t1Text + separatorText + t2Text;
+            var text = $"{t1Text} {separatorText} {t2Text}";
             var tokens = SyntaxTree.ParseTokens(text).ToArray();
 
-            Assert.AreEqual(3, tokens.Length);
+            Assert.AreEqual(4, tokens.Length);
             Assert.AreEqual(tokens[0].Kind, t1Kind);
             Assert.AreEqual(tokens[0].Text, t1Text);
-            Assert.AreEqual(tokens[1].Kind, separatorKind);
-            Assert.AreEqual(tokens[1].Text, separatorText);
-            Assert.AreEqual(tokens[2].Kind, t2Kind);
-            Assert.AreEqual(tokens[2].Text, t2Text);
+            Assert.AreEqual(tokens[2].Kind, separatorKind);
+            Assert.AreEqual(tokens[2].Text, separatorText);
+            Assert.AreEqual(tokens[4].Kind, t2Kind);
+            Assert.AreEqual(tokens[4].Text, t2Text);
         }
 
         public static IEnumerable<object[]> GetTokensData()

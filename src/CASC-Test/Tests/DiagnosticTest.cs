@@ -221,7 +221,7 @@ namespace CASC_Test.Tests
         [Test]
         public void Evaluator_Unary_Reports_Undefined()
         {
-            var text = @"[正]真";
+            var text = @"[正] 真";
 
             var diagnostics = @"
                 ERROR: Unary operator '+' is not defined for type 'System.Boolean'.
