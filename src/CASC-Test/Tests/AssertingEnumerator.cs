@@ -50,7 +50,7 @@ namespace CASC_Test.Tests
             try
             {
                 Assert.True(_enumerator.MoveNext());
-                Assert.AreEqual(kind,_enumerator.Current.Kind);
+                Assert.AreEqual(kind, _enumerator.Current.Kind);
                 Assert.IsNotInstanceOf<SyntaxToken>(_enumerator.Current);
             }
             catch when (MarkFailed())
@@ -64,7 +64,7 @@ namespace CASC_Test.Tests
             try
             {
                 Assert.True(_enumerator.MoveNext());
-                Assert.AreEqual(kind,_enumerator.Current.Kind);
+                Assert.AreEqual(kind, _enumerator.Current.Kind);
                 Assert.IsInstanceOf<SyntaxToken>(_enumerator.Current);
                 var token = _enumerator.Current as SyntaxToken;
                 Assert.AreEqual(text, token.Text);
