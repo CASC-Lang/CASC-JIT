@@ -29,7 +29,6 @@ True
 | -         | 減 / 負               | TODO                  |
 | /         | 除                    | TODO                  |
 | *         | 乘                    | TODO                  |
-| .         | 點                    | TODO                  |
 | (         |
 | )         |
 | &&        | 且                    | TODO                  |
@@ -37,5 +36,22 @@ True
 | !         | 反                    | TODO                  |
 | ==        | 是                    | TODO                  |
 | !=        | 不是                  | TODO                  |
-
-OUA: Operator Unacceptable. 不接受純運算子，即不接受第一欄位。
+| =         | 賦                    | TODO                  |
+| >         | 大於                  | TODO                  |
+| >=        | 大等於                | TODO                  |
+| <         | 小於                  | TODO                  |
+| <=        | 小等於                | TODO                  |
+-------
+### Keyword 關鍵字
+| Keyword   | Traditional Chinese   | Simplified Chinese    | Note      |
+|----------:|----------------------:|----------------------:|----------:|
+| true      | 真                    | TODO                  |
+| false     | 假                    | TODO                  |
+| let       | 讓                    | TODO                  |
+| var       | 變數 / 變值           | TODO                  |
+| val       | 終值                  | TODO                  |
+| if        | 如果 / 若             | TODO                  |
+| else      | 否則                  | TODO                  |
+| while     | 當                    | TODO                  |
+| for...to  | 從...到               | TODO                  |
+------
