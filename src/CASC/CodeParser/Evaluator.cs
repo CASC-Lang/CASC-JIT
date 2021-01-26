@@ -6,12 +6,12 @@ namespace CASC.CodeParser
 {
     internal sealed class Evaluator
     {
-        private readonly BoundStatement _root;
+        private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _variables;
 
         private object _lastValue;
 
-        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _root = root;
             _variables = variables;
@@ -19,47 +19,53 @@ namespace CASC.CodeParser
 
         public object Evaluate()
         {
-            EvaluateStatement(_root);
-            return _lastValue;
-        }
+            var labelToIndex = new Dictionary<LabelSymbol, int>();
 
-        private void EvaluateStatement(BoundStatement statement)
-        {
-            switch (statement.Kind)
+            for (var i = 0; i < _root.Statements.Length; i++)
             {
-                case BoundNodeKind.BlockStatement:
-                    EvaluateBlockStatement((BoundBlockStatement)statement);
-                    break;
+                if (_root.Statements[i] is BoundLabelStatement l)
+                    labelToIndex.Add(l.Label, i + 1);
+            }
 
-                case BoundNodeKind.ExpressionStatement:
-                    EvaluateExpressionStatement((BoundExpressionStatement)statement);
-                    break;
+            var index = 0;
 
-                case BoundNodeKind.VariableDeclaration:
-                    EvaluateVariableDeclaration((BoundVariableDeclaration)statement);
-                    break;
+            while (index < _root.Statements.Length)
+            {
+                var s = _root.Statements[index];
 
-                case BoundNodeKind.IfStatement:
-                    EvaluateIfStatement((BoundIfStatement)statement);
-                    break;
+                switch (s.Kind)
+                {
+                    case BoundNodeKind.VariableDeclaration:
+                        EvaluateVariableDeclaration((BoundVariableDeclaration)s);
+                        index++;
+                        break;
+                    case BoundNodeKind.ExpressionStatement:
+                        EvaluateExpressionStatement((BoundExpressionStatement)s);
+                        index++;
+                        break;
+                    case BoundNodeKind.GotoStatement:
+                        var gs = (BoundGotoStatement)s;
+                        index = labelToIndex[gs.Label];
+                        break;
+                    case BoundNodeKind.ConditionalGotoStatement:
+                        var cgs = (BoundConditionalGotoStatement)s;
+                        var condition = (bool)EvaluateExpression(cgs.Condition);
+                        if (condition && !cgs.JumpIfFalse ||
+                            !condition && cgs.JumpIfFalse)
+                            index = labelToIndex[cgs.Label];
+                        else
+                            index++;
+                        break;
+                    case BoundNodeKind.LabelStatement:
+                        index++;
+                        break;
+                    default:
+                        throw new Exception($"Unexpected node {s.Kind}");
+                }
 
-                case BoundNodeKind.WhileStatement:
-                    EvaluateWhileStatement((BoundWhileStatement)statement);
-                    break;
+            }
 
-                case BoundNodeKind.ForStatement:
-                    EvaluateForStatement((BoundForStatement)statement);
-                    break;
-
-                default:
-                    throw new Exception($"ERROR: Unexpected Node {statement.Kind}.");
-            };
-        }
-
-        private void EvaluateBlockStatement(BoundBlockStatement statements)
-        {
-            foreach (var statement in statements.Statements)
-                EvaluateStatement(statement);
+            return _lastValue;
         }
 
         private void EvaluateExpressionStatement(BoundExpressionStatement statement)
@@ -72,34 +78,6 @@ namespace CASC.CodeParser
             var value = EvaluateExpression(statement.Initializer);
             _variables[statement.Variable] = value;
             _lastValue = value;
-        }
-
-        private void EvaluateIfStatement(BoundIfStatement statement)
-        {
-            var condition = (bool)EvaluateExpression(statement.Condition);
-
-            if (condition)
-                EvaluateStatement(statement.ThenStatement);
-            else if (statement.ElseStatement != null)
-                EvaluateStatement(statement.ElseStatement);
-        }
-
-        private void EvaluateWhileStatement(BoundWhileStatement statement)
-        {
-            while ((bool)EvaluateExpression(statement.Condition))
-                EvaluateStatement(statement.Body);
-        }
-
-        private void EvaluateForStatement(BoundForStatement statement)
-        {
-            var lowerBound = (decimal)EvaluateExpression(statement.LowerBound);
-            var upperBound = (decimal)EvaluateExpression(statement.UpperBound);
-
-            for (var i = lowerBound; i <= upperBound; i++)
-            {
-                _variables[statement.Variable] = i;
-                EvaluateStatement(statement.Body);
-            }
         }
 
         private object EvaluateExpression(BoundExpression node)

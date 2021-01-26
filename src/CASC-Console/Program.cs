@@ -68,16 +68,15 @@ namespace CASC
                 var compilation = previous == null
                                     ? new Compilation(syntaxTree)
                                     : previous.ContinueWith(syntaxTree);
-                var result = compilation.Evaluate(variables);
-
-                var diagnostics = result.Diagnostics;
 
                 if (showParseTree)
                     syntaxTree.Root.WriteTo(Console.Out);
                 if (showProgram)
                     compilation.EmitTree(Console.Out);
 
-                if (!diagnostics.Any())
+                var result = compilation.Evaluate(variables);
+
+                if (!result.Diagnostics.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine(result.Value);

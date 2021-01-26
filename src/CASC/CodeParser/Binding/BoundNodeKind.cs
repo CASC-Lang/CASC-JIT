@@ -9,6 +9,9 @@ namespace CASC.CodeParser.Binding
         IfStatement,
         WhileStatement,
         ForStatement,
+        ConditionalGotoStatement,
+        GotoStatement,
+        LabelStatement,
 
         // Expressions
         LiteralExpression,
