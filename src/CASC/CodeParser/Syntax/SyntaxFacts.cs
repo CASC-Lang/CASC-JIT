@@ -85,6 +85,18 @@ namespace CASC.CodeParser.Syntax
                 case "else":
                     return SyntaxKind.ElseKeyword;
 
+                case "當":
+                case "while":
+                    return SyntaxKind.WhileKeyword;
+
+                case "從":
+                case "for":
+                    return SyntaxKind.ForKeyword;
+
+                case "到":
+                case "to":
+                    return SyntaxKind.ToKeyword;
+
                 default:
                     return SyntaxKind.IdentifierToken;
             }
@@ -93,6 +105,7 @@ namespace CASC.CodeParser.Syntax
         public static IEnumerable<SyntaxKind> GetUnaryOperatorKinds()
         {
             var kinds = (SyntaxKind[])Enum.GetValues(typeof(SyntaxKind));
+
             foreach (var kind in kinds)
                 if (GetUnaryOperatorPrecedence(kind) > 0)
                     yield return kind;
@@ -101,6 +114,7 @@ namespace CASC.CodeParser.Syntax
         public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds()
         {
             var kinds = (SyntaxKind[])Enum.GetValues(typeof(SyntaxKind));
+
             foreach (var kind in kinds)
                 if (GetBinaryOperatorPrecedence(kind) > 0)
                     yield return kind;
@@ -160,6 +174,12 @@ namespace CASC.CodeParser.Syntax
                     return "if";
                 case SyntaxKind.ElseKeyword:
                     return "else";
+                case SyntaxKind.WhileKeyword:
+                    return "while";
+                case SyntaxKind.ForKeyword:
+                    return "for";
+                case SyntaxKind.ToKeyword:
+                    return "to";
                 default:
                     return null;
             }
@@ -248,6 +268,15 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.ElseKeyword:
                     yield return "否則";
+                    break;
+                case SyntaxKind.WhileKeyword:
+                    yield return "當";
+                    break;
+                case SyntaxKind.ForKeyword:
+                    yield return "從";
+                    break;
+                case SyntaxKind.ToKeyword:
+                    yield return "到";
                     break;
                 default:
                     yield break;

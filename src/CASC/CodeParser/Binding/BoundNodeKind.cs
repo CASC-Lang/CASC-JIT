@@ -7,6 +7,8 @@ namespace CASC.CodeParser.Binding
         ExpressionStatement,
         VariableDeclaration,
         IfStatement,
+        WhileStatement,
+        ForStatement,
 
         // Expressions
         LiteralExpression,

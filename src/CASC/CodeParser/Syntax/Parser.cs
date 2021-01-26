@@ -88,6 +88,12 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.IfKeyword:
                     return ParseIfStatement();
 
+                case SyntaxKind.WhileKeyword:
+                    return ParseWhileStatement();
+
+                case SyntaxKind.ForKeyword:
+                    return ParseForStatement();
+
                 default:
                     return ParseExpressionStatement();
             }
@@ -102,8 +108,13 @@ namespace CASC.CodeParser.Syntax
             while (Current.Kind != SyntaxKind.EndOfFileToken &&
                    Current.Kind != SyntaxKind.CloseBraceToken)
             {
+                var startToken = Current;
+
                 var statement = ParseStatement();
                 statements.Add(statement);
+
+                if (startToken == Current)
+                    NextToken();
             }
 
             var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
@@ -131,6 +142,28 @@ namespace CASC.CodeParser.Syntax
             var elseClause = ParseOptionalElseClause();
 
             return new IfStatementSyntax(keyword, condition, statement, elseClause);
+        }
+
+        private StatementSyntax ParseWhileStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.WhileKeyword);
+            var condition = ParseExpression();
+            var body = ParseStatement();
+
+            return new WhileStatementSyntax(keyword, condition, body);
+        }
+
+        private StatementSyntax ParseForStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.ForKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equalsToken = MatchToken(SyntaxKind.EqualsToken);
+            var lowerBound = ParseExpression();
+            var toKeyword = MatchToken(SyntaxKind.ToKeyword);
+            var upperBound = ParseExpression();
+            var body = ParseStatement();
+
+            return new ForStatementSyntax(keyword, identifier, equalsToken, lowerBound, toKeyword, upperBound, body);
         }
 
         private ElseClauseSyntax ParseOptionalElseClause()

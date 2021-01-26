@@ -43,6 +43,14 @@ namespace CASC.CodeParser
                     EvaluateIfStatement((BoundIfStatement)statement);
                     break;
 
+                case BoundNodeKind.WhileStatement:
+                    EvaluateWhileStatement((BoundWhileStatement)statement);
+                    break;
+
+                case BoundNodeKind.ForStatement:
+                    EvaluateForStatement((BoundForStatement)statement);
+                    break;
+
                 default:
                     throw new Exception($"ERROR: Unexpected Node {statement.Kind}.");
             };
@@ -69,11 +77,29 @@ namespace CASC.CodeParser
         private void EvaluateIfStatement(BoundIfStatement statement)
         {
             var condition = (bool)EvaluateExpression(statement.Condition);
-            
+
             if (condition)
                 EvaluateStatement(statement.ThenStatement);
             else if (statement.ElseStatement != null)
                 EvaluateStatement(statement.ElseStatement);
+        }
+
+        private void EvaluateWhileStatement(BoundWhileStatement statement)
+        {
+            while ((bool)EvaluateExpression(statement.Condition))
+                EvaluateStatement(statement.Body);
+        }
+
+        private void EvaluateForStatement(BoundForStatement statement)
+        {
+            var lowerBound = (decimal)EvaluateExpression(statement.LowerBound);
+            var upperBound = (decimal)EvaluateExpression(statement.UpperBound);
+
+            for (var i = lowerBound; i <= upperBound; i++)
+            {
+                _variables[statement.Variable] = i;
+                EvaluateStatement(statement.Body);
+            }
         }
 
         private object EvaluateExpression(BoundExpression node)

@@ -35,6 +35,9 @@ namespace CASC.CodeParser.Syntax
         ValKeyword,
         IfKeyword,
         ElseKeyword,
+        WhileKeyword,
+        ForKeyword,
+        ToKeyword,
 
         // Nodes
         CompilationUnit,
@@ -45,6 +48,8 @@ namespace CASC.CodeParser.Syntax
         ExpressionStatement,
         VariableDeclaration,
         IfStatement,
+        WhileStatement,
+        ForStatement,
 
         // Expressions
         LiteralExpression,
