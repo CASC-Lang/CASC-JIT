@@ -12,6 +12,7 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
                 case SyntaxKind.BangToken:
+                case SyntaxKind.TildeToken:
                     return 6;
 
                 default:
@@ -40,9 +41,12 @@ namespace CASC.CodeParser.Syntax
                     return 3;
 
                 case SyntaxKind.AmpersandAmpersandToken:
+                case SyntaxKind.AmpersandToken:
                     return 2;
 
                 case SyntaxKind.PipePipeToken:
+                case SyntaxKind.PipeToken:
+                case SyntaxKind.HatToken:
                     return 1;
 
                 default:
@@ -132,6 +136,10 @@ namespace CASC.CodeParser.Syntax
                     return "*";
                 case SyntaxKind.SlashToken:
                     return "/";
+                case SyntaxKind.TildeToken:
+                    return "~";
+                case SyntaxKind.HatToken:
+                    return "^";
                 case SyntaxKind.BangToken:
                     return "!";
                 case SyntaxKind.EqualsToken:
@@ -144,8 +152,12 @@ namespace CASC.CodeParser.Syntax
                     return "<=";
                 case SyntaxKind.LessToken:
                     return "<";
+                case SyntaxKind.AmpersandToken:
+                    return "&";
                 case SyntaxKind.AmpersandAmpersandToken:
                     return "&&";
+                case SyntaxKind.PipeToken:
+                    return "|";
                 case SyntaxKind.PipePipeToken:
                     return "||";
                 case SyntaxKind.EqualsEqualsToken:
@@ -203,6 +215,12 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.SlashToken:
                     yield return "除";
                     break;
+                case SyntaxKind.TildeToken:
+                    yield return "~";
+                    break;
+                case SyntaxKind.HatToken:
+                    yield return "^";
+                    break;
                 case SyntaxKind.BangToken:
                     yield return "反";
                     break;
@@ -221,8 +239,14 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.LessToken:
                     yield return "小於";
                     break;
+                case SyntaxKind.AmpersandToken:
+                    yield return "&";
+                    break;
                 case SyntaxKind.AmpersandAmpersandToken:
                     yield return "且";
+                    break;
+                case SyntaxKind.PipeToken:
+                    yield return "|";
                     break;
                 case SyntaxKind.PipePipeToken:
                     yield return "或";

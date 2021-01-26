@@ -4,6 +4,7 @@ namespace CASC.CodeParser.Binding
     {
         Identity,
         Negation,
-        LogicalNegation
+        LogicalNegation,
+        OnesComplement
     }
 }

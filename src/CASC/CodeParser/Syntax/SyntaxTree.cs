@@ -10,10 +10,9 @@ namespace CASC.CodeParser.Syntax
         {
             var parser = new Parser(source);
             var root = parser.ParseCompilationUnit();
-            var diagnostics = parser.Diagnostics.ToImmutableArray();
 
             Source = source;
-            Diagnostics = diagnostics;
+            Diagnostics = parser.Diagnostics.ToImmutableArray();
             Root = root;
         }
 

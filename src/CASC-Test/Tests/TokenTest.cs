@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CASC.CodeParser.Syntax;
-using CASC.CodeParser.Utilities;
 using NUnit.Framework;
 
 namespace CASC_Test.Tests

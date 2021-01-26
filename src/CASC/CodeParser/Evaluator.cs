@@ -142,6 +142,8 @@ namespace CASC.CodeParser
                     return (decimal)operand;
                 case BoundUnaryOperatorKind.Negation:
                     return -(decimal)operand;
+                case BoundUnaryOperatorKind.OnesComplement:
+                    return Convert.ToDecimal(~Convert.ToInt32(operand));
                 case BoundUnaryOperatorKind.LogicalNegation:
                     return !(bool)operand;
                 default:
@@ -164,6 +166,21 @@ namespace CASC.CodeParser
                     return (decimal)left * (decimal)right;
                 case BoundBinaryOperatorKind.Division:
                     return (decimal)left / (decimal)right;
+                case BoundBinaryOperatorKind.BitwiseAND:
+                    if (b.Type == (typeof(decimal)))
+                        return Convert.ToDecimal(Convert.ToInt32(left) & Convert.ToInt32(right));
+                    else
+                        return (bool)left & (bool)right;
+                case BoundBinaryOperatorKind.BitwiseOR:
+                    if (b.Type == (typeof(decimal)))
+                        return Convert.ToDecimal(Convert.ToInt32(left) | Convert.ToInt32(right));
+                    else
+                        return (bool)left | (bool)right;
+                case BoundBinaryOperatorKind.BitwiseXOR:
+                    if (b.Type == (typeof(decimal)))
+                        return Convert.ToDecimal(Convert.ToInt32(left) ^ Convert.ToInt32(right));
+                    else
+                        return (bool)left ^ (bool)right;
                 case BoundBinaryOperatorKind.LogicalAND:
                     return (bool)left && (bool)right;
                 case BoundBinaryOperatorKind.LogicalOR:

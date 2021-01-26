@@ -103,16 +103,26 @@ namespace CASC.CodeParser.Syntax
                     _kind = SyntaxKind.CloseBraceToken;
                     _position++;
                     break;
+                case '~':
+                    _kind = SyntaxKind.TildeToken;
+                    _position++;
+                    break;
+                case '^':
+                    _kind = SyntaxKind.HatToken;
+                    _position++;
+                    break;
                 case '且':
                     _kind = SyntaxKind.AmpersandAmpersandToken;
                     _position++;
                     break;
                 case '&':
-                    if (LookAhead == '&')
+                    _position++;
+                    if (Current != '&')
+                        _kind = SyntaxKind.AmpersandToken;
+                    else
                     {
                         _kind = SyntaxKind.AmpersandAmpersandToken;
-                        _position += 2;
-                        break;
+                        _position++;
                     }
                     break;
                 case '或':
@@ -120,11 +130,13 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '|':
-                    if (LookAhead == '|')
+                    _position++;
+                    if (Current != '|')
+                        _kind = SyntaxKind.PipeToken;
+                    else
                     {
                         _kind = SyntaxKind.PipePipeToken;
-                        _position += 2;
-                        break;
+                        _position++;
                     }
                     break;
                 case '反':

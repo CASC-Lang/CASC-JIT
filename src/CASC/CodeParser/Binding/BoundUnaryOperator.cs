@@ -29,6 +29,7 @@ namespace CASC.CodeParser.Binding
 
             new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(decimal)),
             new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(decimal)),
+            new BoundUnaryOperator(SyntaxKind.TildeToken, BoundUnaryOperatorKind.OnesComplement, typeof(decimal))
         };
 
         public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Type operandType)

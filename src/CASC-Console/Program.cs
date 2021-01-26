@@ -13,6 +13,7 @@ namespace CASC
         private static void Main(string[] args)
         {
             var showParseTree = false;
+            var showProgram = false;
             var variables = new Dictionary<VariableSymbol, object>();
             var builder = new StringBuilder();
             Compilation previous = null;
@@ -37,6 +38,11 @@ namespace CASC
                     else if (input == "/showTree")
                     {
                         showParseTree = !showParseTree;
+                        continue;
+                    }
+                    else if (input == "/showProgram")
+                    {
+                        showProgram = !showProgram;
                         continue;
                     }
                     else if (input == "/clear")
@@ -67,11 +73,9 @@ namespace CASC
                 var diagnostics = result.Diagnostics;
 
                 if (showParseTree)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
                     syntaxTree.Root.WriteTo(Console.Out);
-                    Console.ResetColor();
-                }
+                if (showProgram)
+                    compilation.EmitTree(Console.Out);
 
                 if (!diagnostics.Any())
                 {
