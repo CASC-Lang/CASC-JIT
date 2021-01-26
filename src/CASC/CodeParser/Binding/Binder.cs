@@ -192,7 +192,7 @@ namespace CASC.CodeParser.Binding
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            var value = syntax.Value ?? 0;
+            var value = syntax.Value ?? 0m;
 
             return new BoundLiteralExpression(value);
         }
@@ -202,13 +202,13 @@ namespace CASC.CodeParser.Binding
             var name = syntax.IdentifierToken.Text;
 
             if (string.IsNullOrEmpty(name))
-                return new BoundLiteralExpression(0);
+                return new BoundLiteralExpression(0m);
 
 
             if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
-                return new BoundLiteralExpression(0);
+                return new BoundLiteralExpression(0m);
             }
 
             return new BoundVariableExpression(variable);
