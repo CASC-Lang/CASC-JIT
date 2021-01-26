@@ -1,4 +1,3 @@
-using CASC.CodeParser.Syntax;
 using System;
 
 namespace CASC.CodeParser.Binding

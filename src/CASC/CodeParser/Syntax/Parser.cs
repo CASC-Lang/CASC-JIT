@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using CASC.CodeParser.Text;
@@ -52,6 +51,7 @@ namespace CASC.CodeParser.Syntax
         {
             var current = Current;
             _position++;
+
             return current;
         }
 
@@ -61,6 +61,7 @@ namespace CASC.CodeParser.Syntax
                 return NextToken();
 
             _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
+
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
@@ -68,29 +69,28 @@ namespace CASC.CodeParser.Syntax
         {
             var statement = ParseStatement();
             var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
+
             return new CompilationUnitSyntax(statement, endOfFileToken);
         }
 
         private StatementSyntax ParseStatement()
         {
-            if (Current.Kind == SyntaxKind.OpenBraceToken)
-                return ParseBlockStatement();
-            else if (Current.Kind == SyntaxKind.LetKeyword ||
-                     Current.Kind == SyntaxKind.VarKeyword ||
-                     Current.Kind == SyntaxKind.ValKeyword)
-                return ParseVariableDeclaration();
-            else
-                return ParseExpressionStatement();
-        }
+            switch (Current.Kind)
+            {
+                case SyntaxKind.OpenBraceToken:
+                    return ParseBlockStatement();
 
-        private StatementSyntax ParseVariableDeclaration()
-        {
-            var expected = Current.Kind;
-            var keyword = MatchToken(expected);
-            var identifier = MatchToken(SyntaxKind.IdentifierToken);
-            var equals = MatchToken(SyntaxKind.EqualsToken);
-            var initializer = ParseExpression();
-            return new VariableDeclarationStatementSyntax(keyword, identifier, equals, initializer);
+                case SyntaxKind.LetKeyword:
+                case SyntaxKind.VarKeyword:
+                case SyntaxKind.ValKeyword:
+                    return ParseVariableDeclaration();
+
+                case SyntaxKind.IfKeyword:
+                    return ParseIfStatement();
+
+                default:
+                    return ParseExpressionStatement();
+            }
         }
 
         private BlockStatementSyntax ParseBlockStatement()
@@ -111,9 +111,43 @@ namespace CASC.CodeParser.Syntax
             return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
         }
 
+
+        private StatementSyntax ParseVariableDeclaration()
+        {
+            var expected = Current.Kind;
+            var keyword = MatchToken(expected);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equals = MatchToken(SyntaxKind.EqualsToken);
+            var initializer = ParseExpression();
+
+            return new VariableDeclarationStatementSyntax(keyword, identifier, equals, initializer);
+        }
+
+        private StatementSyntax ParseIfStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.IfKeyword);
+            var condition = ParseExpression();
+            var statement = ParseStatement();
+            var elseClause = ParseOptionalElseClause();
+
+            return new IfStatementSyntax(keyword, condition, statement, elseClause);
+        }
+
+        private ElseClauseSyntax ParseOptionalElseClause()
+        {
+            if (Current.Kind != SyntaxKind.ElseKeyword)
+                return null;
+
+            var keyword = NextToken();
+            var statement = ParseStatement();
+
+            return new ElseClauseSyntax(keyword, statement);
+        }
+
         private StatementSyntax ParseExpressionStatement()
         {
             var expresion = ParseExpression();
+
             return new ExpressionStatementSyntax(expresion);
         }
 
@@ -130,6 +164,7 @@ namespace CASC.CodeParser.Syntax
                 var indentifierToken = NextToken();
                 var operatorToken = NextToken();
                 var right = ParseAssignmentExpression();
+
                 return new AssignmentExpressionSyntax(indentifierToken, operatorToken, right);
             }
 
@@ -189,6 +224,7 @@ namespace CASC.CodeParser.Syntax
         private ExpressionSyntax ParseNumberExpression()
         {
             var numberToken = MatchToken(SyntaxKind.NumberToken);
+
             return new LiteralExpressionSyntax(numberToken);
         }
 
@@ -197,6 +233,7 @@ namespace CASC.CodeParser.Syntax
             var left = MatchToken(SyntaxKind.OpenParenthesesToken);
             var expression = ParseExpression();
             var right = MatchToken(SyntaxKind.CloseParenthesesToken);
+
             return new ParenthesizedExpressionSyntax(left, expression, right);
         }
 
@@ -204,12 +241,14 @@ namespace CASC.CodeParser.Syntax
         {
             var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
             var keywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
+
             return new LiteralExpressionSyntax(keywordToken, isTrue);
         }
 
         private ExpressionSyntax ParseNameExpression()
         {
             var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
+
             return new NameExpressionSyntax(identifierToken);
         }
     }

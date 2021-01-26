@@ -33,14 +33,18 @@ namespace CASC.CodeParser.Syntax
         LetKeyword,
         VarKeyword,
         ValKeyword,
+        IfKeyword,
+        ElseKeyword,
 
         // Nodes
         CompilationUnit,
+        ElseClause,
 
         // Statements
         BlockStatement,
         ExpressionStatement,
         VariableDeclaration,
+        IfStatement,
 
         // Expressions
         LiteralExpression,

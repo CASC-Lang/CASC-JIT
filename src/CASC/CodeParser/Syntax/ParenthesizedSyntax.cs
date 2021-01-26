@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace CASC.CodeParser.Syntax
 {
     public sealed class ParenthesizedSyntax : ExpressionSyntax

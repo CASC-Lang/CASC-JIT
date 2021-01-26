@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Collections.Generic;
-using System.Linq;
 using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Syntax

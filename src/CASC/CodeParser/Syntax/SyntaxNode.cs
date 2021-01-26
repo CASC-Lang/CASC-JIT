@@ -28,13 +28,17 @@ namespace CASC.CodeParser.Syntax
                 if (typeof(SyntaxNode).IsAssignableFrom(prop.PropertyType))
                 {
                     var child = (SyntaxNode)prop.GetValue(this);
-                    yield return child;
+
+                    if (child != null)
+                        yield return child;
                 }
                 else if (typeof(SyntaxNode).IsAssignableFrom(prop.PropertyType))
                 {
                     var children = (IEnumerable<SyntaxNode>)prop.GetValue(this);
+
                     foreach (var child in children)
-                        yield return child;
+                        if (child != null)
+                            yield return child;
                 }
             }
         }

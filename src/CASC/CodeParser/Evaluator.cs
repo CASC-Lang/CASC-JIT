@@ -30,12 +30,19 @@ namespace CASC.CodeParser
                 case BoundNodeKind.BlockStatement:
                     EvaluateBlockStatement((BoundBlockStatement)statement);
                     break;
+
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement((BoundExpressionStatement)statement);
                     break;
+
                 case BoundNodeKind.VariableDeclaration:
                     EvaluateVariableDeclaration((BoundVariableDeclaration)statement);
                     break;
+
+                case BoundNodeKind.IfStatement:
+                    EvaluateIfStatement((BoundIfStatement)statement);
+                    break;
+
                 default:
                     throw new Exception($"ERROR: Unexpected Node {statement.Kind}.");
             };
@@ -57,6 +64,16 @@ namespace CASC.CodeParser
             var value = EvaluateExpression(statement.Initializer);
             _variables[statement.Variable] = value;
             _lastValue = value;
+        }
+
+        private void EvaluateIfStatement(BoundIfStatement statement)
+        {
+            var condition = (bool)EvaluateExpression(statement.Condition);
+            
+            if (condition)
+                EvaluateStatement(statement.ThenStatement);
+            else if (statement.ElseStatement != null)
+                EvaluateStatement(statement.ElseStatement);
         }
 
         private object EvaluateExpression(BoundExpression node)
