@@ -63,10 +63,3 @@ jobs:
       with:
         name: 'Test Run'
         path: ${{github.workspace}}/${{env.file_name}}
-    - name: comment PR
-      uses: machine-learning-apps/pr-comment@master
-      if: ${{ github.event_name == 'pull_request' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        path: ${{env.file_name}}
