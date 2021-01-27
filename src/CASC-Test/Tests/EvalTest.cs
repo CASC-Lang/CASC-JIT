@@ -79,6 +79,7 @@ namespace CASC_Test
         [TestCase("if 10 > 100 1 + 10 else 10 * 10", 100)]
         [TestCase("{ var a = 1 while a < 3 { a = a + 1 } a }", 3)]
         [TestCase("{ var a = 0 for i = 0 to 100 { a = i + a } a }", 5050)]
+        [TestCase("{ var a = 10 for i = 1 to (a = a - 1) { } a }", 9)]
         public void EvalTestI(string input, object expected)
         {
             var result = Evaluate(input);
@@ -120,6 +121,7 @@ namespace CASC_Test
         [TestCase("若 十 大於 一百 一 加 十 否則 十 乘 十", 100)]
         [TestCase("{ 變數 甲 賦 一 當 甲 小於 三 { 甲 賦 甲 加 一 甲 } 甲 }", 3)]
         [TestCase("{ 變數 甲 賦 零 從 索引值 賦 零 到 一百 { 甲 = 索引值 加 甲 } 甲 }", 5050)]
+        [TestCase("{ 變數 甲 賦 十 從 索引值 賦 一 到 (甲 賦 甲 減 一) { } 甲 }", 9)]
         public void EvalTestZHI(string input, object expected)
         {
             var result = Evaluate(input);
