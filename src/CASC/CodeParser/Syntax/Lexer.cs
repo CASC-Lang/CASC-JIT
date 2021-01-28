@@ -8,23 +8,6 @@ namespace CASC.CodeParser.Syntax
 {
     internal sealed class Lexer
     {
-        private static readonly List<char> _exceptionChineseChar = new List<char> {
-            // Common Operators
-            '加', // Add                加
-            '減', // Minus              減
-            '乘', // Multiply           乘
-            '除', // Divide             除
-            '點', // Point              點
-            '正', // Idnetity           正
-            '負', // Negation           負
-            '且', // Logical AND        且
-            '或', // Logical OR         或
-            '反', // Logical Negation   反
-            '是', // Eqauls             是
-            '不', // Not Equals         不是
-            '賦'  // Assign             賦
-        };
-
         private readonly SourceText _text;
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using CASC.CodeParser.Symbols;
 using System.Linq;
+using CASC.CodeParser.Text;
 
 namespace CASC.CodeParser.Binding
 {
@@ -173,17 +174,7 @@ namespace CASC.CodeParser.Binding
             return new BoundForStatement(variable, lowerBound, upperBound, body);
         }
 
-        private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
-        {
-            var result = BindExpression(syntax);
-
-            if (targetType != TypeSymbol.Error &&
-                result.Type != TypeSymbol.Error &&
-                result.Type != targetType)
-                _diagnostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
-
-            return result;
-        }
+        private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType) => BindConversion(syntax, targetType);
 
         private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
         {
@@ -229,10 +220,7 @@ namespace CASC.CodeParser.Binding
             }
         }
 
-        private BoundExpression BindParenthesesExpression(ParenthesizedExpressionSyntax syntax)
-        {
-            return BindExpression(syntax.Expression);
-        }
+        private BoundExpression BindParenthesesExpression(ParenthesizedExpressionSyntax syntax) => BindExpression(syntax.Expression);
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
@@ -274,14 +262,9 @@ namespace CASC.CodeParser.Binding
             if (variable.IsFinalized)
                 _diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
 
-            if (boundExpression.Type != variable.Type)
-            {
-                _diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
+            var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable.Type);
 
-                return boundExpression;
-            }
-
-            return new BoundAssignmentExpression(variable, boundExpression);
+            return new BoundAssignmentExpression(variable, convertedExpression);
         }
 
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
@@ -328,7 +311,7 @@ namespace CASC.CodeParser.Binding
         {
             if (syntax.Arguments.Count == 1 &&
                 Lookup(syntax.Identifier.Text) is TypeSymbol T)
-                return BindConversion(T, syntax.Arguments[0]);
+                return BindConversion(syntax.Arguments[0], T);
 
             var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
 
@@ -341,12 +324,14 @@ namespace CASC.CodeParser.Binding
             if (!_scope.TryLookupFunction(syntax.Identifier.Text, out var function))
             {
                 _diagnostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+
                 return new BoundErrorExpression();
             }
 
             if (syntax.Arguments.Count != function.Parameters.Length)
             {
                 _diagnostics.ReportArgumentCountMismatch(syntax.Span, syntax.Identifier.Text, function.Parameters.Length, syntax.Arguments.Count);
+
                 return new BoundErrorExpression();
             }
 
@@ -358,6 +343,7 @@ namespace CASC.CodeParser.Binding
                 if (argument.Type != parameter.Type)
                 {
                     _diagnostics.ReportArgumentTypeMismatch(syntax.Span, parameter.Name, parameter.Type, argument.Type);
+
                     return new BoundErrorExpression();
                 }
             }
@@ -365,16 +351,28 @@ namespace CASC.CodeParser.Binding
             return new BoundCallExpression(function, boundArguments.ToImmutable());
         }
 
-        private BoundExpression BindConversion(TypeSymbol type, ExpressionSyntax syntax)
+        private BoundExpression BindConversion(ExpressionSyntax syntax, TypeSymbol type)
         {
             var expression = BindExpression(syntax);
+
+            return BindConversion(syntax.Span, expression, type);
+        }
+
+        private BoundExpression BindConversion(TextSpan span, BoundExpression expression, TypeSymbol type)
+        {
             var conversion = Conversion.Classify(expression.Type, type);
 
             if (!conversion.Exists)
             {
-                _diagnostics.ReportCannotConvert(syntax.Span, expression.Type, type);
+                if (expression.Type != TypeSymbol.Error &&
+                    type != TypeSymbol.Error)
+                    _diagnostics.ReportCannotConvert(span, expression.Type, type);
+
                 return new BoundErrorExpression();
             }
+
+            if (conversion.IsIdentity)
+                return expression;
 
             return new BoundConversionExpression(type, expression);
         }
