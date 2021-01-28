@@ -31,23 +31,42 @@ namespace CASC.CodeParser.Syntax
             return new SyntaxTree(text);
         }
 
-        public static IEnumerable<SyntaxToken> ParseTokens(string text)
+        public static ImmutableArray<SyntaxToken> ParseTokens(string text)
         {
             var source = SourceText.From(text);
             return ParseTokens(source);
         }
 
-        public static IEnumerable<SyntaxToken> ParseTokens(SourceText source)
+        public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics)
         {
-            var lexer = new Lexer(source);
-            while (true)
-            {
-                var token = lexer.Lex();
-                if (token.Kind == SyntaxKind.EndOfFileToken)
-                    break;
+            var source = SourceText.From(text);
+            return ParseTokens(source, out diagnostics);
+        }
 
-                yield return token;
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText source)
+        {
+            return ParseTokens(source, out _);
+        }
+
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText source, out ImmutableArray<Diagnostic> diagnostics)
+        {
+            IEnumerable<SyntaxToken> LexTokens(Lexer lexer)
+            {
+                while (true)
+                {
+                    var token = lexer.Lex();
+                    if (token.Kind == SyntaxKind.EndOfFileToken)
+                        break;
+
+                    yield return token;
+                }
             }
+            
+            var l = new Lexer(source);
+            var result =LexTokens(l);
+            diagnostics = l.Diagnostics.ToImmutableArray();
+            
+            return result.ToImmutableArray();
         }
     }
 }

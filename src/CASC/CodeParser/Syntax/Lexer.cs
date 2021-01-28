@@ -1,6 +1,7 @@
 using CASC.CodeParser.Utilities;
 using System.Collections.Generic;
 using CASC.CodeParser.Text;
+using System.Text;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -41,7 +42,6 @@ namespace CASC.CodeParser.Syntax
 
         private char Current => Peek(0);
         private char LookAhead => Peek(1);
-        private char LookTwiceAhead => Peek(2);
 
         private char Peek(int offset)
         {
@@ -226,6 +226,10 @@ namespace CASC.CodeParser.Syntax
                     }
                     break;
 
+                case '"':
+                    ReadString();
+                    break;
+
                 case '0':
                 case '1':
                 case '2':
@@ -290,6 +294,57 @@ namespace CASC.CodeParser.Syntax
                 text = _text.ToString(_start, length);
 
             return new SyntaxToken(_kind, _start, text, _value);
+        }
+
+        private void ReadString()
+        {
+            _position++;
+
+            var builder = new StringBuilder();
+            var done = false;
+
+            while (!done)
+            {
+                switch (Current)
+                {
+                    case '"':
+                        _position++;
+                        done = true;
+                        break;
+
+                    case '\0':
+                    case '\r':
+                    case '\n':
+                        var span = new TextSpan(_start, 1);
+                        _diagnostics.ReportUnterminatedString(span);
+                        done = true;
+                        break;
+
+                    case '\\':
+                        _position++;
+                        
+                        switch (Current)
+                        {
+                            case '"':
+                                builder.Append(Current);
+                                _position++;
+                                break;
+
+                            default:
+                                builder.Append('\\');
+                                break;
+                        }
+                        break;
+
+                    default:
+                        builder.Append(Current);
+                        _position++;
+                        break;
+                }
+            }
+
+            _kind = SyntaxKind.StringToken;
+            _value = builder.ToString();
         }
 
         private void ReadNumberToken()

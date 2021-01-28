@@ -1,9 +1,7 @@
-using CASC.CodeParser;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Text;
 
 namespace CASC
 {
@@ -19,6 +17,7 @@ namespace CASC
             while (true)
             {
                 var text = EditSubmission();
+
                 if (string.IsNullOrEmpty(text))
                     return;
 
@@ -78,6 +77,7 @@ namespace CASC
                 }
 
                 var numberOfBlankLines = _renderedLineCount - lineCount;
+
                 if (numberOfBlankLines > 0)
                 {
                     var blankLine = new string(' ', Console.WindowWidth);
@@ -152,7 +152,6 @@ namespace CASC
         private void HandleKey(ConsoleKeyInfo key, ObservableCollection<string> document, SubmissionView view)
         {
             if (key.Modifiers == default(ConsoleModifiers))
-            {
                 switch (key.Key)
                 {
                     case ConsoleKey.Escape:
@@ -195,16 +194,13 @@ namespace CASC
                         HandlePageDown(document, view);
                         break;
                 }
-            }
             else if (key.Modifiers == ConsoleModifiers.Control)
-            {
                 switch (key.Key)
                 {
                     case ConsoleKey.Enter:
                         HandleControlEnter(document, view);
                         break;
                 }
-            }
 
             if (key.KeyChar >= ' ')
                 HandleTyping(document, view, key.KeyChar.ToString());
@@ -219,6 +215,7 @@ namespace CASC
         private void HandleEnter(ObservableCollection<string> document, SubmissionView view)
         {
             var submissionText = string.Join(Environment.NewLine, document);
+
             if (submissionText.StartsWith("/") || IsComplete(submissionText))
             {
                 _done = true;
@@ -253,6 +250,7 @@ namespace CASC
         private void HandleRightArrow(ObservableCollection<string> document, SubmissionView view)
         {
             var line = document[view.CurrentLine];
+
             if (view.CurrentCharacter <= line.Length - 1)
                 view.CurrentCharacter++;
         }
@@ -272,6 +270,7 @@ namespace CASC
         private void HandleBackspace(ObservableCollection<string> document, SubmissionView view)
         {
             var start = view.CurrentCharacter;
+
             if (start == 0)
             {
                 if (view.CurrentLine == 0)
@@ -283,7 +282,6 @@ namespace CASC
                 view.CurrentLine--;
                 document[view.CurrentLine] = previousLine + currentLine;
                 view.CurrentCharacter = previousLine.Length;
-                return;
             }
             else
             {
@@ -301,8 +299,17 @@ namespace CASC
             var lineIndex = view.CurrentLine;
             var line = document[lineIndex];
             var start = view.CurrentCharacter;
+
             if (start >= line.Length)
+            {
+                if (view.CurrentLine == document.Count - 1)
+                    return;
+
+                var nextLine = document[view.CurrentLine + 1];
+                document[view.CurrentLine] += nextLine;
+                document.RemoveAt(view.CurrentLine + 1);
                 return;
+            }
 
             var before = line.Substring(0, start);
             var after = line.Substring(start + 1);
@@ -332,25 +339,33 @@ namespace CASC
         private void HandlePageUp(ObservableCollection<string> document, SubmissionView view)
         {
             _submissionHistoryIndex--;
+
             if (_submissionHistoryIndex < 0)
                 _submissionHistoryIndex = _submissionHistory.Count - 1;
+
             UpdateDocumentFromHistory(document, view);
         }
 
         private void HandlePageDown(ObservableCollection<string> document, SubmissionView view)
         {
             _submissionHistoryIndex++;
+
             if (_submissionHistoryIndex > _submissionHistory.Count - 1)
                 _submissionHistoryIndex = 0;
+
             UpdateDocumentFromHistory(document, view);
         }
 
         private void UpdateDocumentFromHistory(ObservableCollection<string> document, SubmissionView view)
         {
+            if (_submissionHistory.Count == 0)
+                return;
+
             document.Clear();
 
             var historyItem = _submissionHistory[_submissionHistoryIndex];
             var lines = historyItem.Split(Environment.NewLine);
+
             foreach (var line in lines)
                 document.Add(line);
 

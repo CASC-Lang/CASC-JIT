@@ -28,6 +28,7 @@ namespace CASC.CodeParser.Syntax
         LessEqualsToken,
         LessToken,
         IdentifierToken,
+        StringToken,
         EndOfFileToken,
         BadToken,
 

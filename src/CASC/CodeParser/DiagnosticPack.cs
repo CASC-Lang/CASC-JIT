@@ -78,5 +78,11 @@ namespace CASC.CodeParser
             var message = $"ERROR: Variable '{name}' is finalized and cannot be assigned to.";
             Report(span, message);
         }
+
+        public void ReportUnterminatedString(TextSpan span)
+        {
+            var message = $"ERROR: Unterminated string literal.";
+            Report(span, message); 
+        }
     }
 }

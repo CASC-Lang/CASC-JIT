@@ -245,7 +245,10 @@ namespace CASC.CodeParser.Syntax
                     return ParseBooleanExpression();
 
                 case SyntaxKind.NumberToken:
-                    return ParseNumberExpression();
+                    return ParseNumberLiteral();
+
+                case SyntaxKind.StringToken:
+                    return ParseStringLiteral();
 
                 case SyntaxKind.IdentifierToken:
                 default:
@@ -254,11 +257,18 @@ namespace CASC.CodeParser.Syntax
             }
         }
 
-        private ExpressionSyntax ParseNumberExpression()
+        private ExpressionSyntax ParseNumberLiteral()
         {
             var numberToken = MatchToken(SyntaxKind.NumberToken);
 
             return new LiteralExpressionSyntax(numberToken);
+        }
+
+        private ExpressionSyntax ParseStringLiteral()
+        {
+            var stringToken = MatchToken(SyntaxKind.StringToken);
+
+            return new LiteralExpressionSyntax(stringToken);
         }
 
         private ExpressionSyntax ParseParenthesizedExpression()

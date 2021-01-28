@@ -103,6 +103,8 @@ namespace CASC_Test.Tests
                 (SyntaxKind.NumberToken, "123"),
                 (SyntaxKind.IdentifierToken, "a"),
                 (SyntaxKind.IdentifierToken, "abc"),
+                (SyntaxKind.StringToken, "\"TEST\""),
+                (SyntaxKind.StringToken, "\"Te\\\"st\"")
             };
 
             return fixedTokens.Concat(dynamicTokens);
@@ -138,6 +140,9 @@ namespace CASC_Test.Tests
                 return true;
 
             if (t1Kind == SyntaxKind.NumberToken && t2Kind == SyntaxKind.NumberToken)
+                return true;
+
+            if (t1Kind == SyntaxKind.StringToken && t2Kind == SyntaxKind.StringToken)
                 return true;
 
             if (t1Kind == SyntaxKind.BangToken && t2Kind == SyntaxKind.EqualsToken)
