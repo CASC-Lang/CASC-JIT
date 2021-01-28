@@ -9,6 +9,7 @@ namespace CASC.CodeParser.Symbols
     {
         public static readonly FunctionSymbol Input = new FunctionSymbol("input", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.String);
         public static readonly FunctionSymbol Print = new FunctionSymbol("print", ImmutableArray.Create(new ParameterSymbol("text", TypeSymbol.String)), TypeSymbol.Void);
+        public static readonly FunctionSymbol Random = new FunctionSymbol("random", ImmutableArray.Create(new ParameterSymbol("min", TypeSymbol.Number), new ParameterSymbol("max", TypeSymbol.Number)), TypeSymbol.Number);
 
         internal static IEnumerable<FunctionSymbol> GetAll()
             => typeof(BuiltinFuctions).GetFields(BindingFlags.Public | BindingFlags.Static)

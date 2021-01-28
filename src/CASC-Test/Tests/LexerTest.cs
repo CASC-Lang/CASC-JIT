@@ -19,6 +19,7 @@ namespace CASC_Test.Tests
             var testedTokenKinds = GetTokens().Concat(GetSeparators()).Select(t => t.kind);
 
             var untestedTokenKinds = new SortedSet<SyntaxKind>(tokenKinds);
+            untestedTokenKinds.Remove(SyntaxKind.CommaToken);
             untestedTokenKinds.Remove(SyntaxKind.BadToken);
             untestedTokenKinds.Remove(SyntaxKind.EndOfFileToken);
             untestedTokenKinds.ExceptWith(testedTokenKinds);

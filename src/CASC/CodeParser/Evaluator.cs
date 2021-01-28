@@ -9,6 +9,7 @@ namespace CASC.CodeParser
     {
         private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _variables;
+        private Random _random;
 
         private object _lastValue;
 
@@ -90,6 +91,7 @@ namespace CASC.CodeParser
                 BoundNodeKind.UnaryExpression => EvaluateUnaryExpression((BoundUnaryExpression)node),
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression((BoundBinaryExpression)node),
                 BoundNodeKind.CallExpression => EvaluateCallExpression((BoundCallExpression)node),
+                BoundNodeKind.ConversionExpression => EvaluateConversionExpression((BoundConversionExpression)node),
                 _ => throw new Exception($"ERROR: Unexpected Node {node.Kind}.")
             };
         }
@@ -214,8 +216,32 @@ namespace CASC.CodeParser
 
                 return null;
             }
+            else if (node.Function == BuiltinFuctions.Random)
+            {
+                var min = (decimal)EvaluateExpression(node.Arguments[0]);
+                var max = (decimal)EvaluateExpression(node.Arguments[1]);
+
+                if (_random == null)
+                    _random = new Random();
+
+                return _random.Next(Convert.ToInt32(min), Convert.ToInt32(max));
+            }
             else
                 throw new Exception($"ERROR: Unexpected fucntion {node.Function}.");
+        }
+
+        private object EvaluateConversionExpression(BoundConversionExpression node)
+        {
+            var value = EvaluateExpression(node.Expression);
+
+            if (node.Type == TypeSymbol.Boolean)
+                return Convert.ToBoolean(value);
+            else if (node.Type == TypeSymbol.Number)
+                return Convert.ToDecimal(value);
+            else if (node.Type == TypeSymbol.String)
+                return Convert.ToString(value);
+            else
+                throw new Exception($"ERROR: Unexpected type {node.Type}");
         }
     }
 }

@@ -43,7 +43,7 @@ namespace CASC.CodeParser.Binding
                 previous = previous.Previous;
             }
 
-            BoundScope parent = null;
+            var parent = CreateRootScope();
 
             while (stack.Count > 0)
             {
@@ -51,12 +51,22 @@ namespace CASC.CodeParser.Binding
                 var scope = new BoundScope(parent);
 
                 foreach (var v in previous.Variables)
-                    scope.TryDeclare(v);
+                    scope.TryDeclareVariable(v);
 
                 parent = scope;
             }
 
             return parent;
+        }
+
+        private static BoundScope CreateRootScope()
+        {
+            var result = new BoundScope(null);
+
+            foreach (var f in BuiltinFuctions.GetAll())
+                result.TryDeclareFunction(f);
+
+            return result;
         }
 
         private BoundStatement BindStatement(StatementSyntax syntax)
@@ -104,7 +114,7 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
         {
-            var expression = BindExpression(syntax.Expression);
+            var expression = BindExpression(syntax.Expression, canBeVoid: true);
 
             return new BoundExpressionStatement(expression);
         }
@@ -228,7 +238,7 @@ namespace CASC.CodeParser.Binding
                 return new BoundErrorExpression();
 
 
-            if (!_scope.TryLookup(name, out var variable))
+            if (!_scope.TryLookupVariable(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
 
@@ -243,7 +253,7 @@ namespace CASC.CodeParser.Binding
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
 
-            if (!_scope.TryLookup(name, out var variable))
+            if (!_scope.TryLookupVariable(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
 
@@ -305,6 +315,10 @@ namespace CASC.CodeParser.Binding
 
         private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
         {
+            if (syntax.Arguments.Count == 1 &&
+                Lookup(syntax.Identifier.Text) is TypeSymbol T)
+                return BindConversion(T, syntax.Arguments[0]);
+
             var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
 
             foreach (var arg in syntax.Arguments)
@@ -313,11 +327,7 @@ namespace CASC.CodeParser.Binding
                 boundArguments.Add(boundArgument);
             }
 
-            var functions = BuiltinFuctions.GetAll();
-
-            var function = functions.SingleOrDefault(f => f.Name == syntax.Identifier.Text);
-
-            if (function == null)
+            if (!_scope.TryLookupFunction(syntax.Identifier.Text, out var function))
             {
                 _diagnostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
                 return new BoundErrorExpression();
@@ -344,16 +354,41 @@ namespace CASC.CodeParser.Binding
             return new BoundCallExpression(function, boundArguments.ToImmutable());
         }
 
+        private BoundExpression BindConversion(TypeSymbol type, ExpressionSyntax syntax)
+        {
+            var expression = BindExpression(syntax);
+            var conversion = Conversion.Classify(expression.Type, type);
+
+            if (!conversion.Exists)
+            {
+                _diagnostics.ReportCannotConvert(syntax.Span, expression.Type, type);
+                return new BoundErrorExpression();
+            }
+
+            return new BoundConversionExpression(type, expression);
+        }
+
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isFinalized, TypeSymbol type)
         {
             var name = identifier.Text ?? "?";
             var declare = !identifier.IsMissing;
             var variable = new VariableSymbol(name, isFinalized, type);
 
-            if (declare && !_scope.TryDeclare(variable))
+            if (declare && !_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
 
             return variable;
+        }
+
+        private TypeSymbol Lookup(string name)
+        {
+            return name switch
+            {
+                "bool" => TypeSymbol.Boolean,
+                "number" => TypeSymbol.Number,
+                "string" => TypeSymbol.String,
+                _ => null
+            };
         }
     }
 }
