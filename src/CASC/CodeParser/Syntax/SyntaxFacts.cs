@@ -164,9 +164,9 @@ namespace CASC.CodeParser.Syntax
                     return "==";
                 case SyntaxKind.BangEqualsToken:
                     return "!=";
-                case SyntaxKind.OpenParenthesesToken:
+                case SyntaxKind.OpenParenthesisToken:
                     return "(";
-                case SyntaxKind.CloseParenthesesToken:
+                case SyntaxKind.CloseParenthesisToken:
                     return ")";
                 case SyntaxKind.OpenBraceToken:
                     return "{";
@@ -257,10 +257,10 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.BangEqualsToken:
                     yield return "不是";
                     break;
-                case SyntaxKind.OpenParenthesesToken:
+                case SyntaxKind.OpenParenthesisToken:
                     yield return "(";
                     break;
-                case SyntaxKind.CloseParenthesesToken:
+                case SyntaxKind.CloseParenthesisToken:
                     yield return ")";
                     break;
                 case SyntaxKind.OpenBraceToken:

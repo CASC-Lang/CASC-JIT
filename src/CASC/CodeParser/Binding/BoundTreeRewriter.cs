@@ -11,22 +11,31 @@ namespace CASC.CodeParser.Binding
             {
                 case BoundNodeKind.BlockStatement:
                     return RewriteBlockStatement((BoundBlockStatement)node);
+
                 case BoundNodeKind.VariableDeclaration:
                     return RewriteVariableDeclaration((BoundVariableDeclaration)node);
+
                 case BoundNodeKind.IfStatement:
                     return RewriteIfStatement((BoundIfStatement)node);
+
                 case BoundNodeKind.WhileStatement:
                     return RewriteWhileStatement((BoundWhileStatement)node);
+
                 case BoundNodeKind.ForStatement:
                     return RewriteForStatement((BoundForStatement)node);
+
                 case BoundNodeKind.LabelStatement:
                     return RewriteLabelStatement((BoundLabelStatement)node);
+
                 case BoundNodeKind.GotoStatement:
                     return RewriteGotoStatement((BoundGotoStatement)node);
+
                 case BoundNodeKind.ConditionalGotoStatement:
                     return RewriteConditionalGotoStatement((BoundConditionalGotoStatement)node);
+
                 case BoundNodeKind.ExpressionStatement:
                     return RewriteExpressionStatement((BoundExpressionStatement)node);
+
                 default:
                     throw new Exception($"ERROR: Unexpected node '{node.Kind}'");
             }
@@ -40,6 +49,7 @@ namespace CASC.CodeParser.Binding
             {
                 var oldStatement = node.Statements[i];
                 var newStatement = RewriteStatement(oldStatement);
+                
                 if (newStatement != oldStatement)
                 {
                     if (builder == null)
@@ -64,7 +74,7 @@ namespace CASC.CodeParser.Binding
         protected virtual BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
         {
             var initializer = RewriteExpression(node.Initializer);
-            
+
             if (initializer == node.Initializer)
                 return node;
 
@@ -119,6 +129,7 @@ namespace CASC.CodeParser.Binding
         protected virtual BoundStatement RewriteConditionalGotoStatement(BoundConditionalGotoStatement node)
         {
             var condition = RewriteExpression(node.Condition);
+
             if (condition == node.Condition)
                 return node;
 
@@ -141,16 +152,25 @@ namespace CASC.CodeParser.Binding
             {
                 case BoundNodeKind.ErrorExpression:
                     return RewriteErrorExpression((BoundErrorExpression)node);
+
                 case BoundNodeKind.LiteralExpression:
                     return RewriteLiteralExpression((BoundLiteralExpression)node);
+
                 case BoundNodeKind.VariableExpression:
                     return RewriteVariableExpression((BoundVariableExpression)node);
+
                 case BoundNodeKind.AssignmentExpression:
                     return RewriteAssignmentExpression((BoundAssignmentExpression)node);
+
                 case BoundNodeKind.UnaryExpression:
                     return RewriteUnaryExpression((BoundUnaryExpression)node);
+
                 case BoundNodeKind.BinaryExpression:
                     return RewriteBinaryExpression((BoundBinaryExpression)node);
+
+                case BoundNodeKind.CallExpression:
+                    return RewriteCallExpression((BoundCallExpression)node);
+
                 default:
                     throw new Exception($"Unexpected node: {node.Kind}");
             }
@@ -200,6 +220,36 @@ namespace CASC.CodeParser.Binding
                 return node;
 
             return new BoundBinaryExpression(left, node.Op, right);
+        }
+
+        private BoundExpression RewriteCallExpression(BoundCallExpression node)
+        {
+            ImmutableArray<BoundExpression>.Builder builder = null;
+
+            for (var i = 0; i < node.Arguments.Length; i++)
+            {
+                var oldArgument = node.Arguments[i];
+                var newArgument = RewriteExpression(oldArgument);
+
+                if (newArgument != oldArgument)
+                {
+                    if (builder == null)
+                    {
+                        builder = ImmutableArray.CreateBuilder<BoundExpression>(node.Arguments.Length);
+
+                        for (var j = 0; j < i; j++)
+                            builder.Add(node.Arguments[j]);
+                    }
+                }
+
+                if (builder != null)
+                    builder.Add(newArgument);
+            }
+
+            if (builder == null)
+                return node;
+
+            return new BoundCallExpression(node.Function, builder.MoveToImmutable());
         }
     }
 }

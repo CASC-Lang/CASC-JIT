@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Collections.Immutable;
 using CASC.CodeParser.Symbols;
+using System.Linq;
 
 namespace CASC.CodeParser.Binding
 {
@@ -163,22 +164,45 @@ namespace CASC.CodeParser.Binding
             return result;
         }
 
-        private BoundExpression BindExpression(ExpressionSyntax syntax)
+        private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
+        {
+            var result = BindExpressionInternal(syntax);
+
+            if (!canBeVoid && result.Type == TypeSymbol.Void)
+            {
+                _diagnostics.ReportExpressionMustHaveValue(syntax.Span);
+
+                return new BoundErrorExpression();
+            }
+
+            return result;
+        }
+
+        private BoundExpression BindExpressionInternal(ExpressionSyntax syntax)
         {
             switch (syntax.Kind)
             {
                 case SyntaxKind.ParenthesizedExpression:
                     return BindParenthesesExpression((ParenthesizedExpressionSyntax)syntax);
+
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
+
                 case SyntaxKind.NameExpression:
                     return BindNameExpression((NameExpressionSyntax)syntax);
+
                 case SyntaxKind.AssignmentExpression:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)syntax);
+
                 case SyntaxKind.UnaryExpression:
                     return BindUnaryExpression((UnaryExpressionSyntax)syntax);
+
                 case SyntaxKind.BinaryExpression:
                     return BindBinaryExpression((BinaryExpressionSyntax)syntax);
+
+                case SyntaxKind.CallExpression:
+                    return BindCallExpression((CallExpressionSyntax)syntax);
+
                 default:
                     throw new Exception($"ERROR: Unexpected syntax {syntax.Kind}.");
             }
@@ -279,11 +303,52 @@ namespace CASC.CodeParser.Binding
             return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
         }
 
+        private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
+        {
+            var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var arg in syntax.Arguments)
+            {
+                var boundArgument = BindExpression(arg);
+                boundArguments.Add(boundArgument);
+            }
+
+            var functions = BuiltinFuctions.GetAll();
+
+            var function = functions.SingleOrDefault(f => f.Name == syntax.Identifier.Text);
+
+            if (function == null)
+            {
+                _diagnostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+                return new BoundErrorExpression();
+            }
+
+            if (syntax.Arguments.Count != function.Parameters.Length)
+            {
+                _diagnostics.ReportArgumentCountMismatch(syntax.Span, syntax.Identifier.Text, function.Parameters.Length, syntax.Arguments.Count);
+                return new BoundErrorExpression();
+            }
+
+            for (var i = 0; i < syntax.Arguments.Count; i++)
+            {
+                var argument = boundArguments[i];
+                var parameter = function.Parameters[i];
+
+                if (argument.Type != parameter.Type)
+                {
+                    _diagnostics.ReportArgumentTypeMismatch(syntax.Span, parameter.Name, parameter.Type, argument.Type);
+                    return new BoundErrorExpression();
+                }
+            }
+
+            return new BoundCallExpression(function, boundArguments.ToImmutable());
+        }
+
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isFinalized, TypeSymbol type)
         {
             var name = identifier.Text ?? "?";
             var declare = !identifier.IsMissing;
-            var variable = new VariableSymbol(name, isFinalized, TypeSymbol.Number);
+            var variable = new VariableSymbol(name, isFinalized, type);
 
             if (declare && !_scope.TryDeclare(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);

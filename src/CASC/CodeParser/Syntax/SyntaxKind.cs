@@ -9,8 +9,8 @@ namespace CASC.CodeParser.Syntax
         MinusToken,
         StarToken,
         SlashToken,
-        OpenParenthesesToken,
-        CloseParenthesesToken,
+        OpenParenthesisToken,
+        CloseParenthesisToken,
         OpenBraceToken,
         CloseBraceToken,
         BangToken,
@@ -28,6 +28,7 @@ namespace CASC.CodeParser.Syntax
         LessEqualsToken,
         LessToken,
         IdentifierToken,
+        CommaToken,
         StringToken,
         EndOfFileToken,
         BadToken,
@@ -62,6 +63,7 @@ namespace CASC.CodeParser.Syntax
         BinaryExpression,
         ParenthesizedExpression,
         NameExpression,
-        AssignmentExpression
+        AssignmentExpression,
+        CallExpression
     }
 }

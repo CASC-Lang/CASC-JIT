@@ -82,7 +82,30 @@ namespace CASC.CodeParser
         public void ReportUnterminatedString(TextSpan span)
         {
             var message = $"ERROR: Unterminated string literal.";
-            Report(span, message); 
+            Report(span, message);
+        }
+
+        public void ReportUndefinedFunction(TextSpan span, string name)
+        {
+            var message = $"ERROR: Function '{name}' doesn't exist.";
+            Report(span, message);
+        }
+
+        public void ReportArgumentCountMismatch(TextSpan span, string name, int expectedCount, int actualCount)
+        {
+            var message = $"ERROR: Function '{name}' requires {expectedCount} arguments but was given {actualCount}.";
+            Report(span, message);
+        }
+
+        public void ReportArgumentTypeMismatch(TextSpan span, string name, TypeSymbol expectedType, TypeSymbol actualType)
+        {
+            var message = $"ERROR: Parameter '{name}' requires a value of type '{expectedType}' but was given a value of type '{actualType}'.";
+            Report(span, message);
+        }
+
+        internal void ReportExpressionMustHaveValue(TextSpan span)
+        {
+            Report(span, "ERROR: Expression must have a value.");
         }
     }
 }

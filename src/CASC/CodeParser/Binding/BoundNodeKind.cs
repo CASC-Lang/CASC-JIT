@@ -19,6 +19,7 @@ namespace CASC.CodeParser.Binding
         VariableExpression,
         AssignmentExpression,
         UnaryExpression,
-        BinaryExpression
+        BinaryExpression,
+        CallExpression
     }
 }

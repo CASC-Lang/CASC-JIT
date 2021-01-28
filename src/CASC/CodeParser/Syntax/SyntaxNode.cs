@@ -32,7 +32,14 @@ namespace CASC.CodeParser.Syntax
                     if (child != null)
                         yield return child;
                 }
-                else if (typeof(SyntaxNode).IsAssignableFrom(prop.PropertyType))
+                else if (typeof(SeperatedSyntaxList).IsAssignableFrom(prop.PropertyType))
+                {
+                    var seperatedSyntaxList = (SeperatedSyntaxList)prop.GetValue(this);
+
+                    foreach (var child in seperatedSyntaxList.GetWithSeperators())
+                        yield return child;
+                }
+                else if (typeof(IEnumerable<SyntaxNode>).IsAssignableFrom(prop.PropertyType))
                 {
                     var children = (IEnumerable<SyntaxNode>)prop.GetValue(this);
 

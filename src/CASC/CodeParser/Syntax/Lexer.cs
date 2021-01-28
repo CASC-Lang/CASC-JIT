@@ -89,11 +89,11 @@ namespace CASC.CodeParser.Syntax
                     _position++;
                     break;
                 case '(':
-                    _kind = SyntaxKind.OpenParenthesesToken;
+                    _kind = SyntaxKind.OpenParenthesisToken;
                     _position++;
                     break;
                 case ')':
-                    _kind = SyntaxKind.CloseParenthesesToken;
+                    _kind = SyntaxKind.CloseParenthesisToken;
                     _position++;
                     break;
                 case '{':
@@ -102,6 +102,10 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case '}':
                     _kind = SyntaxKind.CloseBraceToken;
+                    _position++;
+                    break;
+                case ',':
+                    _kind = SyntaxKind.CommaToken;
                     _position++;
                     break;
                 case '~':
@@ -323,7 +327,7 @@ namespace CASC.CodeParser.Syntax
 
                     case '\\':
                         _position++;
-                        
+
                         switch (Current)
                         {
                             case '"':

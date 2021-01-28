@@ -1,11 +1,11 @@
 namespace CASC.CodeParser.Symbols
 {
-    public sealed class VariableSymbol : Symbol
+    public class VariableSymbol : Symbol
     {
-        internal VariableSymbol(string name, bool isReadOnly, TypeSymbol type)
+        internal VariableSymbol(string name, bool isFinalized, TypeSymbol type)
             : base(name)
         {
-            IsFinalized = isReadOnly;
+            IsFinalized = isFinalized;
             Type = type;
         }
 
