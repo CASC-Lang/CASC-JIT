@@ -8,6 +8,7 @@ namespace CASC.CodeParser.Binding
         VariableDeclaration,
         IfStatement,
         WhileStatement,
+        DoWhileStatement,
         ForStatement,
         ConditionalGotoStatement,
         GotoStatement,

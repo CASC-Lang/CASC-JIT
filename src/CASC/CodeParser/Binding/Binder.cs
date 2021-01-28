@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CASC.CodeParser.Binding
 {
-    internal sealed class Binder
+    internal sealed partial class Binder
     {
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
         private BoundScope _scope;
@@ -88,6 +88,9 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.WhileStatement:
                     return BindWhileStatement((WhileStatementSyntax)syntax);
 
+                case SyntaxKind.DoWhileStatement:
+                    return BindDoWhileStatement((DoWhileStatementSyntax)syntax);
+
                 case SyntaxKind.ForStatement:
                     return BindForStatement((ForStatementSyntax)syntax);
 
@@ -144,6 +147,14 @@ namespace CASC.CodeParser.Binding
             var body = BindStatement(syntax.Body);
 
             return new BoundWhileStatement(condition, body);
+        }
+
+        private BoundStatement BindDoWhileStatement(DoWhileStatementSyntax syntax)
+        {
+            var body = BindStatement(syntax.Body);
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Boolean);
+
+            return new BoundDoWhileStatement(body, condition);
         }
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)
@@ -375,20 +386,20 @@ namespace CASC.CodeParser.Binding
             var variable = new VariableSymbol(name, isFinalized, type);
 
             if (declare && !_scope.TryDeclareVariable(variable))
-                _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
+                _diagnostics.ReportSymbolAlreadyDeclared(identifier.Span, name);
 
             return variable;
         }
 
-        private TypeSymbol Lookup(string name)
+        private TypeSymbol Lookup(string name) => name switch
         {
-            return name switch
-            {
-                "bool" => TypeSymbol.Boolean,
-                "number" => TypeSymbol.Number,
-                "string" => TypeSymbol.String,
-                _ => null
-            };
-        }
+            "布林值" => TypeSymbol.Boolean,
+            "bool" => TypeSymbol.Boolean,
+            "數字" => TypeSymbol.Number,
+            "number" => TypeSymbol.Number,
+            "字串" => TypeSymbol.String,
+            "string" => TypeSymbol.String,
+            _ => null
+        };
     }
 }

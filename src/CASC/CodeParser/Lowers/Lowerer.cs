@@ -17,6 +17,7 @@ namespace CASC.CodeParser.Lowers
         private BoundLabel GenerateLabel()
         {
             var name = $"Label{++_labelCount}";
+
             return new BoundLabel(name);
         }
 
@@ -24,6 +25,7 @@ namespace CASC.CodeParser.Lowers
         {
             var lowerer = new Lowerer();
             var result = lowerer.RewriteStatement(statement);
+
             return Flatten(result);
         }
 
@@ -38,14 +40,10 @@ namespace CASC.CodeParser.Lowers
                 var current = stack.Pop();
 
                 if (current is BoundBlockStatement block)
-                {
                     foreach (var s in block.Statements.Reverse())
                         stack.Push(s);
-                }
                 else
-                {
                     builder.Add(current);
-                }
             }
 
             return new BoundBlockStatement(builder.ToImmutable());
@@ -59,6 +57,7 @@ namespace CASC.CodeParser.Lowers
                 var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, false);
                 var endLabelStatement = new BoundLabelStatement(endLabel);
                 var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(gotoFalse, node.ThenStatement, endLabelStatement));
+
                 return RewriteStatement(result);
             }
             else
@@ -78,6 +77,7 @@ namespace CASC.CodeParser.Lowers
                     node.ElseStatement,
                     endLabelStatement
                 ));
+
                 return RewriteStatement(result);
             }
         }
@@ -133,6 +133,30 @@ namespace CASC.CodeParser.Lowers
                 variableDeclaration,
                 upperBoundDeclaration,
                 whileStatement
+            ));
+
+            return RewriteStatement(result);
+        }
+
+        protected override BoundStatement RewriteDoWhileStatement(BoundDoWhileStatement node)
+        {
+            var continueLabel = GenerateLabel();
+            var checkLabel = GenerateLabel();
+            var endLabel = GenerateLabel();
+
+            var continueLabelStatement = new BoundLabelStatement(continueLabel);
+            var gotoCheck = new BoundGotoStatement(checkLabel);
+            var checkLabelStatement = new BoundLabelStatement(checkLabel);
+            var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition);
+            var endLabelStatement = new BoundLabelStatement(endLabel);
+
+            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+                continueLabelStatement,
+                node.Body,
+                gotoCheck,
+                checkLabelStatement,
+                gotoTrue,
+                endLabelStatement
             ));
 
             return RewriteStatement(result);

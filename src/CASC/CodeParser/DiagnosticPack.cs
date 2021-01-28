@@ -67,9 +67,9 @@ namespace CASC.CodeParser
             Report(span, message);
         }
 
-        public void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        public void ReportSymbolAlreadyDeclared(TextSpan span, string name)
         {
-            var message = $"ERROR: Variable '{name}' is already declared.";
+            var message = $"ERROR: '{name}' is already declared.";
             Report(span, message);
         }
 

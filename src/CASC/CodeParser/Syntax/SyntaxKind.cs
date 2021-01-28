@@ -42,6 +42,7 @@ namespace CASC.CodeParser.Syntax
         IfKeyword,
         ElseKeyword,
         WhileKeyword,
+        DoKeyword,
         ForKeyword,
         ToKeyword,
 
@@ -55,6 +56,7 @@ namespace CASC.CodeParser.Syntax
         VariableDeclaration,
         IfStatement,
         WhileStatement,
+        DoWhileStatement,
         ForStatement,
 
         // Expressions

@@ -93,6 +93,10 @@ namespace CASC.CodeParser.Syntax
                 case "while":
                     return SyntaxKind.WhileKeyword;
 
+                case "持續":
+                case "do":
+                    return SyntaxKind.DoKeyword;
+
                 case "從":
                 case "for":
                     return SyntaxKind.ForKeyword;
@@ -188,6 +192,8 @@ namespace CASC.CodeParser.Syntax
                     return "else";
                 case SyntaxKind.WhileKeyword:
                     return "while";
+                case SyntaxKind.DoKeyword:
+                    return "do";
                 case SyntaxKind.ForKeyword:
                     return "for";
                 case SyntaxKind.ToKeyword:
@@ -295,6 +301,9 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.WhileKeyword:
                     yield return "當";
+                    break;
+                case SyntaxKind.DoKeyword:
+                    yield return "do";
                     break;
                 case SyntaxKind.ForKeyword:
                     yield return "從";

@@ -18,15 +18,14 @@ namespace CASC.CodeParser.Syntax
 
             var lexer = new Lexer(source);
             SyntaxToken token;
+
             do
             {
                 token = lexer.Lex();
 
                 if (token.Kind != SyntaxKind.WhiteSpaceToken &&
                     token.Kind != SyntaxKind.BadToken)
-                {
                     tokens.Add(token);
-                }
             } while (token.Kind != SyntaxKind.EndOfFileToken);
 
             _tokens = tokens.ToArray();
@@ -91,6 +90,9 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.WhileKeyword:
                     return ParseWhileStatement();
 
+                case SyntaxKind.DoKeyword:
+                    return ParseDoWhileStatement();
+
                 case SyntaxKind.ForKeyword:
                     return ParseForStatement();
 
@@ -151,6 +153,16 @@ namespace CASC.CodeParser.Syntax
             var body = ParseStatement();
 
             return new WhileStatementSyntax(keyword, condition, body);
+        }
+
+        private StatementSyntax ParseDoWhileStatement()
+        {
+            var doKeyword = MatchToken(SyntaxKind.DoKeyword);
+            var body = ParseStatement();
+            var whileKeyword = MatchToken(SyntaxKind.WhileKeyword);
+            var condition = ParseExpression();
+            
+            return new DoWhileStatementSyntax(doKeyword, body, whileKeyword, condition);
         }
 
         private StatementSyntax ParseForStatement()

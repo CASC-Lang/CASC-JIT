@@ -24,7 +24,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Variable 'x' is already declared.
+                ERROR: 'x' is already declared.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -112,6 +112,23 @@ namespace CASC_Test.Tests
             AssertDiagnostics(text, diagnostics);
         }
 
+        [Test]
+        public void Evaluator_Variables_Can_Shadow_Functions()
+        {
+            var text = @"
+                {
+                    let print = 42
+                    [print](""test"")
+                }
+            ";
+
+            var diagnostics = @"
+                ERROR: Function 'print' doesn't exist.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
         private void AssertDiagnostics(string text, string diagnosticText)
         {
             var annotatedText = AnnotatedText.Parse(text);
@@ -155,7 +172,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Variable '甲' is already declared.
+                ERROR: '甲' is already declared.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -238,6 +255,23 @@ namespace CASC_Test.Tests
 
             var diagnostics = @"
                 ERROR: Binary operator '*' is not defined for types 'number' and 'bool'.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Variables_Can_Shadow_Functions()
+        {
+            var text = @"
+                {
+                    讓 print 賦 四十二
+                    [print](""test"")
+                }
+            ";
+
+            var diagnostics = @"
+                ERROR: Function 'print' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
