@@ -137,7 +137,10 @@ namespace CASC.CodeParser
             switch (b.Op.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return (decimal)left + (decimal)right;
+                    if (b.Type == TypeSymbol.Number)
+                        return (decimal)left + (decimal)right;
+                    else
+                        return (string)left + (string)right;
                 case BoundBinaryOperatorKind.Subtraction:
                     return (decimal)left - (decimal)right;
                 case BoundBinaryOperatorKind.Multiplication:

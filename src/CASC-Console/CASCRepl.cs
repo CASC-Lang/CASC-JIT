@@ -24,6 +24,7 @@ namespace CASC
                 var isKeyword = token.Kind.ToString().EndsWith("Keyword");
                 var isNumber = token.Kind == SyntaxKind.NumberToken;
                 var isIdentifier = token.Kind == SyntaxKind.IdentifierToken;
+                var isString = token.Kind == SyntaxKind.StringToken;
 
                 if (isKeyword)
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -31,6 +32,8 @@ namespace CASC
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                 else if (isNumber)
                     Console.ForegroundColor = ConsoleColor.Cyan;
+                else if (isString)
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                 else
                     Console.ForegroundColor = ConsoleColor.DarkGray;
 
@@ -103,7 +106,7 @@ namespace CASC
 
             if (!result.Diagnostics.Any())
             {
-                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine(result.Value);
                 Console.ResetColor();
                 _previous = compilation;
