@@ -1,4 +1,5 @@
 using System;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {

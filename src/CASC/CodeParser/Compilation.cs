@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.IO;
 using CASC.CodeParser.Lowers;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser
 {

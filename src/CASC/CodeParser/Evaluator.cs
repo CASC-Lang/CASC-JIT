@@ -1,6 +1,7 @@
 using CASC.CodeParser.Binding;
 using System.Collections.Generic;
 using System;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser
 {
@@ -19,7 +20,7 @@ namespace CASC.CodeParser
 
         public object Evaluate()
         {
-            var labelToIndex = new Dictionary<LabelSymbol, int>();
+            var labelToIndex = new Dictionary<BoundLabel, int>();
 
             for (var i = 0; i < _root.Statements.Length; i++)
             {

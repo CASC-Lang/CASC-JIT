@@ -1,5 +1,6 @@
 using System;
-namespace CASC.CodeParser
+
+namespace CASC.CodeParser.Symbols
 {
     public sealed class VariableSymbol
     {

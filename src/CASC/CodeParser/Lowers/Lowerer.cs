@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using CASC.CodeParser.Binding;
+using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
 
 namespace CASC.CodeParser.Lowers
@@ -13,10 +14,10 @@ namespace CASC.CodeParser.Lowers
         private Lowerer()
         {
         }
-        private LabelSymbol GenerateLabel()
+        private BoundLabel GenerateLabel()
         {
             var name = $"Label{++_labelCount}";
-            return new LabelSymbol(name);
+            return new BoundLabel(name);
         }
 
         public static BoundBlockStatement Lower(BoundStatement statement)

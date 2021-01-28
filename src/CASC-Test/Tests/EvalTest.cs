@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CASC.CodeParser;
+using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
 using NUnit.Framework;
 

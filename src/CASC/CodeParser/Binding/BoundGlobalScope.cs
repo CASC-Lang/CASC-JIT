@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {

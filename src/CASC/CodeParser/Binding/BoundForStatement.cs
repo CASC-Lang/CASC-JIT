@@ -1,3 +1,5 @@
+using CASC.CodeParser.Symbols;
+
 namespace CASC.CodeParser.Binding
 {
     internal class BoundForStatement : BoundStatement
