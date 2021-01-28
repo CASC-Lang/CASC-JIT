@@ -2,6 +2,7 @@ using CASC.CodeParser.Utilities;
 using System.Collections.Generic;
 using CASC.CodeParser.Text;
 using System.Text;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Syntax
 {
@@ -355,7 +356,7 @@ namespace CASC.CodeParser.Syntax
             var length = _position - _start;
             var text = _text.ToString(_start, length);
             if (!ChineseParser.tryParseDigits(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(decimal));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, TypeSymbol.Number);
 
             _value = value;
             _kind = SyntaxKind.NumberToken;

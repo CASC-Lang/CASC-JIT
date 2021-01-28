@@ -110,11 +110,11 @@ namespace CASC.CodeParser.Lowers
         {
             var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.LowerBound);
             var variableExpression = new BoundVariableExpression(node.Variable);
-            var upperBoundSymbol = new VariableSymbol("upperBound", true, typeof(decimal));
+            var upperBoundSymbol = new VariableSymbol("upperBound", true, TypeSymbol.Number);
             var upperBoundDeclaration = new BoundVariableDeclaration(upperBoundSymbol, node.UpperBound);
             var condition = new BoundBinaryExpression(
                 variableExpression,
-                BoundBinaryOperator.Bind(SyntaxKind.LessEqualsToken, typeof(decimal), typeof(decimal)),
+                BoundBinaryOperator.Bind(SyntaxKind.LessEqualsToken, TypeSymbol.Number, TypeSymbol.Number),
                 new BoundVariableExpression(upperBoundSymbol)
             );
             var increment = new BoundExpressionStatement(
@@ -122,7 +122,7 @@ namespace CASC.CodeParser.Lowers
                     node.Variable,
                     new BoundBinaryExpression(
                             variableExpression,
-                            BoundBinaryOperator.Bind(SyntaxKind.PlusToken, typeof(decimal), typeof(decimal)),
+                            BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Number, TypeSymbol.Number),
                             new BoundLiteralExpression(1m)
                     )
                 )

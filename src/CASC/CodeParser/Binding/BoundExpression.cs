@@ -1,9 +1,9 @@
-using System;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {
     internal abstract class BoundExpression : BoundNode
     {
-        public abstract Type Type { get; }
+        public abstract TypeSymbol Type { get; }
     }
 }

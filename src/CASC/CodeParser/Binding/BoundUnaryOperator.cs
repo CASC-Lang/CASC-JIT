@@ -1,16 +1,16 @@
+using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
-using System;
 
 namespace CASC.CodeParser.Binding
 {
     internal sealed class BoundUnaryOperator
     {
-        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType)
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, TypeSymbol operandType)
             : this(syntaxKind, kind, operandType, operandType)
         {
         }
 
-        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType, Type resultType)
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, TypeSymbol operandType, TypeSymbol resultType)
         {
             SyntaxKind = syntaxKind;
             Kind = kind;
@@ -20,19 +20,19 @@ namespace CASC.CodeParser.Binding
 
         public SyntaxKind SyntaxKind { get; }
         public BoundUnaryOperatorKind Kind { get; }
-        public Type OperandType { get; }
-        public Type Type { get; }
+        public TypeSymbol OperandType { get; }
+        public TypeSymbol Type { get; }
 
         private static BoundUnaryOperator[] _operators =
         {
-            new BoundUnaryOperator(SyntaxKind.BangToken, BoundUnaryOperatorKind.LogicalNegation, typeof(bool)),
+            new BoundUnaryOperator(SyntaxKind.BangToken, BoundUnaryOperatorKind.LogicalNegation, TypeSymbol.Boolean),
 
-            new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(decimal)),
-            new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(decimal)),
-            new BoundUnaryOperator(SyntaxKind.TildeToken, BoundUnaryOperatorKind.OnesComplement, typeof(decimal))
+            new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, TypeSymbol.Number),
+            new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, TypeSymbol.Number),
+            new BoundUnaryOperator(SyntaxKind.TildeToken, BoundUnaryOperatorKind.OnesComplement, TypeSymbol.Number)
         };
 
-        public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Type operandType)
+        public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, TypeSymbol operandType)
         {
             foreach (var op in _operators)
                 if (op.SyntaxKind == syntaxKind && op.OperandType == operandType)

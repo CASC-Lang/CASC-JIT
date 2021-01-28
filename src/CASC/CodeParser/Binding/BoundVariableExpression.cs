@@ -1,4 +1,3 @@
-using System;
 using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
@@ -13,6 +12,6 @@ namespace CASC.CodeParser.Binding
         public override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
         public VariableSymbol Variable { get; }
         public string Name => Variable.Name;
-        public override Type Type => Variable.Type;
+        public override TypeSymbol Type => Variable.Type;
     }
 }

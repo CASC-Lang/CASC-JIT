@@ -145,17 +145,17 @@ namespace CASC.CodeParser
                 case BoundBinaryOperatorKind.Division:
                     return (decimal)left / (decimal)right;
                 case BoundBinaryOperatorKind.BitwiseAND:
-                    if (b.Type == (typeof(decimal)))
+                    if (b.Type == TypeSymbol.Number)
                         return Convert.ToDecimal(Convert.ToInt32(left) & Convert.ToInt32(right));
                     else
                         return (bool)left & (bool)right;
                 case BoundBinaryOperatorKind.BitwiseOR:
-                    if (b.Type == (typeof(decimal)))
+                    if (b.Type == TypeSymbol.Number)
                         return Convert.ToDecimal(Convert.ToInt32(left) | Convert.ToInt32(right));
                     else
                         return (bool)left | (bool)right;
                 case BoundBinaryOperatorKind.BitwiseXOR:
-                    if (b.Type == (typeof(decimal)))
+                    if (b.Type == TypeSymbol.Number)
                         return Convert.ToDecimal(Convert.ToInt32(left) ^ Convert.ToInt32(right));
                     else
                         return (bool)left ^ (bool)right;

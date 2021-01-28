@@ -121,7 +121,7 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindIfStatement(IfStatementSyntax syntax)
         {
-            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Boolean);
             var thenStatement = BindStatement(syntax.ThenStatement);
             var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
 
@@ -131,7 +131,7 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
         {
-            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Boolean);
             var body = BindStatement(syntax.Body);
 
             return new BoundWhileStatement(condition, body);
@@ -139,13 +139,14 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)
         {
-            var lowerBound = BindExpression(syntax.LowerBound, typeof(decimal));
-            var upperBound = BindExpression(syntax.UpperBound, typeof(decimal));
+            var lowerBound = BindExpression(syntax.LowerBound, TypeSymbol.Number);
+            var upperBound = BindExpression(syntax.UpperBound, TypeSymbol.Number);
 
             _scope = new BoundScope(_scope);
 
             var name = syntax.Identifier.Text;
-            var variable = new VariableSymbol(name, true, typeof(decimal));
+            var variable = new VariableSymbol(name, true, TypeSymbol.Number);
+
             if (!_scope.TryDeclare(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
 
@@ -156,9 +157,10 @@ namespace CASC.CodeParser.Binding
             return new BoundForStatement(variable, lowerBound, upperBound, body);
         }
 
-        private BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+        private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol targetType)
         {
             var result = BindExpression(syntax);
+
             if (result.Type != targetType)
                 _diagnostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
 

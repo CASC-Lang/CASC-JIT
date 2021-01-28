@@ -1,4 +1,5 @@
 using System;
+using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {
@@ -7,10 +8,19 @@ namespace CASC.CodeParser.Binding
         public BoundLiteralExpression(object value)
         {
             Value = value;
+
+            if (value is decimal)
+                Type = TypeSymbol.Number;
+            else if (value is bool)
+                Type = TypeSymbol.Boolean;
+                else if (value is string)
+                Type = TypeSymbol.String;
+                else
+                throw new Exception($"ERROR: Unexpected literal '{value}' of type {value.GetType()}.");
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
-        public override Type Type => Value.GetType();
+        public override TypeSymbol Type { get; }
         public object Value { get; }
     }
 }

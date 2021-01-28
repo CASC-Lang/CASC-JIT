@@ -82,7 +82,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Cannot convert type 'System.Boolean' to 'System.Decimal'.
+                ERROR: Cannot convert type 'bool' to 'number'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -94,7 +94,7 @@ namespace CASC_Test.Tests
             var text = @"[+]true";
 
             var diagnostics = @"
-                ERROR: Unary operator '+' is not defined for type 'System.Boolean'.
+                ERROR: Unary operator '+' is not defined for type 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -106,7 +106,7 @@ namespace CASC_Test.Tests
             var text = @"10 [*] false";
 
             var diagnostics = @"
-                ERROR: Binary operator '*' is not defined for types 'System.Decimal' and 'System.Boolean'.
+                ERROR: Binary operator '*' is not defined for types 'number' and 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -213,7 +213,7 @@ namespace CASC_Test.Tests
             "; // TODO: Investigate why 真's TextSpan cannot be the true value which is 25..26, output shows it is 25..29 which it might recognized it as "true". 
 
             var diagnostics = @"
-                ERROR: Cannot convert type 'System.Boolean' to 'System.Decimal'.
+                ERROR: Cannot convert type 'bool' to 'number'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -225,7 +225,7 @@ namespace CASC_Test.Tests
             var text = @"[正]真";
 
             var diagnostics = @"
-                ERROR: Unary operator '+' is not defined for type 'System.Boolean'.
+                ERROR: Unary operator '+' is not defined for type 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -237,7 +237,7 @@ namespace CASC_Test.Tests
             var text = @"十 [乘] 假";
 
             var diagnostics = @"
-                ERROR: Binary operator '*' is not defined for types 'System.Decimal' and 'System.Boolean'.
+                ERROR: Binary operator '*' is not defined for types 'number' and 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
