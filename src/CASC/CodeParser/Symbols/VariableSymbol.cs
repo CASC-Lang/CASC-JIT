@@ -1,5 +1,3 @@
-using System;
-
 namespace CASC.CodeParser.Symbols
 {
     public sealed class VariableSymbol : Symbol
@@ -7,12 +5,12 @@ namespace CASC.CodeParser.Symbols
         internal VariableSymbol(string name, bool isReadOnly, TypeSymbol type)
             : base(name)
         {
-            IsReadOnly = isReadOnly;
+            IsFinalized = isReadOnly;
             Type = type;
         }
 
         public override SymbolKind Kind => SymbolKind.Variable;
-        public bool IsReadOnly { get; }
+        public bool IsFinalized { get; }
         public TypeSymbol Type { get; }
 
         public override string ToString() => Name;

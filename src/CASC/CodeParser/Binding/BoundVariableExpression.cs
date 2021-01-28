@@ -10,8 +10,7 @@ namespace CASC.CodeParser.Binding
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
-        public VariableSymbol Variable { get; }
-        public string Name => Variable.Name;
         public override TypeSymbol Type => Variable.Type;
+        public VariableSymbol Variable { get; }
     }
 }

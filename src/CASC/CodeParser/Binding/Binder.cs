@@ -35,6 +35,7 @@ namespace CASC.CodeParser.Binding
         private static BoundScope CreateParentScope(BoundGlobalScope previous)
         {
             var stack = new Stack<BoundGlobalScope>();
+
             while (previous != null)
             {
                 stack.Push(previous);
@@ -47,6 +48,7 @@ namespace CASC.CodeParser.Binding
             {
                 previous = stack.Pop();
                 var scope = new BoundScope(parent);
+
                 foreach (var v in previous.Variables)
                     scope.TryDeclare(v);
 
@@ -108,13 +110,9 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindVariableDeclaration(VariableDeclarationStatementSyntax syntax)
         {
-            var name = syntax.Identifier.Text;
-            var isFinal = syntax.Keyword.Kind == SyntaxKind.ValKeyword;
+            var isFinalized = syntax.Keyword.Kind == SyntaxKind.ValKeyword;
             var initializer = BindExpression(syntax.Initializer);
-            var variable = new VariableSymbol(name, isFinal, initializer.Type);
-
-            if (!_scope.TryDeclare(variable))
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+            var variable = BindVariable(syntax.Identifier, isFinalized, initializer.Type);
 
             return new BoundVariableDeclaration(variable, initializer);
         }
@@ -144,11 +142,7 @@ namespace CASC.CodeParser.Binding
 
             _scope = new BoundScope(_scope);
 
-            var name = syntax.Identifier.Text;
-            var variable = new VariableSymbol(name, true, TypeSymbol.Number);
-
-            if (!_scope.TryDeclare(variable))
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+            var variable = BindVariable(syntax.Identifier, isFinalized: true, TypeSymbol.Number);
 
             var body = BindStatement(syntax.Body);
 
@@ -161,7 +155,9 @@ namespace CASC.CodeParser.Binding
         {
             var result = BindExpression(syntax);
 
-            if (result.Type != targetType)
+            if (targetType != TypeSymbol.Error &&
+                result.Type != TypeSymbol.Error &&
+                result.Type != targetType)
                 _diagnostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
 
             return result;
@@ -204,14 +200,15 @@ namespace CASC.CodeParser.Binding
         {
             var name = syntax.IdentifierToken.Text;
 
-            if (string.IsNullOrEmpty(name))
-                return new BoundLiteralExpression(0m);
+            if (syntax.IdentifierToken.IsMissing)
+                return new BoundErrorExpression();
 
 
             if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
-                return new BoundLiteralExpression(0m);
+
+                return new BoundErrorExpression();
             }
 
             return new BoundVariableExpression(variable);
@@ -229,7 +226,7 @@ namespace CASC.CodeParser.Binding
                 return boundExpression;
             }
 
-            if (variable.IsReadOnly)
+            if (variable.IsFinalized)
                 _diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
 
             if (boundExpression.Type != variable.Type)
@@ -245,13 +242,17 @@ namespace CASC.CodeParser.Binding
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
         {
             var boundOperand = BindExpression(syntax.Operand);
+
+            if (boundOperand.Type == TypeSymbol.Error)
+                return new BoundErrorExpression();
+
             var boundOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
 
             if (boundOperator == null)
             {
                 _diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundOperand.Type);
 
-                return boundOperand;
+                return new BoundErrorExpression();
             }
 
             return new BoundUnaryExpression(boundOperator, boundOperand);
@@ -261,16 +262,33 @@ namespace CASC.CodeParser.Binding
         {
             var boundLeft = BindExpression(syntax.Left);
             var boundRight = BindExpression(syntax.Right);
+
+            if (boundLeft.Type == TypeSymbol.Error ||
+                boundRight.Type == TypeSymbol.Error)
+                return new BoundErrorExpression();
+
             var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
 
             if (boundOperator == null)
             {
                 _diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text, boundLeft.Type, boundRight.Type);
 
-                return boundLeft;
+                return new BoundErrorExpression();
             }
 
             return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
+        }
+
+        private VariableSymbol BindVariable(SyntaxToken identifier, bool isFinalized, TypeSymbol type)
+        {
+            var name = identifier.Text ?? "?";
+            var declare = !identifier.IsMissing;
+            var variable = new VariableSymbol(name, isFinalized, TypeSymbol.Number);
+
+            if (declare && !_scope.TryDeclare(variable))
+                _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
+
+            return variable;
         }
     }
 }

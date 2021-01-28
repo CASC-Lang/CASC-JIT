@@ -14,6 +14,7 @@ namespace CASC.CodeParser.Binding
         LabelStatement,
 
         // Expressions
+        ErrorExpression,
         LiteralExpression,
         VariableExpression,
         AssignmentExpression,
