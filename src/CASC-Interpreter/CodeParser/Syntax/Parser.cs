@@ -119,7 +119,7 @@ namespace CASC.CodeParser.Syntax
             );
         }
 
-        private SeperatedSyntaxList<ParameterSyntax> ParseParameterList()
+        private SeparatedSyntaxList<ParameterSyntax> ParseParameterList()
         {
             var nodesAndSeperators = ImmutableArray.CreateBuilder<SyntaxNode>();
             var parseNextParameter = true;
@@ -140,7 +140,7 @@ namespace CASC.CodeParser.Syntax
                     parseNextParameter = false;
             }
 
-            return new SeperatedSyntaxList<ParameterSyntax>(nodesAndSeperators.ToImmutable());
+            return new SeparatedSyntaxList<ParameterSyntax>(nodesAndSeperators.ToImmutable());
         }
 
         private ParameterSyntax ParseParameter()
@@ -452,7 +452,7 @@ namespace CASC.CodeParser.Syntax
             return new CallExpressionSyntax(identifier, openParenthesisToken, arguments, closeParenthesisToken);
         }
 
-        private SeperatedSyntaxList<ExpressionSyntax> ParseArguments()
+        private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
         {
             var nodesAndSeperators = ImmutableArray.CreateBuilder<SyntaxNode>();
             var parseNextArgument = true;
@@ -473,7 +473,7 @@ namespace CASC.CodeParser.Syntax
                     parseNextArgument = false;
             }
 
-            return new SeperatedSyntaxList<ExpressionSyntax>(nodesAndSeperators.ToImmutable());
+            return new SeparatedSyntaxList<ExpressionSyntax>(nodesAndSeperators.ToImmutable());
         }
 
         private ExpressionSyntax ParseNameExpression()

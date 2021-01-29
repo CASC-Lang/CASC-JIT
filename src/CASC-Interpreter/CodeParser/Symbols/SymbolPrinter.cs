@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using CASC.CodeParser.Syntax;
 using CASC.IO;
 
 namespace CASC.CodeParser.Symbols
@@ -32,42 +33,51 @@ namespace CASC.CodeParser.Symbols
 
         private static void WriteFunctionTo(FunctionSymbol symbol, TextWriter writer)
         {
-            writer.WriteKeyword("function ");
+            writer.WriteKeyword(SyntaxKind.FunctionKeyword);
+            writer.WriteSpace();
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation("(");
+            writer.WritePunctuation(SyntaxKind.OpenParenthesisToken);
 
             for (int i = 0; i < symbol.Parameters.Length; i++)
             {
                 if (i > 0)
-                    writer.WritePunctuation(", ");
+                {
+                    writer.WritePunctuation(SyntaxKind.CommaToken);
+                    writer.WriteSpace();
+                }
 
                 symbol.Parameters[i].WriteTo(writer);
             }
 
-            writer.WritePunctuation(")");
+            writer.WritePunctuation(SyntaxKind.CloseParenthesisToken);
             writer.WriteLine();
         }
 
         private static void WriteGlobalVariableTo(GlobalVariableSymbol symbol, TextWriter writer)
         {
-            writer.WriteKeyword(symbol.IsFinalized ? "val " : "(let / var) ");
+            writer.WriteKeyword(symbol.IsFinalized ? SyntaxKind.ValKeyword : SyntaxKind.VarKeyword);
+            writer.WriteSpace();
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 
         private static void WriteLocalVariableTo(LocalVariableSymbol symbol, TextWriter writer)
         {
-            writer.WriteKeyword(symbol.IsFinalized ? "val " : "(let / var) ");
+            writer.WriteKeyword(symbol.IsFinalized ? SyntaxKind.ValKeyword : SyntaxKind.VarKeyword);
+            writer.WriteSpace();
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 
         private static void WriteParameterTo(ParameterSymbol symbol, TextWriter writer)
         {
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 

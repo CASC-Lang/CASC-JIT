@@ -150,6 +150,34 @@ namespace CASC_Test.Tests
             AssertDiagnostics(text, diagnostics);
         }
 
+        [Test]
+        public void Evaluator_InvokeFunctionArguments_Missing()
+        {
+            var text = @"
+                print([)]
+            ";
+
+            var diagnostics = @"
+                Function 'print' requires 1 arguments but was given 0.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_InvokeFunctionArguments_Exceeding()
+        {
+            var text = @"
+                print(""Hello""[, "" "", "" world!""])
+            ";
+
+            var diagnostics = @"
+                Function 'print' requires 1 arguments but was given 3.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
         private void AssertDiagnostics(string text, string diagnosticText)
         {
             var annotatedText = AnnotatedText.Parse(text);
@@ -314,6 +342,34 @@ namespace CASC_Test.Tests
                 Unexpected token <EqualsToken>, expected <IdentifierToken>.
                 Unexpected token <CloseParenthesisToken>, expected <IdentifierToken>.
                 Unexpected token <EndOfFileToken>, expected <CloseBraceToken>.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_InvokeFunctionArguments_Missing()
+        {
+            var text = @"
+                print([)]
+            ";
+
+            var diagnostics = @"
+                Function 'print' requires 1 arguments but was given 0.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_InvokeFunctionArguments_Exceeding()
+        {
+            var text = @"
+                print(""你好""[, "" "", "" 世界!""])
+            ";
+
+            var diagnostics = @"
+                Function 'print' requires 1 arguments but was given 3.
             ";
 
             AssertDiagnostics(text, diagnostics);

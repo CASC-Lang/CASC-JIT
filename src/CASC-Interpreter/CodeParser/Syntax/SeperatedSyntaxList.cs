@@ -4,17 +4,17 @@ using System.Collections.Immutable;
 
 namespace CASC.CodeParser.Syntax
 {
-    public abstract class SeperatedSyntaxList
+    public abstract class SeparatedSyntaxList
     {
         public abstract ImmutableArray<SyntaxNode> GetWithSeperators();
     }
 
-    public sealed class SeperatedSyntaxList<T> : SeperatedSyntaxList, IEnumerable<T>
+    public sealed class SeparatedSyntaxList<T> : SeparatedSyntaxList, IEnumerable<T>
         where T : SyntaxNode
     {
         private readonly ImmutableArray<SyntaxNode> _nodesAndSeperators;
 
-        public SeperatedSyntaxList(ImmutableArray<SyntaxNode> nodesAndSeperators)
+        public SeparatedSyntaxList(ImmutableArray<SyntaxNode> nodesAndSeperators)
         {
             _nodesAndSeperators = nodesAndSeperators;
         }
@@ -23,7 +23,7 @@ namespace CASC.CodeParser.Syntax
 
         public T this[int index] => (T)_nodesAndSeperators[index * 2];
 
-        public SyntaxToken GetSeperator(int index)
+        public SyntaxToken GetSeparator(int index)
         {
             if (index == Count - 1)
                 return null;

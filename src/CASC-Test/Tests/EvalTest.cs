@@ -99,6 +99,8 @@ namespace CASC_Test
         [TestCase("{ var a = 0 for i = 0 to 100 { a = i + a } a }", 5050)]
         [TestCase("{ var a = 10 for i = 1 to (a = a - 1) { } a }", 9)]
         [TestCase("{ var a = 0 do a = a + 1 while a < 10 a}", 10)]
+        [TestCase("{ var i = 0 while i < 5 { i = i + 1 if i == 5 continue } i }", 5)]
+        [TestCase("{ var i = 0 do { i = i + 1 if i == 5 continue } while i < 5 i }", 5)]
         public void EvalTestI(string input, object expected)
         {
             var result = Evaluate(input);
@@ -154,6 +156,8 @@ namespace CASC_Test
         [TestCase("{ 變數 甲 賦 零 從 索引值 賦 零 到 一百 { 甲 = 索引值 加 甲 } 甲 }", 5050)]
         [TestCase("{ 變數 甲 賦 十 從 索引值 賦 一 到 (甲 賦 甲 減 一) { } 甲 }", 9)]
         [TestCase("{ 變數 甲 賦 零 持續 甲 賦 甲 加 一 當 甲 小於 十 甲 }", 10)]
+        [TestCase("{ 變數 甲 賦 零 當 甲 小於 五 { 甲 賦 甲 加 一 如果 甲 是 五 繼續 } 甲 }", 5)]
+        [TestCase("{ 變數 甲 賦 零 持續 { 甲 賦 甲 加 一 如果 甲 是 五 繼續 } 當 甲 小於 五 甲 }", 5)]
         public void EvalTestZHI(string input, object expected)
         {
             var result = Evaluate(input);

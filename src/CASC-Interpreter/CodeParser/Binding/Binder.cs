@@ -492,10 +492,29 @@ namespace CASC.CodeParser.Binding
 
             if (syntax.Arguments.Count != function.Parameters.Length)
             {
-                _diagnostics.ReportArgumentCountMismatch(syntax.Span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
+                TextSpan span;
+
+                if (syntax.Arguments.Count > function.Parameters.Length)
+                {
+                    SyntaxNode firstExceedingNode;
+
+                    if (function.Parameters.Length > 0)
+                        firstExceedingNode = syntax.Arguments.GetSeparator(function.Parameters.Length - 1);
+                    else
+                        firstExceedingNode = syntax.Arguments[0];
+
+                    var lastExceedingArgument = syntax.Arguments[syntax.Arguments.Count - 1];
+                    span = TextSpan.FromBounds(firstExceedingNode.Span.Start, lastExceedingArgument.Span.End);
+                }
+                else
+                    span = syntax.CloseParenthesisToken.Span;
+
+                _diagnostics.ReportArgumentCountMismatch(span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
 
                 return new BoundErrorExpression();
             }
+
+            bool hasErrors = false;
 
             for (var i = 0; i < syntax.Arguments.Count; i++)
             {
@@ -504,11 +523,15 @@ namespace CASC.CodeParser.Binding
 
                 if (argument.Type != parameter.Type)
                 {
-                    _diagnostics.ReportArgumentTypeMismatch(syntax.Arguments[i].Span, parameter.Name, parameter.Type, argument.Type);
+                    if (argument.Type != TypeSymbol.Error)
+                        _diagnostics.ReportArgumentTypeMismatch(syntax.Arguments[i].Span, parameter.Name, parameter.Type, argument.Type);
 
-                    return new BoundErrorExpression();
+                    hasErrors = true;
                 }
             }
+
+            if (hasErrors)
+                return new BoundErrorExpression();
 
             return new BoundCallExpression(function, boundArguments.ToImmutable());
         }
