@@ -7,9 +7,9 @@
 
 src/CASC-Interpreter/obj/*
 src/CASC-Interpreter/bin/*
+src/CASC-Compiler/obj/*
+src/CASC-Compiler/bin/*
 src/CASC-Console/obj/*
 src/CASC-Console/bin/*
 src/CASC-Test/obj/*
 src/CASC-Test/bin/*
-src/CASC-Lang/node_modules
-src/CASC-Lang/*.vsix

@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using CASC.CodeParser.Text;
 using CASC.CodeParser.Symbols;
+using CASC.IO;
 
 namespace CASC
 {
@@ -115,45 +116,11 @@ namespace CASC
                     Console.WriteLine(result.Value);
                     Console.ResetColor();
                 }
+
                 _previous = compilation;
             }
             else
-            {
-                foreach (var diagnostic in result.Diagnostics.OrderBy(d => d.Span, new TextSpanComparer()))
-                {
-                    var lineIndex = syntaxTree.Source.GetLineIndex(diagnostic.Span.Start);
-                    var line = syntaxTree.Source.Lines[lineIndex];
-                    var lineNumber = lineIndex + 1;
-                    var character = diagnostic.Span.Start - line.Start + 1;
-
-                    Console.WriteLine();
-
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.Write($"({lineNumber}, {character}): ");
-                    Console.WriteLine(diagnostic);
-                    Console.ResetColor();
-
-                    var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
-                    var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
-
-                    var prefix = syntaxTree.Source.ToString(prefixSpan);
-                    var error = syntaxTree.Source.ToString(diagnostic.Span);
-                    var suffix = syntaxTree.Source.ToString(suffixSpan);
-
-                    Console.Write("    ");
-                    Console.Write(prefix);
-
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.Write(error);
-                    Console.ResetColor();
-
-                    Console.Write(suffix);
-
-                    Console.WriteLine();
-                }
-
-                Console.WriteLine();
-            }
+                Console.Out.WriteDiagnostics(result.Diagnostics, syntaxTree);
         }
     }
 }

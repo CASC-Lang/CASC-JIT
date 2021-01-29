@@ -1,11 +1,15 @@
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using CASC.CodeParser;
 using CASC.CodeParser.Syntax;
+using CASC.CodeParser.Text;
 
 namespace CASC.IO
 {
-    internal static class TextWriterExtensions
+    public static class TextWriterExtensions
     {
         private static bool IsConsoleOut(this TextWriter writer)
         {
@@ -78,6 +82,45 @@ namespace CASC.IO
             writer.SetForeground(ConsoleColor.DarkGray);
             writer.Write(text);
             writer.ResetColor();
+        }
+
+        public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics, SyntaxTree syntaxTree)
+        {
+            foreach (var diagnostic in diagnostics.OrderBy(d => d.Span.Start)
+                                                  .ThenBy(d => d.Span.Length))
+            {
+                var lineIndex = syntaxTree.Source.GetLineIndex(diagnostic.Span.Start);
+                var line = syntaxTree.Source.Lines[lineIndex];
+                var lineNumber = lineIndex + 1;
+                var character = diagnostic.Span.Start - line.Start + 1;
+
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write($"({lineNumber}, {character}): ");
+                Console.WriteLine(diagnostic);
+                Console.ResetColor();
+
+                var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
+                var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                var prefix = syntaxTree.Source.ToString(prefixSpan);
+                var error = syntaxTree.Source.ToString(diagnostic.Span);
+                var suffix = syntaxTree.Source.ToString(suffixSpan);
+
+                Console.Write("    ");
+                Console.Write(prefix);
+
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write(error);
+                Console.ResetColor();
+
+                Console.Write(suffix);
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine();
         }
     }
 }

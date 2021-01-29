@@ -42,6 +42,7 @@ namespace CASC.CodeParser
                 return _globalScope;
             }
         }
+
         public Compilation ContinueWith(SyntaxTree syntaxTree)
         {
             return new Compilation(this, syntaxTree);
