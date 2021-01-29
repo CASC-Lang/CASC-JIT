@@ -101,6 +101,14 @@ namespace CASC.CodeParser.Syntax
                 case "for":
                     return SyntaxKind.ForKeyword;
 
+                case "跳離":
+                case "break":
+                    return SyntaxKind.BreakKeyword;
+
+                case "繼續":
+                case "continue":
+                    return SyntaxKind.ContinueKeyword;
+
                 case "到":
                 case "to":
                     return SyntaxKind.ToKeyword;
@@ -212,6 +220,10 @@ namespace CASC.CodeParser.Syntax
                     return "do";
                 case SyntaxKind.ForKeyword:
                     return "for";
+                case SyntaxKind.BreakKeyword:
+                    return "break";
+                case SyntaxKind.ContinueKeyword:
+                    return "continue";
                 case SyntaxKind.ToKeyword:
                     return "to";
                 case SyntaxKind.FunctionKeyword:
@@ -331,10 +343,16 @@ namespace CASC.CodeParser.Syntax
                     yield return "當";
                     break;
                 case SyntaxKind.DoKeyword:
-                    yield return "do";
+                    yield return "持續";
                     break;
                 case SyntaxKind.ForKeyword:
                     yield return "從";
+                    break;
+                case SyntaxKind.BreakKeyword:
+                    yield return "跳離";
+                    break;
+                case SyntaxKind.ContinueKeyword:
+                    yield return "繼續";
                     break;
                 case SyntaxKind.ToKeyword:
                     yield return "到";

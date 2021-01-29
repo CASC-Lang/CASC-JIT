@@ -2,16 +2,16 @@ using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {
-    internal class BoundForStatement : BoundStatement
+    internal class BoundForStatement : BoundLoopStatement
     {
-        public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body)
+        public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body, BoundLabel breakLabel, BoundLabel continueLabel)
+            : base(breakLabel, continueLabel)
         {
             Variable = variable;
             LowerBound = lowerBound;
             UpperBound = upperBound;
             Body = body;
         }
-
         public override BoundNodeKind Kind => BoundNodeKind.ForStatement;
         public VariableSymbol Variable { get; }
         public BoundExpression LowerBound { get; }

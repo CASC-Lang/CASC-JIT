@@ -14,6 +14,7 @@ namespace CASC.CodeParser.Lowers
         private Lowerer()
         {
         }
+
         private BoundLabel GenerateLabel()
         {
             var name = $"Label{++_labelCount}";
@@ -84,15 +85,13 @@ namespace CASC.CodeParser.Lowers
 
         protected override BoundStatement RewriteWhileStatement(BoundWhileStatement node)
         {
-            var continueLabel = GenerateLabel();
             var checkLabel = GenerateLabel();
-            var endLabel = GenerateLabel();
 
             var gotoCheck = new BoundGotoStatement(checkLabel);
-            var continueLabelStatement = new BoundLabelStatement(continueLabel);
+            var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
             var checkLabelStatement = new BoundLabelStatement(checkLabel);
-            var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition);
-            var endLabelStatement = new BoundLabelStatement(endLabel);
+            var gotoTrue = new BoundConditionalGotoStatement(node.ContinueLabel, node.Condition);
+            var breakLabelStatement = new BoundLabelStatement(node.BreakLabel);
 
             var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
                 gotoCheck,
@@ -100,7 +99,23 @@ namespace CASC.CodeParser.Lowers
                 node.Body,
                 checkLabelStatement,
                 gotoTrue,
-                endLabelStatement
+                breakLabelStatement
+            ));
+
+            return RewriteStatement(result);
+        }
+
+        protected override BoundStatement RewriteDoWhileStatement(BoundDoWhileStatement node)
+        {
+            var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
+            var gotoTrue = new BoundConditionalGotoStatement(node.ContinueLabel, node.Condition);
+            var breakLabelStatement = new BoundLabelStatement(node.BreakLabel);
+
+            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+                continueLabelStatement,
+                node.Body,
+                gotoTrue,
+                breakLabelStatement
             ));
 
             return RewriteStatement(result);
@@ -117,70 +132,27 @@ namespace CASC.CodeParser.Lowers
                 BoundBinaryOperator.Bind(SyntaxKind.LessEqualsToken, TypeSymbol.Number, TypeSymbol.Number),
                 new BoundVariableExpression(upperBoundSymbol)
             );
+            var continueLabelStatement = new BoundLabelStatement(node.ContinueLabel);
             var increment = new BoundExpressionStatement(
                 new BoundAssignmentExpression(
                     node.Variable,
                     new BoundBinaryExpression(
-                            variableExpression,
-                            BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Number, TypeSymbol.Number),
-                            new BoundLiteralExpression(1m)
+                        variableExpression,
+                        BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Number, TypeSymbol.Number),
+                        new BoundLiteralExpression(1m)
                     )
                 )
             );
-            var whileBody = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(node.Body, increment));
-            var whileStatement = new BoundWhileStatement(condition, whileBody);
+            var whileBody = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+                    node.Body,
+                    continueLabelStatement,
+                    increment)
+            );
+            var whileStatement = new BoundWhileStatement(condition, whileBody, node.BreakLabel, GenerateLabel());
             var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
                 variableDeclaration,
                 upperBoundDeclaration,
                 whileStatement
-            ));
-
-            return RewriteStatement(result);
-        }
-
-        protected override BoundStatement RewriteDoWhileStatement(BoundDoWhileStatement node)
-        {
-            var continueLabel = GenerateLabel();
-            var checkLabel = GenerateLabel();
-            var endLabel = GenerateLabel();
-
-            var continueLabelStatement = new BoundLabelStatement(continueLabel);
-            var gotoCheck = new BoundGotoStatement(checkLabel);
-            var checkLabelStatement = new BoundLabelStatement(checkLabel);
-            var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition);
-            var endLabelStatement = new BoundLabelStatement(endLabel);
-
-            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
-                continueLabelStatement,
-                node.Body,
-                gotoCheck,
-                checkLabelStatement,
-                gotoTrue,
-                endLabelStatement
-            ));
-
-            return RewriteStatement(result);
-        }
-
-        protected override BoundStatement RewriteTryCatchStatement(BoundTryCatchStatement node)
-        {
-            var errorLabel = GenerateLabel();
-            var endLabel = GenerateLabel();
-
-            var beginTryStatement = new BoundBeginTryStatement(errorLabel);
-            var endTryStatement = new BoundEndTryStatement();
-            var gotoEndStatement = new BoundGotoStatement(endLabel);
-            var errorLabelStatement = new BoundLabelStatement(errorLabel);
-            var endLabelStatement = new BoundLabelStatement(endLabel);
-
-            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
-                beginTryStatement,
-                node.TryBody,
-                endTryStatement,
-                gotoEndStatement,
-                errorLabelStatement,
-                node.CatchBody,
-                endLabelStatement
             ));
 
             return RewriteStatement(result);

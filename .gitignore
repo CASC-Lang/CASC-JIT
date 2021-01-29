@@ -1,7 +1,12 @@
 .vscode/*
 .vs/*
-src/CASC/obj/*
-src/CASC/bin/*
+
+**/*.dll
+**/*.pdb
+**/*.exe
+
+src/CASC-Interpreter/obj/*
+src/CASC-Interpreter/bin/*
 src/CASC-Console/obj/*
 src/CASC-Console/bin/*
 src/CASC-Test/obj/*

@@ -13,9 +13,9 @@ namespace CASC.CodeParser.Binding
                 Type = TypeSymbol.Number;
             else if (value is bool)
                 Type = TypeSymbol.Bool;
-                else if (value is string)
+            else if (value is string)
                 Type = TypeSymbol.String;
-                else
+            else
                 throw new Exception($"ERROR: Unexpected literal '{value}' of type {value.GetType()}.");
         }
 
