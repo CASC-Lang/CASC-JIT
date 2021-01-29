@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CASC\CASC.csproj" />
+    <ProjectReference Include="..\CASC-Interpreter\CASC-Interpreter.csproj" />
   </ItemGroup>
 </Project>

@@ -109,6 +109,14 @@ namespace CASC.CodeParser.Syntax
                 case "func":
                     return SyntaxKind.FunctionKeyword;
 
+                case "嘗試":
+                case "try":
+                    return SyntaxKind.TryKeyword;
+
+                case "抓取":
+                case "catch":
+                    return SyntaxKind.CatchKeyword;
+
                 default:
                     return SyntaxKind.IdentifierToken;
             }
@@ -208,6 +216,10 @@ namespace CASC.CodeParser.Syntax
                     return "to";
                 case SyntaxKind.FunctionKeyword:
                     return "func";
+                case SyntaxKind.TryKeyword:
+                    return "try";
+                case SyntaxKind.CatchKeyword:
+                    return "catch";
                 default:
                     return null;
             }
@@ -328,7 +340,13 @@ namespace CASC.CodeParser.Syntax
                     yield return "到";
                     break;
                 case SyntaxKind.FunctionKeyword:
-                    yield return "func";
+                    yield return "函式";
+                    break;
+                case SyntaxKind.TryKeyword:
+                    yield return "嘗試";
+                    break;
+                case SyntaxKind.CatchKeyword:
+                    yield return "抓取";
                     break;
                 default:
                     yield break;

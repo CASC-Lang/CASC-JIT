@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\CASC\CASC.csproj" />
+    <ProjectReference Include="..\CASC-Interpreter\CASC-Interpreter.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

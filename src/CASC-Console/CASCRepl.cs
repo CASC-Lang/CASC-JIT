@@ -108,6 +108,9 @@ namespace CASC
             {
                 if (result.Value != null)
                 {
+                    Console.ForegroundColor = result.Value is EvaluatorException
+                                            ? ConsoleColor.Red
+                                            : ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine(result.Value);
                     Console.ResetColor();
@@ -116,7 +119,7 @@ namespace CASC
             }
             else
             {
-                foreach (var diagnostic in result.Diagnostics)
+                foreach (var diagnostic in result.Diagnostics.OrderBy(d => d.Span, new TextSpanComparer()))
                 {
                     var lineIndex = syntaxTree.Source.GetLineIndex(diagnostic.Span.Start);
                     var line = syntaxTree.Source.Lines[lineIndex];

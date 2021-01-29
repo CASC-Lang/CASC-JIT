@@ -122,18 +122,22 @@ namespace CASC.CodeParser.Syntax
         private SeperatedSyntaxList<ParameterSyntax> ParseParameterList()
         {
             var nodesAndSeperators = ImmutableArray.CreateBuilder<SyntaxNode>();
+            var parseNextParameter = true;
 
-            while (Current.Kind != SyntaxKind.CloseParenthesisToken &&
+            while (parseNextParameter &&
+                   Current.Kind != SyntaxKind.CloseParenthesisToken &&
                    Current.Kind != SyntaxKind.EndOfFileToken)
             {
                 var parameter = ParseParameter();
                 nodesAndSeperators.Add(parameter);
 
-                if (Current.Kind != SyntaxKind.CloseParenthesisToken)
+                if (Current.Kind == SyntaxKind.CommaToken)
                 {
                     var comma = MatchToken(SyntaxKind.CommaToken);
                     nodesAndSeperators.Add(comma);
                 }
+                else
+                    parseNextParameter = false;
             }
 
             return new SeperatedSyntaxList<ParameterSyntax>(nodesAndSeperators.ToImmutable());
@@ -177,6 +181,9 @@ namespace CASC.CodeParser.Syntax
 
                 case SyntaxKind.ForKeyword:
                     return ParseForStatement();
+
+                case SyntaxKind.TryKeyword:
+                    return ParseTryCatchStatement();
 
                 default:
                     return ParseExpressionStatement();
@@ -277,6 +284,16 @@ namespace CASC.CodeParser.Syntax
             return new ForStatementSyntax(keyword, identifier, equalsToken, lowerBound, toKeyword, upperBound, body);
         }
 
+        private StatementSyntax ParseTryCatchStatement()
+        {
+            var tryKeyword = MatchToken(SyntaxKind.TryKeyword);
+            var tryBody = ParseStatement();
+            var catchKeyword = MatchToken(SyntaxKind.CatchKeyword);
+            var catchBody = ParseStatement();
+
+            return new TryCatchStatementSyntax(tryKeyword, tryBody, catchKeyword, catchBody);
+        }
+
         private ElseClauseSyntax ParseOptionalElseClause()
         {
             if (Current.Kind != SyntaxKind.ElseKeyword)
@@ -319,6 +336,7 @@ namespace CASC.CodeParser.Syntax
         {
             ExpressionSyntax left;
             var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
@@ -326,9 +344,7 @@ namespace CASC.CodeParser.Syntax
                 left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
-            {
                 left = ParsePrimaryExpression();
-            }
 
             while (true)
             {
@@ -364,7 +380,6 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.IdentifierToken:
                 default:
                     return ParseNameOrCallExpression();
-
             }
         }
 
@@ -420,18 +435,22 @@ namespace CASC.CodeParser.Syntax
         private SeperatedSyntaxList<ExpressionSyntax> ParseArguments()
         {
             var nodesAndSeperators = ImmutableArray.CreateBuilder<SyntaxNode>();
+            var parseNextArgument = true;
 
-            while (Current.Kind != SyntaxKind.CloseParenthesisToken &&
+            while (parseNextArgument &&
+                   Current.Kind != SyntaxKind.CloseParenthesisToken &&
                    Current.Kind != SyntaxKind.EndOfFileToken)
             {
                 var expression = ParseExpression();
                 nodesAndSeperators.Add(expression);
 
-                if (Current.Kind != SyntaxKind.CloseParenthesisToken)
+                if (Current.Kind == SyntaxKind.CommaToken)
                 {
                     var comma = MatchToken(SyntaxKind.CommaToken);
                     nodesAndSeperators.Add(comma);
                 }
+                else
+                    parseNextArgument = false;
             }
 
             return new SeperatedSyntaxList<ExpressionSyntax>(nodesAndSeperators.ToImmutable());

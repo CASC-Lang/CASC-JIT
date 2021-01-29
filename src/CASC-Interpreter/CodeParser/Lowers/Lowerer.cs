@@ -161,5 +161,29 @@ namespace CASC.CodeParser.Lowers
 
             return RewriteStatement(result);
         }
+
+        protected override BoundStatement RewriteTryCatchStatement(BoundTryCatchStatement node)
+        {
+            var errorLabel = GenerateLabel();
+            var endLabel = GenerateLabel();
+
+            var beginTryStatement = new BoundBeginTryStatement(errorLabel);
+            var endTryStatement = new BoundEndTryStatement();
+            var gotoEndStatement = new BoundGotoStatement(endLabel);
+            var errorLabelStatement = new BoundLabelStatement(errorLabel);
+            var endLabelStatement = new BoundLabelStatement(endLabel);
+
+            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+                beginTryStatement,
+                node.TryBody,
+                endTryStatement,
+                gotoEndStatement,
+                errorLabelStatement,
+                node.CatchBody,
+                endLabelStatement
+            ));
+
+            return RewriteStatement(result);
+        }
     }
 }

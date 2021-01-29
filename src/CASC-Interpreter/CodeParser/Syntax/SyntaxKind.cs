@@ -47,6 +47,8 @@ namespace CASC.CodeParser.Syntax
         ForKeyword,
         ToKeyword,
         FunctionKeyword,
+        TryKeyword,
+        CatchKeyword,
 
         // Nodes
         CompilationUnit,
@@ -64,6 +66,7 @@ namespace CASC.CodeParser.Syntax
         WhileStatement,
         DoWhileStatement,
         ForStatement,
+        TryCatchStatement,
 
         // Expressions
         LiteralExpression,

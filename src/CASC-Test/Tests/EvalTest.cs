@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CASC.CodeParser;
 using CASC.CodeParser.Symbols;
@@ -24,6 +25,18 @@ namespace CASC_Test
                                 ? new Compilation(syntaxTree)
                                 : previous.ContinueWith(syntaxTree);
             return compilation.Evaluate(variables);
+        }
+
+        private static void AssertThrows(string text, Type expectedInnerException)
+        {
+            var syntaxTree = SyntaxTree.Parse(text);
+            var compilation = new Compilation(syntaxTree);
+            var variables = new Dictionary<VariableSymbol, object>();
+            var result = compilation.Evaluate(variables);
+
+            Assert.IsEmpty(result.Diagnostics);
+            Assert.IsAssignableFrom<EvaluatorException>(result.Value);
+            Assert.IsAssignableFrom(expectedInnerException, ((EvaluatorException)result.Value).InnerException);
         }
 
         [TestCase("2 + 1", 3)]
@@ -90,6 +103,14 @@ namespace CASC_Test
             Assert.AreEqual(result.Value, expected);
         }
 
+        [Theory]
+        [TestCase("number(\"9999999999999999999999999999999999999999\")", typeof(OverflowException))]
+        [TestCase("number(\"abc\")", typeof(FormatException))]
+        public void EvalTestII(string text, Type expectedInnerException)
+        {
+            AssertThrows(text, expectedInnerException);
+        }
+
         [TestCase("二 加 一", 3)]
         [TestCase("二 減 一", 1)]
         [TestCase("二 乘 一", 2)]
@@ -131,6 +152,14 @@ namespace CASC_Test
 
             Assert.That(result.Diagnostics, Has.Exactly(0).Count);
             Assert.AreEqual(result.Value, expected);
+        }
+
+        [Theory]
+        [TestCase("數字(\"9999999999999999999999999999999999999999\")", typeof(OverflowException))]
+        [TestCase("數字(\"甲乙丙\")", typeof(FormatException))]
+        public void EvalTestZHII(string text, Type expectedInnerException)
+        {
+            AssertThrows(text, expectedInnerException);
         }
     }
 }
