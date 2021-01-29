@@ -27,6 +27,9 @@ namespace CASC.CodeParser.Binding
                 case BoundNodeKind.VariableDeclaration:
                     WriteVariableDeclaration((BoundVariableDeclaration)node, writer);
                     break;
+                case BoundNodeKind.ReturnStatement:
+                    WriteReturnStatement((BoundReturnStatement)node, writer);
+                    break;
                 case BoundNodeKind.IfStatement:
                     WriteIfStatement((BoundIfStatement)node, writer);
                     break;
@@ -139,6 +142,19 @@ namespace CASC.CodeParser.Binding
             writer.WritePunctuation(SyntaxKind.EqualsToken);
             writer.WriteSpace();
             node.Initializer.WriteTo(writer);
+            writer.WriteLine();
+        }
+
+        private static void WriteReturnStatement(BoundReturnStatement node, IndentedTextWriter writer)
+        {
+            writer.WriteKeyword(SyntaxKind.ReturnKeyword);
+
+            if (node.Expression != null)
+            {
+                writer.WriteSpace();
+                node.Expression.WriteTo(writer);
+            }
+
             writer.WriteLine();
         }
 

@@ -156,5 +156,11 @@ namespace CASC.CodeParser
             var message = $"The 'return' keyword can only be used insode of functions.";
             Report(span, message);
         }
+
+        public void ReportAllPathsMustReturn(TextSpan span)
+        {
+            var message = "Not all code paths return a value.";
+            Report(span, message);
+        }
     }
 }

@@ -256,10 +256,11 @@ namespace CASC.CodeParser.Syntax
             var keyword = MatchToken(SyntaxKind.ReturnKeyword);
             var keywordLine = _source.GetLineIndex(keyword.Span.Start);
             var currentLine = _source.GetLineIndex(Current.Span.Start);
-            var isEOF = Current.Kind == SyntaxKind.EndOfFileToken;
-            var expresion = isEOF && keywordLine == currentLine ? ParseExpression() : null;
+            var isEof = Current.Kind == SyntaxKind.EndOfFileToken;
+            var sameLine = !isEof && keywordLine == currentLine;
+            var expression = sameLine ? ParseExpression() : null;
 
-            return new ReturnStatementSyntax(keyword, expresion);
+            return new ReturnStatementSyntax(keyword, expression);
         }
 
         private StatementSyntax ParseIfStatement()
