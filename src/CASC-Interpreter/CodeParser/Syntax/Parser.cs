@@ -170,6 +170,9 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.ValKeyword:
                     return ParseVariableDeclaration();
 
+                case SyntaxKind.ReturnKeyword:
+                    return ParseReturnStatement();
+
                 case SyntaxKind.IfKeyword:
                     return ParseIfStatement();
 
@@ -246,6 +249,17 @@ namespace CASC.CodeParser.Syntax
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
 
             return new TypeClauseSyntax(colonToken, identifier);
+        }
+
+        private StatementSyntax ParseReturnStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.ReturnKeyword);
+            var keywordLine = _source.GetLineIndex(keyword.Span.Start);
+            var currentLine = _source.GetLineIndex(Current.Span.Start);
+            var isEOF = Current.Kind == SyntaxKind.EndOfFileToken;
+            var expresion = isEOF && keywordLine == currentLine ? ParseExpression() : null;
+
+            return new ReturnStatementSyntax(keyword, expresion);
         }
 
         private StatementSyntax ParseIfStatement()

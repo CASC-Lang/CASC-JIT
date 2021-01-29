@@ -80,6 +80,10 @@ namespace CASC.CodeParser.Syntax
                 case "val":
                     return SyntaxKind.ValKeyword;
 
+                case "返回":
+                case "return":
+                    return SyntaxKind.ReturnKeyword;
+
                 case "如果":
                 case "若":
                 case "if":
@@ -210,6 +214,8 @@ namespace CASC.CodeParser.Syntax
                     return "var";
                 case SyntaxKind.ValKeyword:
                     return "val";
+                case SyntaxKind.ReturnKeyword:
+                    return "return";
                 case SyntaxKind.IfKeyword:
                     return "if";
                 case SyntaxKind.ElseKeyword:
@@ -331,6 +337,9 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.ValKeyword:
                     yield return "終值";
+                    break;
+                case SyntaxKind.ReturnKeyword:
+                    yield return "return";
                     break;
                 case SyntaxKind.IfKeyword:
                     yield return "如果";

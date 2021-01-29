@@ -49,35 +49,49 @@ namespace CASC.CodeParser
                             EvaluateVariableDeclaration((BoundVariableDeclaration)s);
                             index++;
                             break;
+
                         case BoundNodeKind.ExpressionStatement:
                             EvaluateExpressionStatement((BoundExpressionStatement)s);
                             index++;
                             break;
+
                         case BoundNodeKind.GotoStatement:
                             var gs = (BoundGotoStatement)s;
                             index = labelToIndex[gs.Label];
                             break;
+
                         case BoundNodeKind.ConditionalGotoStatement:
                             var cgs = (BoundConditionalGotoStatement)s;
                             var condition = (bool)EvaluateExpression(cgs.Condition);
+
                             if (condition == cgs.JumpIfTrue)
                                 index = labelToIndex[cgs.Label];
                             else
                                 index++;
+
                             break;
+
                         case BoundNodeKind.LabelStatement:
                             index++;
                             break;
+
+                        case BoundNodeKind.ReturnStatement:
+                            var rs = (BoundReturnStatement)s;
+                            var returnValue = rs.Expression == null ? null : EvaluateExpression(rs.Expression);
+                            return returnValue;
+
                         case BoundNodeKind.BeginTryStatement:
                             var bts = (BoundBeginTryStatement)s;
                             tryBlocks.Push(labelToIndex[bts.ErrorLabel]);
                             index++;
                             break;
+
                         case BoundNodeKind.EndTryStatement:
                             var ets = (BoundEndTryStatement)s;
                             tryBlocks.Pop();
                             index++;
                             break;
+
                         default:
                             throw new Exception($"Unexpected node {s.Kind}");
                     }

@@ -104,10 +104,6 @@ namespace CASC.CodeParser.Binding
             }
 
             var type = BindTypeClause(syntax.Type) ?? TypeSymbol.Void;
-
-            if (type != TypeSymbol.Void)
-                _diagnostics.XXX_ReportFunctionsAreUnsupported(syntax.Type.Span);
-
             var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
 
             if (!_scope.TryDeclareFunction(function))
@@ -167,6 +163,9 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.VariableDeclaration:
                     return BindVariableDeclaration((VariableDeclarationSyntax)syntax);
 
+                case SyntaxKind.ReturnStatement:
+                    return BindReturnStatement((ReturnStatementSyntax)syntax);
+
                 case SyntaxKind.IfStatement:
                     return BindIfStatement((IfStatementSyntax)syntax);
 
@@ -210,6 +209,31 @@ namespace CASC.CodeParser.Binding
             _scope = _scope.Parent;
 
             return new BoundBlockStatement(statements.ToImmutable());
+        }
+
+        private BoundStatement BindReturnStatement(ReturnStatementSyntax syntax)
+        {
+            var expression = syntax.Expression == null ? null : BindExpression(syntax.Expression);
+
+            if (_function == null)
+                _diagnostics.ReportInvalidReturn(syntax.ReturnKeyword.Span);
+            else
+            {
+                if (_function.ReturnType == TypeSymbol.Void)
+                {
+                    if (expression != null)
+                        _diagnostics.ReportInvalidReturnExpression(syntax.Expression.Span, _function.Name);
+                }
+                else
+                {
+                    if (expression == null)
+                        _diagnostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Span, _function.ReturnType);
+                    else
+                        expression = BindConversion(syntax.Expression.Span, expression, _function.ReturnType);
+                }
+            }
+
+            return new BoundReturnStatement(expression);
         }
 
         private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)

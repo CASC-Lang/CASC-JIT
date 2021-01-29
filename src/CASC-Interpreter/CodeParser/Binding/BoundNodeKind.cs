@@ -6,6 +6,7 @@ namespace CASC.CodeParser.Binding
         BlockStatement,
         ExpressionStatement,
         VariableDeclaration,
+        ReturnStatement,
         IfStatement,
         WhileStatement,
         DoWhileStatement,
