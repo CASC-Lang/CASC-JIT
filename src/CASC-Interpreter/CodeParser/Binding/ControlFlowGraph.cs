@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -50,9 +51,10 @@ namespace CASC.CodeParser.Binding
                     return "<End>";
 
                 using (var writer = new StringWriter())
+                using (var indentedWriter = new IndentedTextWriter(writer))
                 {
                     foreach (var statement in Statements)
-                        statement.WriteTo(writer);
+                        statement.WriteTo(indentedWriter);
 
                     return writer.ToString();
                 }
@@ -178,7 +180,7 @@ namespace CASC.CodeParser.Binding
                                 var cgs = (BoundConditionalGotoStatement)statement;
                                 var thenBlock = _blockFromLabel[cgs.Label];
                                 var elseBlock = next;
-                                var negatedCondition = Negate(cgs.Condition); ;
+                                var negatedCondition = Negate(cgs.Condition);
                                 var thenCondition = cgs.JumpIfTrue ? cgs.Condition : negatedCondition;
                                 var elseCondition = cgs.JumpIfTrue ? negatedCondition : cgs.Condition;
                                 Connect(current, thenBlock, thenCondition);
@@ -271,10 +273,7 @@ namespace CASC.CodeParser.Binding
 
         public void WriteTo(TextWriter writer)
         {
-            string Quote(string text)
-            {
-                return "\"" + text.Replace("\"", "\\\"") + "\"";
-            }
+            string Quote(string text) => "\"" + text.TrimEnd().Replace("\\", "\\\\").Replace("\"", "\\\"").Replace(Environment.NewLine, "\\l") + "\"";
 
             writer.WriteLine("digraph G {");
 
@@ -289,8 +288,8 @@ namespace CASC.CodeParser.Binding
             foreach (var block in Blocks)
             {
                 var id = blockIds[block];
-                var label = Quote(block.ToString().Replace(Environment.NewLine, "\\l"));
-                writer.WriteLine($"    {id} [label = {label} shape = box]");
+                var label = Quote(block.ToString());
+                writer.WriteLine($"    {id} [label = {label}, shape = box]");
             }
 
             foreach (var branch in Branches)

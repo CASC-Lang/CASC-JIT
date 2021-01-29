@@ -55,9 +55,21 @@ namespace CASC.CodeParser
             Report(span, message);
         }
 
-        public void ReportUndefinedName(TextSpan span, string name)
+        public void ReportUndefinedVariable(TextSpan span, string name)
         {
             var message = $"Variable '{name}' doesn't exist.";
+            Report(span, message);
+        }
+
+        public void ReportNotAVariable(TextSpan span, string name)
+        {
+            var message = $"'{name}' is not a variable.";
+            Report(span, message);
+        }
+
+        public void ReportNotAFunction(TextSpan span, string name)
+        {
+            var message = $"'{name}' is not a function.";
             Report(span, message);
         }
 
@@ -141,7 +153,7 @@ namespace CASC.CodeParser
 
         public void ReportInvalidReturnExpression(TextSpan span, string functionName)
         {
-            var message = $"Since the function '{functionName}' does't return a value the 'return' keyword cannot be followed by an expression.";
+            var message = $"Since the function '{functionName}' doesn't return a value the 'return' keyword cannot be followed by an expression.";
             Report(span, message);
         }
 
@@ -153,7 +165,7 @@ namespace CASC.CodeParser
 
         public void ReportInvalidReturn(TextSpan span)
         {
-            var message = $"The 'return' keyword can only be used insode of functions.";
+            var message = $"The 'return' keyword can only be used inside of functions.";
             Report(span, message);
         }
 

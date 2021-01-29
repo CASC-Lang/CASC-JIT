@@ -97,23 +97,6 @@ namespace CASC_Test.Tests
         }
 
         [Test]
-        public void Evaluator_Variables_Can_Shadow_Functions()
-        {
-            var text = @"
-                {
-                    let print = 42
-                    [print](""test"")
-                }
-            ";
-
-            var diagnostics = @"
-                Function 'print' doesn't exist.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
-        }
-
-        [Test]
         public void Evaluator_InvokeFunctionArguments_NoInfiniteLoop()
         {
             var text = @"
@@ -173,6 +156,212 @@ namespace CASC_Test.Tests
 
             var diagnostics = @"
                 Function 'print' requires 1 arguments but was given 3.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Void_Function_Should_Not_Return_Value()
+        {
+            var text = @"
+                func test()
+                {
+                    return [1]
+                }
+            ";
+
+            var diagnostics = @"
+                Since the function 'test' doesn't return a value the 'return' keyword cannot be followed by an expression.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Function_With_ReturnValue_Should_Not_Return_Void()
+        {
+            var text = @"
+                func test(): number
+                {
+                    [return]
+                }
+            ";
+
+            var diagnostics = @"
+                An expression of type 'number' expected.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Not_All_Code_Paths_Return_Value()
+        {
+            var text = @"
+                func [test](n: number): bool
+                {
+                    if (n > 10)
+                       return true
+                }
+            ";
+
+            var diagnostics = @"
+                Not all code paths return a value.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Expression_Must_Have_Value()
+        {
+            var text = @"
+                func test(n: number)
+                {
+                    return
+                }
+                let value = [test(100)]
+            ";
+
+            var diagnostics = @"
+                Expression must have a value.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Theory]
+        [TestCase("[break]", "break")]
+        [TestCase("[continue]", "continue")]
+        public void Evaluator_Invalid_Break_Or_Continue(string text, string keyword)
+        {
+            var diagnostics = $@"
+                The keyword '{keyword}' can only be used inside of loops.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Invalid_Return()
+        {
+            var text = @"
+                [return]
+            ";
+
+            var diagnostics = @"
+                The 'return' keyword can only be used inside of functions.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Parameter_Already_Declared()
+        {
+            var text = @"
+                func sum(a: number, b: number, [a: number]): number
+                {
+                    return a + b + c
+                }
+            ";
+
+            var diagnostics = @"
+                A parameter with the name 'a' is already declared.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Function_Must_Have_Name()
+        {
+            var text = @"
+                func [(]a: number, b: number): number
+                {
+                    return a + b
+                }
+            ";
+
+            var diagnostics = @"
+                Unexpected token <OpenParenthesisToken>, expected <IdentifierToken>.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Wrong_Argument_Type()
+        {
+            var text = @"
+                func test(n: number): bool
+                {
+                    return n > 10
+                }
+                let testValue = ""string""
+                test([testValue])
+            ";
+
+            var diagnostics = @"
+                Parameter 'n' requires a value of type 'number' but was given a value of type 'string'.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Bad_Type()
+        {
+            var text = @"
+                func test(n: [invalidtype])
+                {
+                }
+            ";
+
+            var diagnostics = @"
+                Type 'invalidtype' doesn't exist.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_AssignmentExpression_Reports_NotAVariable()
+        {
+            var text = @"[print] = 42";
+
+            var diagnostics = @"
+                'print' is not a variable.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_CallExpression_Reports_Undefined()
+        {
+            var text = @"[foo](42)";
+
+            var diagnostics = @"
+                Function 'foo' doesn't exist.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_CallExpression_Reports_NotAFunction()
+        {
+            var text = @"
+                {
+                    let foo = 42
+                    [foo](42)
+                }
+            ";
+
+            var diagnostics = @"
+                'foo' is not a function.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -294,23 +483,6 @@ namespace CASC_Test.Tests
         }
 
         [Test]
-        public void Evaluator_Variables_Can_Shadow_Functions()
-        {
-            var text = @"
-                {
-                    讓 print 賦 四十二
-                    [print](""test"")
-                }
-            ";
-
-            var diagnostics = @"
-                Function 'print' doesn't exist.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
-        }
-
-        [Test]
         public void Evaluator_InvokeFunctionArguments_NoInfiniteLoop()
         {
             var text = @"
@@ -370,6 +542,125 @@ namespace CASC_Test.Tests
 
             var diagnostics = @"
                 Function 'print' requires 1 arguments but was given 3.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Void_Function_Should_Not_Return_Value()
+        {
+            var text = @"
+                函式 測試()
+                {
+                    返回 [一]
+                }
+            ";
+
+            var diagnostics = @"
+                Since the function '測試' doesn't return a value the 'return' keyword cannot be followed by an expression.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Function_With_ReturnValue_Should_Not_Return_Void()
+        {
+            var text = @"
+                函式 測試(): number
+                {
+                    [return]
+                }
+            ";
+
+            var diagnostics = @"
+                An expression of type 'number' expected.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Not_All_Code_Paths_Return_Value()
+        {
+            var text = @"
+                函式 [測試](甲: number): bool
+                {
+                    如果 (甲 大於 十)
+                       返回 真
+                }
+            ";
+
+            var diagnostics = @"
+                Not all code paths return a value.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Expression_Must_Have_Value()
+        {
+            var text = @"
+                函式 測試(甲: number)
+                {
+                    返回
+                }
+                讓 值 賦 [測試(一百)]
+            ";
+
+            var diagnostics = @"
+                Expression must have a value.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Invalid_Return()
+        {
+            var text = @"
+                [return]
+            ";
+
+            var diagnostics = @"
+                The 'return' keyword can only be used inside of functions.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Wrong_Argument_Type()
+        {
+            var text = @"
+                函式 測試(甲: number): bool
+                {
+                    返回 甲 大於 十
+                }
+                讓 測試值 = ""字串""
+                測試([測試值])
+            ";
+
+            var diagnostics = @"
+                Parameter '甲' requires a value of type 'number' but was given a value of type 'string'.
+            ";
+
+            AssertDiagnostics(text, diagnostics);
+        }
+
+        [Test]
+        public void Evaluator_Bad_Type()
+        {
+            var text = @"
+                函式 測試(甲: [無效種類])
+                {
+                }
+            ";
+
+            var diagnostics = @"
+                Type '無效種類' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);

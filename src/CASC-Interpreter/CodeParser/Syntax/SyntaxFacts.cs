@@ -339,7 +339,7 @@ namespace CASC.CodeParser.Syntax
                     yield return "終值";
                     break;
                 case SyntaxKind.ReturnKeyword:
-                    yield return "return";
+                    yield return "返回";
                     break;
                 case SyntaxKind.IfKeyword:
                     yield return "如果";
