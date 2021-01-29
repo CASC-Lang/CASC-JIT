@@ -105,6 +105,10 @@ namespace CASC.CodeParser.Syntax
                 case "to":
                     return SyntaxKind.ToKeyword;
 
+                case "函式":
+                case "func":
+                    return SyntaxKind.FunctionKeyword;
+
                 default:
                     return SyntaxKind.IdentifierToken;
             }
@@ -176,6 +180,10 @@ namespace CASC.CodeParser.Syntax
                     return "{";
                 case SyntaxKind.CloseBraceToken:
                     return "}";
+                case SyntaxKind.ColonToken:
+                    return ":";
+                case SyntaxKind.CommaToken:
+                    return ",";
                 case SyntaxKind.FalseKeyword:
                     return "false";
                 case SyntaxKind.TrueKeyword:
@@ -198,6 +206,8 @@ namespace CASC.CodeParser.Syntax
                     return "for";
                 case SyntaxKind.ToKeyword:
                     return "to";
+                case SyntaxKind.FunctionKeyword:
+                    return "func";
                 default:
                     return null;
             }
@@ -275,6 +285,12 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.CloseBraceToken:
                     yield return "}";
                     break;
+                case SyntaxKind.ColonToken:
+                    yield return ":";
+                    break;
+                case SyntaxKind.CommaToken:
+                    yield return ",";
+                    break;
                 case SyntaxKind.FalseKeyword:
                     yield return "假";
                     break;
@@ -310,6 +326,9 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.ToKeyword:
                     yield return "到";
+                    break;
+                case SyntaxKind.FunctionKeyword:
+                    yield return "func";
                     break;
                 default:
                     yield break;

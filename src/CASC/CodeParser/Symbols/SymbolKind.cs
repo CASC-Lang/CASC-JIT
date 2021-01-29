@@ -5,6 +5,7 @@ namespace CASC.CodeParser.Symbols
         Function,
         Parameter,
         Type,
-        Variable
+        LocalVariable,
+        GlobalVariable
     }
 }

@@ -1,11 +1,12 @@
 namespace CASC.CodeParser.Syntax
 {
-    public sealed class VariableDeclarationStatementSyntax : StatementSyntax
+    public sealed class VariableDeclarationSyntax : StatementSyntax
     {
-        public VariableDeclarationStatementSyntax(SyntaxToken keyword, SyntaxToken identifier, SyntaxToken equalsToken, ExpressionSyntax initializer)
+        public VariableDeclarationSyntax(SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
         {
             Keyword = keyword;
             Identifier = identifier;
+            TypeClause = typeClause;
             EqualsToken = equalsToken;
             Initializer = initializer;
         }
@@ -13,6 +14,7 @@ namespace CASC.CodeParser.Syntax
         public override SyntaxKind Kind => SyntaxKind.VariableDeclaration;
         public SyntaxToken Keyword { get; }
         public SyntaxToken Identifier { get; }
+        public TypeClauseSyntax TypeClause { get; }
         public SyntaxToken EqualsToken { get; }
         public ExpressionSyntax Initializer { get; }
     }

@@ -8,7 +8,8 @@ using NUnit.Framework;
 
 namespace CASC_Test.Tests
 {
-    class EnglishDiagnosticTest {
+    class EnglishDiagnosticTest
+    {
         [Test]
         public void Evaluator_VariableDeclaration_Reports_Redeclaration()
         {
@@ -24,7 +25,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: 'x' is already declared.
+                'x' is already declared.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -36,7 +37,7 @@ namespace CASC_Test.Tests
             var text = @"[x] * 10";
 
             var diagnostics = @"
-                ERROR: Variable 'x' doesn't exist.
+                Variable 'x' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -48,7 +49,7 @@ namespace CASC_Test.Tests
             var text = @"[x] = 10";
 
             var diagnostics = @"
-                ERROR: Variable 'x' doesn't exist.
+                Variable 'x' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -65,24 +66,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Variable 'x' is finalized and cannot be assigned to.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
-        }
-
-        [Test]
-        public void Evaluator_Assigned_Reports_CannotConvert()
-        {
-            var text = @"
-                {
-                    var x = 10
-                    x = [true]
-                }
-            ";
-
-            var diagnostics = @"
-                ERROR: Cannot convert type 'bool' to 'number'.
+                Variable 'x' is finalized and cannot be assigned to.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -94,7 +78,7 @@ namespace CASC_Test.Tests
             var text = @"[+]true";
 
             var diagnostics = @"
-                ERROR: Unary operator '+' is not defined for type 'bool'.
+                Unary operator '+' is not defined for type 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -106,7 +90,7 @@ namespace CASC_Test.Tests
             var text = @"10 [*] false";
 
             var diagnostics = @"
-                ERROR: Binary operator '*' is not defined for types 'number' and 'bool'.
+                Binary operator '*' is not defined for types 'number' and 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -123,7 +107,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Function 'print' doesn't exist.
+                Function 'print' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -139,7 +123,7 @@ namespace CASC_Test.Tests
             var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
 
             if (annotatedText.Spans.Length != expectedDiagnostics.Length)
-                throw new Exception("ERROR: Must mark as many spans as there are expected diagnostics");
+                throw new Exception("Must mark as many spans as there are expected diagnostics");
 
             Assert.AreEqual(expectedDiagnostics.Length, result.Diagnostics.Length);
 
@@ -156,7 +140,8 @@ namespace CASC_Test.Tests
         }
     }
 
-    class MandarinDiagnosticTest {
+    class MandarinDiagnosticTest
+    {
         [Test]
         public void Evaluator_VariableDeclaration_Reports_Redeclaration()
         {
@@ -172,7 +157,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: '甲' is already declared.
+                '甲' is already declared.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -184,7 +169,7 @@ namespace CASC_Test.Tests
             var text = @"[甲] 乘 十";
 
             var diagnostics = @"
-                ERROR: Variable '甲' doesn't exist.
+                Variable '甲' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -196,7 +181,7 @@ namespace CASC_Test.Tests
             var text = @"[甲] 賦 十";
 
             var diagnostics = @"
-                ERROR: Variable '甲' doesn't exist.
+                Variable '甲' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -213,24 +198,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Variable '甲' is finalized and cannot be assigned to.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
-        }
-
-        [Test]
-        public void Evaluator_Assigned_Reports_CannotConvert()
-        {
-            var text = @"
-                {
-                    變數 甲 賦 十
-                    甲 賦 [true] 
-                }
-            "; // TODO: Investigate why 真's TextSpan cannot be the true value which is 25..26, output shows it is 25..29 which it might recognized it as "true". 
-
-            var diagnostics = @"
-                ERROR: Cannot convert type 'bool' to 'number'.
+                Variable '甲' is finalized and cannot be assigned to.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -242,7 +210,7 @@ namespace CASC_Test.Tests
             var text = @"[正]真";
 
             var diagnostics = @"
-                ERROR: Unary operator '+' is not defined for type 'bool'.
+                Unary operator '+' is not defined for type 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -254,7 +222,7 @@ namespace CASC_Test.Tests
             var text = @"十 [乘] 假";
 
             var diagnostics = @"
-                ERROR: Binary operator '*' is not defined for types 'number' and 'bool'.
+                Binary operator '*' is not defined for types 'number' and 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -271,7 +239,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                ERROR: Function 'print' doesn't exist.
+                Function 'print' doesn't exist.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -287,7 +255,7 @@ namespace CASC_Test.Tests
             var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
 
             if (annotatedText.Spans.Length != expectedDiagnostics.Length)
-                throw new Exception("ERROR: Must mark as many spans as there are expected diagnostics");
+                throw new Exception("Must mark as many spans as there are expected diagnostics");
 
             Assert.AreEqual(expectedDiagnostics.Length, result.Diagnostics.Length);
 

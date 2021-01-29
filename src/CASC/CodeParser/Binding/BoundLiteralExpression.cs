@@ -12,7 +12,7 @@ namespace CASC.CodeParser.Binding
             if (value is decimal)
                 Type = TypeSymbol.Number;
             else if (value is bool)
-                Type = TypeSymbol.Boolean;
+                Type = TypeSymbol.Bool;
                 else if (value is string)
                 Type = TypeSymbol.String;
                 else

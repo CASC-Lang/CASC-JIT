@@ -13,6 +13,8 @@ namespace CASC.CodeParser.Syntax
         CloseParenthesisToken,
         OpenBraceToken,
         CloseBraceToken,
+        CommaToken,
+        ColonToken,
         BangToken,
         TildeToken,
         HatToken,
@@ -28,7 +30,6 @@ namespace CASC.CodeParser.Syntax
         LessEqualsToken,
         LessToken,
         IdentifierToken,
-        CommaToken,
         StringToken,
         EndOfFileToken,
         BadToken,
@@ -45,10 +46,15 @@ namespace CASC.CodeParser.Syntax
         DoKeyword,
         ForKeyword,
         ToKeyword,
+        FunctionKeyword,
 
         // Nodes
         CompilationUnit,
         ElseClause,
+        TypeClause,
+        Parameter,
+        GlobalStatement,
+        FunctionDeclaration,
 
         // Statements
         BlockStatement,

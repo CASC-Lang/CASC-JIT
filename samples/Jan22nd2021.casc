@@ -1,1 +1,2 @@
-真 假 true false if
+  var               a                : string                     =            "test string \""
+//declaration       variable name    optional type declaration    assingment   object

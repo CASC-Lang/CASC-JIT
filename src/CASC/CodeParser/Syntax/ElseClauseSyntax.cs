@@ -1,6 +1,6 @@
 namespace CASC.CodeParser.Syntax
 {
-    public class ElseClauseSyntax : SyntaxNode
+    public sealed class ElseClauseSyntax : SyntaxNode
     {
         public ElseClauseSyntax(SyntaxToken elseKeyword, StatementSyntax elseStatement)
         {

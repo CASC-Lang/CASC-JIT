@@ -27,19 +27,19 @@ namespace CASC.CodeParser.Binding
                 return Identity;
 
             if (from == TypeSymbol.Number ||
-                from == TypeSymbol.Boolean)
+                from == TypeSymbol.Bool)
                 if (to == TypeSymbol.String)
                     return Explicit;
 
             if (from == TypeSymbol.String)
                 if (to == TypeSymbol.Number ||
-                    to == TypeSymbol.Boolean)
+                    to == TypeSymbol.Bool)
                     return Explicit;
 
-            if (from == TypeSymbol.Boolean && to == TypeSymbol.Number)
+            if (from == TypeSymbol.Bool && to == TypeSymbol.Number)
                 return Explicit;
 
-            if (from == TypeSymbol.Number && to == TypeSymbol.Boolean)
+            if (from == TypeSymbol.Number && to == TypeSymbol.Bool)
                 return Explicit;
 
             return None;
