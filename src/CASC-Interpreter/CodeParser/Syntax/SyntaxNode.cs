@@ -9,6 +9,12 @@ namespace CASC.CodeParser.Syntax
 {
     public abstract class SyntaxNode
     {
+        protected SyntaxNode(SyntaxTree syntaxTree)
+        {
+            SyntaxTree = syntaxTree;
+        }
+
+        public SyntaxTree SyntaxTree { get; }
         public abstract SyntaxKind Kind { get; }
         public virtual TextSpan Span
         {
@@ -19,6 +25,9 @@ namespace CASC.CodeParser.Syntax
                 return TextSpan.FromBounds(first.Start, last.End);
             }
         }
+
+        public TextLocation Location => new TextLocation(SyntaxTree.Source, Span);
+
         public IEnumerable<SyntaxNode> GetChildren()
         {
             var props = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);

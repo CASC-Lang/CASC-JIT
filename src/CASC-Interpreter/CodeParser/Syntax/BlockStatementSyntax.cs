@@ -4,7 +4,11 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class BlockStatementSyntax : StatementSyntax
     {
-        public BlockStatementSyntax(SyntaxToken openBraceToken, ImmutableArray<StatementSyntax> statements, SyntaxToken closeBraceSyntax)
+        public BlockStatementSyntax(SyntaxTree syntaxTree,
+                                    SyntaxToken openBraceToken,
+                                    ImmutableArray<StatementSyntax> statements,
+                                    SyntaxToken closeBraceSyntax)
+                                    : base(syntaxTree)
         {
             OpenBraceToken = openBraceToken;
             Statements = statements;

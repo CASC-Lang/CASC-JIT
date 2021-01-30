@@ -2,11 +2,18 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class LiteralExpressionSyntax : ExpressionSyntax
     {
-        public LiteralExpressionSyntax(SyntaxToken token) : this(token, token.Value)
+        public LiteralExpressionSyntax(SyntaxTree syntaxTree,
+                                       SyntaxToken token)
+                                       : this(syntaxTree,
+                                              token,
+                                              token.Value)
         {
 
         }
-        public LiteralExpressionSyntax(SyntaxToken token, object value)
+        public LiteralExpressionSyntax(SyntaxTree syntaxTree,
+                                       SyntaxToken token,
+                                       object value)
+                                       : base(syntaxTree)
         {
             NumberToken = token;
             Value = value;

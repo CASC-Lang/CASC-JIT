@@ -2,7 +2,15 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class ForStatementSyntax : StatementSyntax
     {
-        public ForStatementSyntax(SyntaxToken keyword, SyntaxToken identifier, SyntaxToken equalsToken, ExpressionSyntax lowerBound, SyntaxToken toKeyword, ExpressionSyntax upperBound, StatementSyntax body)
+        public ForStatementSyntax(SyntaxTree syntaxTree,
+                                  SyntaxToken keyword,
+                                  SyntaxToken identifier,
+                                  SyntaxToken equalsToken,
+                                  ExpressionSyntax lowerBound,
+                                  SyntaxToken toKeyword,
+                                  ExpressionSyntax upperBound,
+                                  StatementSyntax body)
+                                  : base(syntaxTree)
         {
             Keyword = keyword;
             Identifier = identifier;

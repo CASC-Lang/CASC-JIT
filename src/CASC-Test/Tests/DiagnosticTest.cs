@@ -388,7 +388,7 @@ namespace CASC_Test.Tests
                 Assert.AreEqual(expectedMessage, actualMessage);
 
                 var expectedSpan = annotatedText.Spans[i];
-                var actualSpan = result.Diagnostics[i].Span;
+                var actualSpan = result.Diagnostics[i].Location.Span;
                 Assert.AreEqual(expectedSpan, actualSpan);
             }
         }
@@ -464,7 +464,7 @@ namespace CASC_Test.Tests
             var text = @"[正]真";
 
             var diagnostics = @"
-                Unary operator '+' is not defined for type 'bool'.
+                Unary operator '正' is not defined for type 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -476,7 +476,7 @@ namespace CASC_Test.Tests
             var text = @"十 [乘] 假";
 
             var diagnostics = @"
-                Binary operator '*' is not defined for types 'number' and 'bool'.
+                Binary operator '乘' is not defined for types 'number' and 'bool'.
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -687,7 +687,7 @@ namespace CASC_Test.Tests
                 Assert.AreEqual(expectedMessage, actualMessage);
 
                 var expectedSpan = annotatedText.Spans[i];
-                var actualSpan = result.Diagnostics[i].Span;
+                var actualSpan = result.Diagnostics[i].Location.Span;
                 Assert.AreEqual(expectedSpan, actualSpan);
             }
         }

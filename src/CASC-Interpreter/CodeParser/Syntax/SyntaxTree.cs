@@ -1,18 +1,23 @@
 using System.Collections.Immutable;
 using System.Collections.Generic;
 using CASC.CodeParser.Text;
+using System.IO;
 
 namespace CASC.CodeParser.Syntax
 {
     public sealed class SyntaxTree
     {
-        private SyntaxTree(SourceText source)
-        {
-            var parser = new Parser(source);
-            var root = parser.ParseCompilationUnit();
+        private delegate void ParseHandler(SyntaxTree syntaxTree,
+                                           out CompilationUnitSyntax root,
+                                           out ImmutableArray<Diagnostic> diagnostics);
 
+        private SyntaxTree(SourceText source, ParseHandler handler)
+        {
             Source = source;
-            Diagnostics = parser.Diagnostics.ToImmutableArray();
+
+            handler(this, out var root, out var diagnostics);
+
+            Diagnostics = diagnostics;
             Root = root;
         }
 
@@ -20,53 +25,75 @@ namespace CASC.CodeParser.Syntax
         public ImmutableArray<Diagnostic> Diagnostics { get; }
         public CompilationUnitSyntax Root { get; }
 
-        public static SyntaxTree Parse(string text)
+        public static SyntaxTree Load(string fileName)
         {
-            var source = SourceText.From(text);
-            return Parse(source);
+            var text = File.ReadAllText(fileName);
+            var sourceText = SourceText.From(text, fileName);
+
+            return Parse(sourceText);
         }
 
-        public static SyntaxTree Parse(SourceText text)
+        private static void Parse(SyntaxTree syntaxTree, out CompilationUnitSyntax root, out ImmutableArray<Diagnostic> diagnostics)
         {
-            return new SyntaxTree(text);
+            var parser = new Parser(syntaxTree);
+            root = parser.ParseCompilationUnit();
+            diagnostics = parser.Diagnostics.ToImmutableArray();
         }
+
+        public static SyntaxTree Parse(string text)
+        {
+            var sourceText = SourceText.From(text);
+
+            return Parse(sourceText);
+        }
+
+        public static SyntaxTree Parse(SourceText text) => new SyntaxTree(text, Parse);
 
         public static ImmutableArray<SyntaxToken> ParseTokens(string text)
         {
-            var source = SourceText.From(text);
-            return ParseTokens(source);
+            var sourceText = SourceText.From(text);
+
+            return ParseTokens(sourceText);
         }
 
         public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics)
         {
-            var source = SourceText.From(text);
-            return ParseTokens(source, out diagnostics);
+            var sourceText = SourceText.From(text);
+
+            return ParseTokens(sourceText, out diagnostics);
         }
 
-        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText source)
-        {
-            return ParseTokens(source, out _);
-        }
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text) => ParseTokens(text, out _);
 
-        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText source, out ImmutableArray<Diagnostic> diagnostics)
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics)
         {
-            IEnumerable<SyntaxToken> LexTokens(Lexer lexer)
+            var tokens = new List<SyntaxToken>();
+
+            void ParseTokens(SyntaxTree syntaxTree, out CompilationUnitSyntax root, out ImmutableArray<Diagnostic> diagnostics)
             {
+                root = null;
+                var lexer = new Lexer(syntaxTree);
+
                 while (true)
                 {
                     var token = lexer.Lex();
-                    if (token.Kind == SyntaxKind.EndOfFileToken)
-                        break;
 
-                    yield return token;
+                    if (token.Kind == SyntaxKind.EndOfFileToken)
+                    {
+                        root = new CompilationUnitSyntax(syntaxTree, ImmutableArray<MemberSyntax>.Empty, token);
+                        break;
+                    }
+
+                    tokens.Add(token);
                 }
+
+                diagnostics = lexer.Diagnostics.ToImmutableArray();
             }
-            
-            var l = new Lexer(source);
-            var result =LexTokens(l);
-            diagnostics = l.Diagnostics.ToImmutableArray();
-            
-            return result.ToImmutableArray();
+
+            var tempSyntaxTree = new SyntaxTree(text, ParseTokens);
+            diagnostics = tempSyntaxTree.Diagnostics.ToImmutableArray();
+
+            return tokens.ToImmutableArray();
         }
     }
 }

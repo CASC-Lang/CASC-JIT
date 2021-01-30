@@ -1,7 +1,11 @@
 namespace CASC.CodeParser.Syntax
 {
-    public sealed class ReturnStatementSyntax : StatementSyntax {
-        public ReturnStatementSyntax(SyntaxToken returnKeyword, ExpressionSyntax expression)
+    public sealed class ReturnStatementSyntax : StatementSyntax
+    {
+        public ReturnStatementSyntax(SyntaxTree syntaxTree,
+                                     SyntaxToken returnKeyword,
+                                     ExpressionSyntax expression)
+                                     : base(syntaxTree)
         {
             ReturnKeyword = returnKeyword;
             Expression = expression;

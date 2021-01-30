@@ -8,18 +8,19 @@ namespace CASC.CodeParser.Syntax
 {
     internal sealed class Lexer
     {
-        private readonly SourceText _text;
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
-
+        private readonly SyntaxTree _syntaxTree;
+        private readonly SourceText _source;
         private int _position;
 
         private int _start;
         private SyntaxKind _kind;
         private object _value;
 
-        public Lexer(SourceText text)
+        public Lexer(SyntaxTree syntaxTree)
         {
-            _text = text;
+            _syntaxTree = syntaxTree;
+            _source = syntaxTree.Source;
         }
 
         public DiagnosticPack Diagnostics => _diagnostics;
@@ -31,10 +32,10 @@ namespace CASC.CodeParser.Syntax
         {
             var index = _position + offset;
 
-            if (index >= _text.Length)
+            if (index >= _source.Length)
                 return '\0';
 
-            return _text[index];
+            return _source[index];
         }
 
         public SyntaxToken Lex()
@@ -257,35 +258,39 @@ namespace CASC.CodeParser.Syntax
                 case '千':
                 case '萬':
                 case '億':
-                    ReadNumberToken();
+                    ReadNumber();
                     break;
 
                 case ' ':
                 case '\t':
                 case '\n':
                 case '\r':
-                    ReadWhiteSpaceToken();
+                    ReadWhiteSpace();
                     break;
 
                 default:
                     if (char.IsLetter(Current))
                         ReadIdentifierOrKeyword();
                     else if (char.IsWhiteSpace(Current))
-                        ReadWhiteSpaceToken();
+                        ReadWhiteSpace();
                     else
                     {
-                        _diagnostics.ReportBadCharacter(_position, Current);
+                        var span = new TextSpan(_position, 1);
+                        var location = new TextLocation(_source, span);
+                        _diagnostics.ReportBadCharacter(location, Current);
                         _position++;
                     }
                     break;
             }
 
             var length = _position - _start;
-            var text = SyntaxFacts.GetText(_kind);
-            if (text == null)
-                text = _text.ToString(_start, length);
+            var text = _source.ToString(_start, length);
 
-            return new SyntaxToken(_kind, _start, text, _value);
+            // var text = SyntaxFacts.GetText(_kind);
+            // if (text == null)
+            //     text = _text.ToString(_start, length);
+
+            return new SyntaxToken(_syntaxTree, _kind, _start, text, _value);
         }
 
         private void ReadString()
@@ -308,7 +313,8 @@ namespace CASC.CodeParser.Syntax
                     case '\r':
                     case '\n':
                         var span = new TextSpan(_start, 1);
-                        _diagnostics.ReportUnterminatedString(span);
+                        var location = new TextLocation(_source, span);
+                        _diagnostics.ReportUnterminatedString(location);
                         done = true;
                         break;
 
@@ -339,21 +345,25 @@ namespace CASC.CodeParser.Syntax
             _value = builder.ToString();
         }
 
-        private void ReadNumberToken()
+        private void ReadNumber()
         {
             while (ChineseParser.isDigit(Current))
                 _position++;
 
             var length = _position - _start;
-            var text = _text.ToString(_start, length);
+            var text = _source.ToString(_start, length);
             if (!ChineseParser.tryParseDigits(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, TypeSymbol.Number);
+            {
+                var span = new TextSpan(_start, length);
+                var location = new TextLocation(_source, span);
+                _diagnostics.ReportInvalidNumber(location, text, TypeSymbol.Number);
+            }
 
             _value = value;
             _kind = SyntaxKind.NumberToken;
         }
 
-        private void ReadWhiteSpaceToken()
+        private void ReadWhiteSpace()
         {
             while (char.IsWhiteSpace(Current))
                 _position++;
@@ -367,7 +377,7 @@ namespace CASC.CodeParser.Syntax
                 _position++;
 
             var length = _position - _start;
-            var text = _text.ToString(_start, length);
+            var text = _source.ToString(_start, length);
             _kind = SyntaxFacts.GetKeywordKind(text);
             return text;
         }

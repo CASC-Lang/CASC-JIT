@@ -2,7 +2,15 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class FunctionDeclarationSyntax : MemberSyntax
     {
-        public FunctionDeclarationSyntax(SyntaxToken functionKeyword, SyntaxToken identifier, SyntaxToken openParentheizedToken, SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParentheizedToken, TypeClauseSyntax type, BlockStatementSyntax body)
+        public FunctionDeclarationSyntax(SyntaxTree syntaxTree,
+                                         SyntaxToken functionKeyword,
+                                         SyntaxToken identifier,
+                                         SyntaxToken openParentheizedToken,
+                                         SeparatedSyntaxList<ParameterSyntax> parameters,
+                                         SyntaxToken closeParentheizedToken,
+                                         TypeClauseSyntax type,
+                                         BlockStatementSyntax body)
+                                         : base(syntaxTree)
         {
             FunctionKeyword = functionKeyword;
             Identifier = identifier;

@@ -34,10 +34,7 @@ namespace CASC.IO
                 Console.ResetColor();
         }
 
-        public static void WriteKeyword(this TextWriter writer, SyntaxKind kind)
-        {
-            writer.WriteKeyword(SyntaxFacts.GetText(kind));
-        }
+        public static void WriteKeyword(this TextWriter writer, SyntaxKind kind) => writer.WriteKeyword(SyntaxFacts.GetText(kind));
 
         public static void WriteKeyword(this TextWriter writer, string text)
         {
@@ -72,10 +69,7 @@ namespace CASC.IO
             writer.WritePunctuation(" ");
         }
 
-        public static void WritePunctuation(this TextWriter writer, SyntaxKind kind)
-        {
-            writer.WritePunctuation(SyntaxFacts.GetText(kind));
-        }
+        public static void WritePunctuation(this TextWriter writer, SyntaxKind kind) => writer.WritePunctuation(SyntaxFacts.GetText(kind));
 
         public static void WritePunctuation(this TextWriter writer, string text)
         {
@@ -86,13 +80,15 @@ namespace CASC.IO
 
         public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics, SyntaxTree syntaxTree)
         {
-            foreach (var diagnostic in diagnostics.OrderBy(d => d.Span.Start)
-                                                  .ThenBy(d => d.Span.Length))
+            foreach (var diagnostic in diagnostics.OrderBy(d => d.Location.Source.FileName)
+                                                  .ThenBy(d => d.Location.Span.Start)
+                                                  .ThenBy(d => d.Location.Span.Length))
             {
-                var lineIndex = syntaxTree.Source.GetLineIndex(diagnostic.Span.Start);
+                var span = diagnostic.Location.Span;
+                var lineIndex = syntaxTree.Source.GetLineIndex(span.Start);
                 var line = syntaxTree.Source.Lines[lineIndex];
                 var lineNumber = lineIndex + 1;
-                var character = diagnostic.Span.Start - line.Start + 1;
+                var character = span.Start - line.Start + 1;
 
                 Console.WriteLine();
 
@@ -101,11 +97,11 @@ namespace CASC.IO
                 Console.WriteLine(diagnostic);
                 Console.ResetColor();
 
-                var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
-                var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+                var prefixSpan = TextSpan.FromBounds(line.Start, span.Start);
+                var suffixSpan = TextSpan.FromBounds(span.End, line.End);
 
                 var prefix = syntaxTree.Source.ToString(prefixSpan);
-                var error = syntaxTree.Source.ToString(diagnostic.Span);
+                var error = syntaxTree.Source.ToString(span);
                 var suffix = syntaxTree.Source.ToString(suffixSpan);
 
                 Console.Write("    ");

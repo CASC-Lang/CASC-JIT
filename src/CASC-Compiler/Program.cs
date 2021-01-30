@@ -5,6 +5,7 @@ using System.Linq;
 using CASC.CodeParser;
 using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
+using CASC.IO;
 
 namespace CASC
 {
@@ -31,6 +32,18 @@ namespace CASC
 
             var compilation = new Compilation(syntaxTree);
             var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+
+            if (!result.Diagnostics.Any())
+            {
+                if (result.Value != null)
+                    Console.WriteLine(result.Value);
+            }
+            else
+            {
+                if (result.Value != null)
+                    Console.WriteLine(result.Value);
+                Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
+            }
         }
     }
 }

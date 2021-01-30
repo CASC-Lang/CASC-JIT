@@ -2,7 +2,12 @@ namespace CASC.CodeParser.Syntax
 {
     internal sealed class TryCatchStatementSyntax : StatementSyntax
     {
-        public TryCatchStatementSyntax(SyntaxToken tryKeyword, StatementSyntax tryBody, SyntaxToken catchKeyword, StatementSyntax catchBody)
+        public TryCatchStatementSyntax(SyntaxTree syntaxTree,
+                                       SyntaxToken tryKeyword,
+                                       StatementSyntax tryBody,
+                                       SyntaxToken catchKeyword,
+                                       StatementSyntax catchBody)
+                                       : base(syntaxTree)
         {
             TryKeyword = tryKeyword;
             TryBody = tryBody;

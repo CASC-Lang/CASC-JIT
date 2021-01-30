@@ -2,7 +2,10 @@ namespace CASC.CodeParser.Syntax
 {
     public sealed class TypeClauseSyntax : SyntaxNode
     {
-        public TypeClauseSyntax(SyntaxToken colonToken, SyntaxToken identifier)
+        public TypeClauseSyntax(SyntaxTree syntaxTree,
+                                SyntaxToken colonToken,
+                                SyntaxToken identifier)
+                                : base(syntaxTree)
         {
             ColonToken = colonToken;
             Identifier = identifier;
