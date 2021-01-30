@@ -48,9 +48,7 @@ jobs:
     - name: Restore
       shell: bash
       run: |
-        dotnet restore src/CASC-Console/CASC-Console.csproj
-
-        dotnet restore src/CASC-Test/CASC-Test.csproj
+        dotnet restore src/casc.sln
     - name: Unit Test
       shell: bash
       run: |
