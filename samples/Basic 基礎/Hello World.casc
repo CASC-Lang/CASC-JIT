@@ -1,0 +1,2 @@
+var hello = "\"Hello"
+print(hello + " World!\"")

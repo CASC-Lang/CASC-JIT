@@ -31,8 +31,6 @@ namespace CASC
 
             var compilation = new Compilation(syntaxTree);
             var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
-
-            Console.WriteLine("Hi");
         }
     }
 }
