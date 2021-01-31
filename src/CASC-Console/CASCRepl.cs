@@ -3,13 +3,12 @@ using CASC.CodeParser;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using CASC.CodeParser.Text;
 using CASC.CodeParser.Symbols;
 using CASC.IO;
 
 namespace CASC
 {
-    internal sealed class CASCRepl : Repl
+    public sealed class CASCRepl : Repl
     {
         private Compilation _previous;
         private bool _showTree;

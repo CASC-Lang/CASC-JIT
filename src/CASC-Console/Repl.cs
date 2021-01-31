@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 
 namespace CASC
 {
-    internal abstract class Repl
+    public abstract class Repl
     {
         private List<string> _submissionHistory = new List<string>();
         private int _submissionHistoryIndex;

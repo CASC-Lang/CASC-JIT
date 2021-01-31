@@ -18,9 +18,19 @@ namespace CASC
         {
             if (args.Length == 0)
             {
-                Console.Error.WriteLine("Usage: casc <source-path>");
+                Console.Error.WriteLine(
+                "Usage: casc <source-directory-path>\n   or  casc repl\nIf you are running CASC by local executable file,\nconsider adds arguments behind the excutable file."
+                );
                 return;
             }
+
+            if (string.Equals(args[0], "repl"))
+            {
+                var repl = new CASCRepl();
+                repl.Run();
+                return;
+            }
+
 
             var paths = GetFilePaths(args);
             var syntaxTrees = new List<SyntaxTree>();
