@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Text;
 using CASC.CodeParser.Lowers;
+using System.Linq;
 
 namespace CASC.CodeParser.Binding
 {
@@ -27,17 +28,22 @@ namespace CASC.CodeParser.Binding
                     _scope.TryDeclareVariable(p);
         }
 
-        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax)
+        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
         {
             var parentScope = CreateParentScope(previous);
             var binder = new Binder(parentScope, function: null);
 
-            foreach (var function in syntax.Members.OfType<FunctionDeclarationSyntax>())
+            var functionDeclaration = syntaxTrees.SelectMany(st => st.Root.Members)
+                                                 .OfType<FunctionDeclarationSyntax>();
+
+            foreach (var function in functionDeclaration)
                 binder.BindFunctionDeclaration(function);
 
             var builder = ImmutableArray.CreateBuilder<BoundStatement>();
+            var globalStatements = syntaxTrees.SelectMany(st => st.Root.Members)
+                                              .OfType<GlobalStatementSyntax>();
 
-            foreach (var globalStatement in syntax.Members.OfType<GlobalStatementSyntax>())
+            foreach (var globalStatement in globalStatements)
             {
                 var s = binder.BindStatement(globalStatement.Statement);
                 builder.Add(s);

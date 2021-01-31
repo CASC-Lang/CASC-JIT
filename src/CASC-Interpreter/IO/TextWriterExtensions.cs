@@ -78,31 +78,36 @@ namespace CASC.IO
             writer.ResetColor();
         }
 
-        public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics, SyntaxTree syntaxTree)
+        public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics)
         {
-            foreach (var diagnostic in diagnostics.OrderBy(d => d.Location.Source.FileName)
+            foreach (var diagnostic in diagnostics.OrderBy(d => d.Location.FileName)
                                                   .ThenBy(d => d.Location.Span.Start)
                                                   .ThenBy(d => d.Location.Span.Length))
             {
+                var source = diagnostic.Location.Source;
+                var fileName = diagnostic.Location.FileName;
+                var startLine = diagnostic.Location.StartLine + 1;
+                var startCharacter = diagnostic.Location.StartCharacter + 1;
+                var endLine = diagnostic.Location.EndLine + 1;
+                var endCharacter = diagnostic.Location.EndCharacter + 1;
+
                 var span = diagnostic.Location.Span;
-                var lineIndex = syntaxTree.Source.GetLineIndex(span.Start);
-                var line = syntaxTree.Source.Lines[lineIndex];
-                var lineNumber = lineIndex + 1;
-                var character = span.Start - line.Start + 1;
+                var lineIndex = source.GetLineIndex(span.Start);
+                var line = source.Lines[lineIndex];
 
                 Console.WriteLine();
 
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write($"({lineNumber}, {character}): ");
+                Console.Write($"{fileName}({startLine},{startCharacter},{endLine},{endCharacter}): ");
                 Console.WriteLine(diagnostic);
                 Console.ResetColor();
 
                 var prefixSpan = TextSpan.FromBounds(line.Start, span.Start);
                 var suffixSpan = TextSpan.FromBounds(span.End, line.End);
 
-                var prefix = syntaxTree.Source.ToString(prefixSpan);
-                var error = syntaxTree.Source.ToString(span);
-                var suffix = syntaxTree.Source.ToString(suffixSpan);
+                var prefix = source.ToString(prefixSpan);
+                var error = source.ToString(span);
+                var suffix = source.ToString(suffixSpan);
 
                 Console.Write("    ");
                 Console.Write(prefix);

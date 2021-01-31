@@ -5,7 +5,6 @@ using System.Linq;
 using System.Collections.Immutable;
 using System.Threading;
 using System.IO;
-using CASC.CodeParser.Lowers;
 using CASC.CodeParser.Symbols;
 using System;
 
@@ -15,19 +14,19 @@ namespace CASC.CodeParser
     {
         private BoundGlobalScope _globalScope;
 
-        public Compilation(SyntaxTree syntaxTree)
+        public Compilation(params SyntaxTree[] syntaxTree)
             : this(null, syntaxTree)
         {
         }
 
-        private Compilation(Compilation previous, SyntaxTree syntaxTree)
+        private Compilation(Compilation previous, params SyntaxTree[] syntaxTree)
         {
             Previous = previous;
-            SyntaxTree = syntaxTree;
+            SyntaxTrees = syntaxTree.ToImmutableArray();
         }
 
         public Compilation Previous { get; }
-        public SyntaxTree SyntaxTree { get; }
+        public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
 
         internal BoundGlobalScope GlobalScope
         {
@@ -35,7 +34,7 @@ namespace CASC.CodeParser
             {
                 if (_globalScope == null)
                 {
-                    var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTree.Root);
+                    var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTrees);
                     Interlocked.CompareExchange(ref _globalScope, globalScope, null);
                 }
 
@@ -43,14 +42,13 @@ namespace CASC.CodeParser
             }
         }
 
-        public Compilation ContinueWith(SyntaxTree syntaxTree)
-        {
-            return new Compilation(this, syntaxTree);
-        }
+        public Compilation ContinueWith(SyntaxTree syntaxTree) => new Compilation(this, syntaxTree);
 
         public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
         {
-            var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+            var parseDiagnostics = SyntaxTrees.SelectMany(st => st.Diagnostics);
+
+            var diagnostics = parseDiagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
 
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null);
