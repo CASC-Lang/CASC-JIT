@@ -12,15 +12,17 @@ namespace CASC.CodeParser.Binding
     internal sealed partial class Binder
     {
         private readonly DiagnosticPack _diagnostics = new DiagnosticPack();
+        private readonly bool _isScript;
         private readonly FunctionSymbol _function;
 
         private Stack<(BoundLabel BreakLabel, BoundLabel ContinueLabel)> _loopStack = new Stack<(BoundLabel BreakLabel, BoundLabel ContinueLabel)>();
         private int _labelCounter;
         private BoundScope _scope;
 
-        public Binder(BoundScope parent, FunctionSymbol function)
+        public Binder(bool isScript, BoundScope parent, FunctionSymbol function)
         {
             _scope = new BoundScope(parent);
+            _isScript = isScript;
             _function = function;
 
             if (function != null)
@@ -28,10 +30,10 @@ namespace CASC.CodeParser.Binding
                     _scope.TryDeclareVariable(p);
         }
 
-        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
+        public static BoundGlobalScope BindGlobalScope(bool isScript, BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
         {
             var parentScope = CreateParentScope(previous);
-            var binder = new Binder(parentScope, function: null);
+            var binder = new Binder(isScript, parentScope, function: null);
 
             var functionDeclaration = syntaxTrees.SelectMany(st => st.Root.Members)
                                                  .OfType<FunctionDeclarationSyntax>();
@@ -45,7 +47,7 @@ namespace CASC.CodeParser.Binding
 
             foreach (var globalStatement in globalStatements)
             {
-                var s = binder.BindStatement(globalStatement.Statement);
+                var s = binder.BindStatementInternal(globalStatement.Statement);
                 builder.Add(s);
             }
 
@@ -61,36 +63,30 @@ namespace CASC.CodeParser.Binding
             return new BoundGlobalScope(previous, diagnostics, functions, variables, builder.ToImmutable());
         }
 
-        public static BoundProgram BindProgram(BoundGlobalScope globalScope)
+        public static BoundProgram BindProgram(bool isScript, BoundProgram previous, BoundGlobalScope globalScope)
         {
             var parentScope = CreateParentScope(globalScope);
 
             var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
-            var scope = globalScope;
-
-            while (scope != null)
+            foreach (var function in globalScope.Functions)
             {
-                foreach (var function in scope.Functions)
-                {
-                    var binder = new Binder(parentScope, function);
-                    var body = binder.BindStatement(function.Declaration.Body);
-                    var loweredBody = Lowerer.Lower(body);
+                var binder = new Binder(isScript, parentScope, function);
+                var body = binder.BindGlobalStatement(function.Declaration.Body);
+                var loweredBody = Lowerer.Lower(body);
 
-                    if (function.ReturnType != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
-                        binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
+                if (function.ReturnType != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
+                    binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
 
-                    functionBodies.Add(function, loweredBody);
-                    diagnostics.AddRange(binder.Diagnostics);
-                }
+                functionBodies.Add(function, loweredBody);
 
-                scope = scope.Previous;
+                diagnostics.AddRange(binder.Diagnostics);
             }
 
             var statement = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
 
-            return new BoundProgram(diagnostics.ToImmutable(), functionBodies.ToImmutable(), statement);
+            return new BoundProgram(previous, diagnostics.ToImmutable(), functionBodies.ToImmutable(), statement);
         }
 
         private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
@@ -164,7 +160,28 @@ namespace CASC.CodeParser.Binding
 
         private BoundStatement BindErrorStatement() => new BoundExpressionStatement(new BoundErrorExpression());
 
-        private BoundStatement BindStatement(StatementSyntax syntax)
+        private BoundStatement BindGlobalStatement(StatementSyntax syntax) => BindStatement(syntax, isGlobal: true);
+
+        private BoundStatement BindStatement(StatementSyntax syntax, bool isGlobal = false)
+        {
+            var result = BindStatementInternal(syntax);
+
+            if (!_isScript && !isGlobal)
+            {
+                if (result is BoundExpressionStatement es)
+                {
+                    var isAllowedExpression = es.Expression.Kind == BoundNodeKind.AssignmentExpression ||
+                                              es.Expression.Kind == BoundNodeKind.ErrorExpression ||
+                                              es.Expression.Kind == BoundNodeKind.CallExpression;
+                    if (!isAllowedExpression)
+                        _diagnostics.ReportInvalidExpressionStatement(syntax.Location);
+                }
+            }
+
+            return result;
+        }
+
+        private BoundStatement BindStatementInternal(StatementSyntax syntax)
         {
             switch (syntax.Kind)
             {
@@ -210,7 +227,7 @@ namespace CASC.CodeParser.Binding
 
             foreach (var statementSyntax in syntax.Statements)
             {
-                var statement = BindStatement(statementSyntax);
+                var statement = BindStatementInternal(statementSyntax);
                 statements.Add(statement);
             }
 
@@ -272,8 +289,8 @@ namespace CASC.CodeParser.Binding
         private BoundStatement BindIfStatement(IfStatementSyntax syntax)
         {
             var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
-            var thenStatement = BindStatement(syntax.ThenStatement);
-            var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+            var thenStatement = BindStatementInternal(syntax.ThenStatement);
+            var elseStatement = syntax.ElseClause == null ? null : BindStatementInternal(syntax.ElseClause.ElseStatement);
 
             return new BoundIfStatement(condition, thenStatement, elseStatement);
         }
@@ -316,7 +333,7 @@ namespace CASC.CodeParser.Binding
             continueLabel = new BoundLabel($"continue{_labelCounter}");
 
             _loopStack.Push((breakLabel, continueLabel));
-            var boundBody = BindStatement(body);
+            var boundBody = BindStatementInternal(body);
             _loopStack.Pop();
 
             return boundBody;

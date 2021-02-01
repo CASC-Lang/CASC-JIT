@@ -21,9 +21,8 @@ namespace CASC_Test
         public EvaluationResult Evaluate(string input)
         {
             var syntaxTree = SyntaxTree.Parse(input);
-            var compilation = previous == null
-                                ? new Compilation(syntaxTree)
-                                : previous.ContinueWith(syntaxTree);
+            var compilation = Compilation.CreateScript(null, syntaxTree);
+
             return compilation.Evaluate(variables);
         }
 

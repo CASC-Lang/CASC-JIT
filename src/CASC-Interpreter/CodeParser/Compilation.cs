@@ -16,18 +16,21 @@ namespace CASC.CodeParser
     {
         private BoundGlobalScope _globalScope;
 
-        public Compilation(params SyntaxTree[] syntaxTree)
-            : this(null, syntaxTree)
+        private Compilation(bool isScript, Compilation previous, params SyntaxTree[] syntaxTree)
         {
-        }
-
-        private Compilation(Compilation previous, params SyntaxTree[] syntaxTree)
-        {
+            IsScript = isScript;
             Previous = previous;
+            SyntaxTree = syntaxTree;
             SyntaxTrees = syntaxTree.ToImmutableArray();
         }
 
+        public static Compilation Create(params SyntaxTree[] syntaxTrees) => new Compilation(isScript: false, null, syntaxTrees);
+
+        public static Compilation CreateScript(Compilation previous, params SyntaxTree[] syntaxTrees) => new Compilation(isScript: true, previous, syntaxTrees);
+
+        public bool IsScript { get; }
         public Compilation Previous { get; }
+        public SyntaxTree[] SyntaxTree { get; }
         public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
         public ImmutableArray<FunctionSymbol> Functions => GlobalScope.Functions;
         public ImmutableArray<VariableSymbol> Variables => GlobalScope.Variables;
@@ -38,7 +41,7 @@ namespace CASC.CodeParser
             {
                 if (_globalScope == null)
                 {
-                    var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTrees);
+                    var globalScope = Binder.BindGlobalScope(IsScript, Previous?.GlobalScope, SyntaxTrees);
                     Interlocked.CompareExchange(ref _globalScope, globalScope, null);
                 }
 
@@ -79,7 +82,12 @@ namespace CASC.CodeParser
             }
         }
 
-        public Compilation ContinueWith(SyntaxTree syntaxTree) => new Compilation(this, syntaxTree);
+        private BoundProgram GetProgram()
+        {
+            var previous = Previous == null ? null : Previous.GetProgram();
+
+            return Binder.BindProgram(IsScript, previous, GlobalScope);
+        }
 
         public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
         {
@@ -90,7 +98,7 @@ namespace CASC.CodeParser
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null);
 
-            var program = Binder.BindProgram(GlobalScope);
+            var program = GetProgram();
 
             var appPath = Environment.GetCommandLineArgs()[0];
             var appDirectory = Path.GetDirectoryName(appPath);
@@ -116,7 +124,7 @@ namespace CASC.CodeParser
 
         public void EmitTree(TextWriter writer)
         {
-            var program = Binder.BindProgram(GlobalScope);
+            var program = GetProgram();
 
             if (program.Statement.Statements.Any())
                 program.Statement.WriteTo(writer);
@@ -134,7 +142,7 @@ namespace CASC.CodeParser
 
         public void EmitTree(FunctionSymbol symbol, TextWriter writer)
         {
-            var program = Binder.BindProgram(GlobalScope);
+            var program = GetProgram();
 
             symbol.WriteTo(writer);
             writer.WriteLine();
