@@ -3,7 +3,6 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
 

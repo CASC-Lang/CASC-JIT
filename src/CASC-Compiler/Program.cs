@@ -14,21 +14,21 @@ namespace CASC
     {
         private static readonly Regex CASCFileRegex = new Regex("\\.casc|\\.cas");
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             if (args.Length == 0)
             {
                 Console.Error.WriteLine(
                 "Usage: casc <source-directory-path>\n   or  casc repl\nIf you are running CASC by local executable file,\nconsider adds arguments behind the excutable file."
                 );
-                return;
+                return 1;
             }
 
             if (string.Equals(args[0], "repl"))
             {
                 var repl = new CASCRepl();
                 repl.Run();
-                return;
+                return 0;
             }
 
 
@@ -52,7 +52,7 @@ namespace CASC
             }
 
             if (hasError)
-                return;
+                return 1;
 
             var compilation = new Compilation(syntaxTrees.ToArray());
             var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
@@ -60,10 +60,20 @@ namespace CASC
             if (!result.Diagnostics.Any())
             {
                 if (result.Value != null)
-                    Console.WriteLine(result.Value);
+                {
+                    if (result.Value.GetType().IsArray)
+                        Console.WriteLine(IOUtil.ArrayToString((object[])result.Value));
+                    else
+                        Console.WriteLine(result.Value.ToString());
+                }
             }
             else
+            {
                 Console.Error.WriteDiagnostics(result.Diagnostics);
+                return 1;
+            }
+
+            return 0;
         }
 
         private static IEnumerable<string> GetFilePaths(IEnumerable<string> paths)

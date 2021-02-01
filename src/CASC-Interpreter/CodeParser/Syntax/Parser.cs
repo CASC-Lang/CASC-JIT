@@ -195,9 +195,6 @@ namespace CASC.CodeParser.Syntax
                 case SyntaxKind.ContinueKeyword:
                     return ParseContinueStatement();
 
-                case SyntaxKind.TryKeyword:
-                    return ParseTryCatchStatement();
-
                 default:
                     return ParseExpressionStatement();
             }
@@ -226,6 +223,38 @@ namespace CASC.CodeParser.Syntax
             return new BlockStatementSyntax(_syntaxTree, openBraceToken, statements.ToImmutable(), closeBraceToken);
         }
 
+        private ExpressionSyntax ParseArrayExpression()
+        {
+            var openBracket = MatchToken(SyntaxKind.OpenBracketToken);
+            var contents = ParseArrayContents();
+            var closeBracket = MatchToken(SyntaxKind.CloseBracketToken);
+
+            return new ArrayExpressionSyntax(_syntaxTree, openBracket, contents, closeBracket);
+        }
+
+        private SeparatedSyntaxList<ExpressionSyntax> ParseArrayContents()
+        {
+            var expressionsAndNodes = ImmutableArray.CreateBuilder<SyntaxNode>();
+            var parseNextExpression = true;
+
+            while (parseNextExpression &&
+                   Current.Kind != SyntaxKind.CloseBracketToken &&
+                   Current.Kind != SyntaxKind.EndOfFileToken)
+            {
+                var parameter = ParseExpression();
+                expressionsAndNodes.Add(parameter);
+
+                if (Current.Kind == SyntaxKind.CommaToken)
+                {
+                    var comma = MatchToken(SyntaxKind.CommaToken);
+                    expressionsAndNodes.Add(comma);
+                }
+                else
+                    parseNextExpression = false;
+            }
+
+            return new SeparatedSyntaxList<ExpressionSyntax>(expressionsAndNodes.ToImmutable());
+        }
 
         private StatementSyntax ParseVariableDeclaration()
         {
@@ -323,16 +352,6 @@ namespace CASC.CodeParser.Syntax
             return new ContinueStatementSyntax(_syntaxTree, keyword);
         }
 
-        private StatementSyntax ParseTryCatchStatement()
-        {
-            var tryKeyword = MatchToken(SyntaxKind.TryKeyword);
-            var tryBody = ParseStatement();
-            var catchKeyword = MatchToken(SyntaxKind.CatchKeyword);
-            var catchBody = ParseStatement();
-
-            return new TryCatchStatementSyntax(_syntaxTree, tryKeyword, tryBody, catchKeyword, catchBody);
-        }
-
         private ElseClauseSyntax ParseOptionalElseClause()
         {
             if (Current.Kind != SyntaxKind.ElseKeyword)
@@ -405,6 +424,9 @@ namespace CASC.CodeParser.Syntax
             {
                 case SyntaxKind.OpenParenthesisToken:
                     return ParseParenthesizedExpression();
+
+                case SyntaxKind.OpenBracketToken:
+                    return ParseArrayExpression();
 
                 case SyntaxKind.FalseKeyword:
                 case SyntaxKind.TrueKeyword:

@@ -41,65 +41,45 @@ namespace CASC.CodeParser
             {
                 var s = body.Statements[index];
 
-                try
+                switch (s.Kind)
                 {
-                    switch (s.Kind)
-                    {
-                        case BoundNodeKind.VariableDeclaration:
-                            EvaluateVariableDeclaration((BoundVariableDeclaration)s);
+                    case BoundNodeKind.VariableDeclaration:
+                        EvaluateVariableDeclaration((BoundVariableDeclaration)s);
+                        index++;
+                        break;
+
+                    case BoundNodeKind.ExpressionStatement:
+                        EvaluateExpressionStatement((BoundExpressionStatement)s);
+                        index++;
+                        break;
+
+                    case BoundNodeKind.GotoStatement:
+                        var gs = (BoundGotoStatement)s;
+                        index = labelToIndex[gs.Label];
+                        break;
+
+                    case BoundNodeKind.ConditionalGotoStatement:
+                        var cgs = (BoundConditionalGotoStatement)s;
+                        var condition = (bool)EvaluateExpression(cgs.Condition);
+
+                        if (condition == cgs.JumpIfTrue)
+                            index = labelToIndex[cgs.Label];
+                        else
                             index++;
-                            break;
 
-                        case BoundNodeKind.ExpressionStatement:
-                            EvaluateExpressionStatement((BoundExpressionStatement)s);
-                            index++;
-                            break;
+                        break;
 
-                        case BoundNodeKind.GotoStatement:
-                            var gs = (BoundGotoStatement)s;
-                            index = labelToIndex[gs.Label];
-                            break;
+                    case BoundNodeKind.LabelStatement:
+                        index++;
+                        break;
 
-                        case BoundNodeKind.ConditionalGotoStatement:
-                            var cgs = (BoundConditionalGotoStatement)s;
-                            var condition = (bool)EvaluateExpression(cgs.Condition);
+                    case BoundNodeKind.ReturnStatement:
+                        var rs = (BoundReturnStatement)s;
+                        var returnValue = rs.Expression == null ? null : EvaluateExpression(rs.Expression);
+                        return returnValue;
 
-                            if (condition == cgs.JumpIfTrue)
-                                index = labelToIndex[cgs.Label];
-                            else
-                                index++;
-
-                            break;
-
-                        case BoundNodeKind.LabelStatement:
-                            index++;
-                            break;
-
-                        case BoundNodeKind.ReturnStatement:
-                            var rs = (BoundReturnStatement)s;
-                            var returnValue = rs.Expression == null ? null : EvaluateExpression(rs.Expression);
-                            return returnValue;
-
-                        case BoundNodeKind.BeginTryStatement:
-                            var bts = (BoundBeginTryStatement)s;
-                            tryBlocks.Push(labelToIndex[bts.ErrorLabel]);
-                            index++;
-                            break;
-
-                        case BoundNodeKind.EndTryStatement:
-                            var ets = (BoundEndTryStatement)s;
-                            tryBlocks.Pop();
-                            index++;
-                            break;
-
-                        default:
-                            throw new Exception($"Unexpected node {s.Kind}");
-                    }
-
-                }
-                catch (EvaluatorException) when (tryBlocks.Count > 0)
-                {
-                    index = tryBlocks.Pop();
+                    default:
+                        throw new Exception($"Unexpected node {s.Kind}");
                 }
             }
 
@@ -121,6 +101,7 @@ namespace CASC.CodeParser
         private object EvaluateExpression(BoundExpression node) => node.Kind switch
         {
             BoundNodeKind.LiteralExpression => EvaluateLiteralExpression((BoundLiteralExpression)node),
+            BoundNodeKind.ArrayExpression => EvaluateArrayExpression((BoundArrayExpression)node),
             BoundNodeKind.VariableExpression => EvaluateVariableExpression((BoundVariableExpression)node),
             BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression((BoundAssignmentExpression)node),
             BoundNodeKind.UnaryExpression => EvaluateUnaryExpression((BoundUnaryExpression)node),
@@ -133,6 +114,21 @@ namespace CASC.CodeParser
         private object EvaluateLiteralExpression(BoundLiteralExpression l)
         {
             return l.Value;
+        }
+
+        private object EvaluateArrayExpression(BoundArrayExpression node)
+        {
+            var arrayBuilder = ImmutableArray.CreateBuilder<object>();
+            var contents = node.Contents;
+
+            foreach (var content in contents)
+            {
+                var evaluatedContent = EvaluateExpression(content);
+
+                arrayBuilder.Add(evaluatedContent);
+            }
+
+            return arrayBuilder.ToArray();
         }
 
         private object EvaluateVariableExpression(BoundVariableExpression v)
@@ -302,21 +298,14 @@ namespace CASC.CodeParser
         {
             var value = EvaluateExpression(node.Expression);
 
-            try
-            {
-                if (node.Type == TypeSymbol.Bool)
-                    return Convert.ToBoolean(value);
-                else if (node.Type == TypeSymbol.Number)
-                    return Convert.ToDecimal(value);
-                else if (node.Type == TypeSymbol.String)
-                    return Convert.ToString(value);
-                else
-                    throw new Exception($"ERROR: Unexpected type {node.Type}");
-            }
-            catch (Exception e) when (e is FormatException || e is OverflowException)
-            {
-                throw new EvaluatorException($"Cannot convert '{value}' to type '{node.Type}'.", e);
-            }
+            if (node.Type == TypeSymbol.Bool)
+                return Convert.ToBoolean(value);
+            else if (node.Type == TypeSymbol.Number)
+                return Convert.ToDecimal(value);
+            else if (node.Type == TypeSymbol.String)
+                return Convert.ToString(value);
+            else
+                throw new Exception($"ERROR: Unexpected type {node.Type}");
         }
 
         private void Assign(VariableSymbol variable, object value)

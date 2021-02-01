@@ -30,15 +30,6 @@ namespace CASC.CodeParser.Binding
                 case BoundNodeKind.ForStatement:
                     return RewriteForStatement((BoundForStatement)node);
 
-                case BoundNodeKind.TryCatchStatement:
-                    return RewriteTryCatchStatement((BoundTryCatchStatement)node);
-
-                case BoundNodeKind.BeginTryStatement:
-                    return RewriteBeginTryStatement((BoundBeginTryStatement)node);
-
-                case BoundNodeKind.EndTryStatement:
-                    return RewriteEndTryStatement((BoundEndTryStatement)node);
-
                 case BoundNodeKind.LabelStatement:
                     return RewriteLabelStatement((BoundLabelStatement)node);
 
@@ -152,27 +143,6 @@ namespace CASC.CodeParser.Binding
             return new BoundForStatement(node.Variable, lowerBound, upperBound, body, node.BreakLabel, node.ContinueLabel);
         }
 
-        protected virtual BoundStatement RewriteTryCatchStatement(BoundTryCatchStatement node)
-        {
-            var tryBody = RewriteStatement(node.TryBody);
-            var catchBody = RewriteStatement(node.CatchBody);
-
-            if (tryBody == node.TryBody && catchBody == node.CatchBody)
-                return node;
-
-            return new BoundTryCatchStatement(tryBody, catchBody);
-        }
-
-        protected virtual BoundStatement RewriteBeginTryStatement(BoundBeginTryStatement node)
-        {
-            return node;
-        }
-
-        protected virtual BoundStatement RewriteEndTryStatement(BoundEndTryStatement node)
-        {
-            return node;
-        }
-
         protected virtual BoundStatement RewriteLabelStatement(BoundLabelStatement node)
         {
             return node;
@@ -210,6 +180,9 @@ namespace CASC.CodeParser.Binding
                 case BoundNodeKind.ErrorExpression:
                     return RewriteErrorExpression((BoundErrorExpression)node);
 
+                case BoundNodeKind.ArrayExpression:
+                    return RewriteArrayExpression((BoundArrayExpression)node);
+
                 case BoundNodeKind.LiteralExpression:
                     return RewriteLiteralExpression((BoundLiteralExpression)node);
 
@@ -237,6 +210,11 @@ namespace CASC.CodeParser.Binding
         }
 
         protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)
+        {
+            return node;
+        }
+
+        private BoundExpression RewriteArrayExpression(BoundArrayExpression node)
         {
             return node;
         }

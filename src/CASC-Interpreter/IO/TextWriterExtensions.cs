@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CASC.CodeParser;
+using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
 using CASC.CodeParser.Text;
 
@@ -11,12 +12,15 @@ namespace CASC.IO
 {
     public static class TextWriterExtensions
     {
-        private static bool IsConsoleOut(this TextWriter writer)
+        private static bool IsConsole(this TextWriter writer)
         {
             if (writer == Console.Out)
-                return true;
+                return !Console.IsOutputRedirected;
 
-            if (writer is IndentedTextWriter iw && iw.InnerWriter.IsConsoleOut())
+            if (writer == Console.Error)
+                return !Console.IsErrorRedirected && !Console.IsOutputRedirected;
+
+            if (writer is IndentedTextWriter iw && iw.InnerWriter.IsConsole())
                 return true;
 
             return false;
@@ -24,13 +28,13 @@ namespace CASC.IO
 
         private static void SetForeground(this TextWriter writer, ConsoleColor color)
         {
-            if (writer.IsConsoleOut())
+            if (writer.IsConsole())
                 Console.ForegroundColor = color;
         }
 
         private static void ResetColor(this TextWriter writer)
         {
-            if (writer.IsConsoleOut())
+            if (writer.IsConsole())
                 Console.ResetColor();
         }
 
@@ -69,6 +73,10 @@ namespace CASC.IO
             writer.WritePunctuation(" ");
         }
 
+        public static void WriteContent(this TextWriter writer, TypeSymbol type, object value)
+        {
+        }
+
         public static void WritePunctuation(this TextWriter writer, SyntaxKind kind) => writer.WritePunctuation(SyntaxFacts.GetText(kind));
 
         public static void WritePunctuation(this TextWriter writer, string text)
@@ -95,12 +103,12 @@ namespace CASC.IO
                 var lineIndex = source.GetLineIndex(span.Start);
                 var line = source.Lines[lineIndex];
 
-                Console.WriteLine();
+                writer.WriteLine();
 
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write($"{fileName}({startLine},{startCharacter},{endLine},{endCharacter}): ");
-                Console.WriteLine(diagnostic);
-                Console.ResetColor();
+                writer.SetForeground(ConsoleColor.DarkRed);
+                writer.Write($"{fileName}({startLine},{startCharacter},{endLine},{endCharacter}): ");
+                writer.WriteLine(diagnostic);
+                writer.ResetColor();
 
                 var prefixSpan = TextSpan.FromBounds(line.Start, span.Start);
                 var suffixSpan = TextSpan.FromBounds(span.End, line.End);
@@ -109,19 +117,19 @@ namespace CASC.IO
                 var error = source.ToString(span);
                 var suffix = source.ToString(suffixSpan);
 
-                Console.Write("    ");
-                Console.Write(prefix);
+                writer.Write("    ");
+                writer.Write(prefix);
 
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.Write(error);
-                Console.ResetColor();
+                writer.SetForeground(ConsoleColor.DarkRed);
+                writer.Write(error);
+                writer.ResetColor();
 
-                Console.Write(suffix);
+                writer.Write(suffix);
 
-                Console.WriteLine();
+                writer.WriteLine();
             }
 
-            Console.WriteLine();
+            writer.WriteLine();
         }
     }
 }

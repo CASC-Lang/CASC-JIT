@@ -1,0 +1,7 @@
+<Project>
+
+    <PropertyGroup>
+        <Features>strict</Features>
+    </PropertyGroup>
+
+</Project>

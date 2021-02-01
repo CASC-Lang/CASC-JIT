@@ -195,9 +195,6 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.ContinueStatement:
                     return BindContinueStatement((ContinueStatementSyntax)syntax);
 
-                case SyntaxKind.TryCatchStatement:
-                    return BindTryCatchStatement((TryCatchStatementSyntax)syntax);
-
                 case SyntaxKind.ExpressionStatement:
                     return BindExpressionStatement((ExpressionStatementSyntax)syntax);
 
@@ -353,14 +350,6 @@ namespace CASC.CodeParser.Binding
             return new BoundGotoStatement(continueLabel);
         }
 
-        private BoundStatement BindTryCatchStatement(TryCatchStatementSyntax syntax)
-        {
-            var tryBody = BindStatement(syntax.TryBody);
-            var catchBody = BindStatement(syntax.CatchBody);
-
-            return new BoundTryCatchStatement(tryBody, catchBody);
-        }
-
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
         {
             var expression = BindExpression(syntax.Expression, canBeVoid: true);
@@ -394,6 +383,9 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.ParenthesizedExpression:
                     return BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax);
 
+                case SyntaxKind.ArrayExpression:
+                    return BindArrayExpression((ArrayExpressionSyntax)syntax);
+
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
 
@@ -416,10 +408,23 @@ namespace CASC.CodeParser.Binding
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
         }
-
         private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
         {
             return BindExpression(syntax.Expression);
+        }
+
+        private BoundExpression BindArrayExpression(ArrayExpressionSyntax syntax)
+        {
+            var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var expression in syntax.Contents)
+            {
+                var boundExpression = BindExpression(expression, TypeSymbol.String);
+
+                expressions.Add(boundExpression);
+            }
+
+            return new BoundArrayExpression(expressions.ToImmutableArray());
         }
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)

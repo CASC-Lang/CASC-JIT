@@ -11,9 +11,6 @@ namespace CASC.CodeParser.Binding
         WhileStatement,
         DoWhileStatement,
         ForStatement,
-        TryCatchStatement,
-        BeginTryStatement,
-        EndTryStatement,
         ConditionalGotoStatement,
         GotoStatement,
         LabelStatement,
@@ -26,6 +23,7 @@ namespace CASC.CodeParser.Binding
         UnaryExpression,
         BinaryExpression,
         CallExpression,
-        ConversionExpression
+        ConversionExpression,
+        ArrayExpression
     }
 }

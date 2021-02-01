@@ -11,6 +11,8 @@ namespace CASC.CodeParser.Syntax
         SlashToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
+        OpenBracketToken,
+        CloseBracketToken,
         OpenBraceToken,
         CloseBraceToken,
         CommaToken,
@@ -50,8 +52,6 @@ namespace CASC.CodeParser.Syntax
         ContinueKeyword,
         ToKeyword,
         FunctionKeyword,
-        TryKeyword,
-        CatchKeyword,
 
         // Nodes
         CompilationUnit,
@@ -72,7 +72,6 @@ namespace CASC.CodeParser.Syntax
         ForStatement,
         BreakStatement,
         ContinueStatement,
-        TryCatchStatement,
 
         // Expressions
         LiteralExpression,
@@ -81,6 +80,7 @@ namespace CASC.CodeParser.Syntax
         ParenthesizedExpression,
         NameExpression,
         AssignmentExpression,
-        CallExpression
+        CallExpression,
+        ArrayExpression
     }
 }

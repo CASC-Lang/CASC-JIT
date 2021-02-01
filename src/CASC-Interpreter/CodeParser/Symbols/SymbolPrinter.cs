@@ -50,7 +50,13 @@ namespace CASC.CodeParser.Symbols
             }
 
             writer.WritePunctuation(SyntaxKind.CloseParenthesisToken);
-            writer.WriteLine();
+
+            if (symbol.ReturnType != TypeSymbol.Void)
+            {
+                writer.WritePunctuation(SyntaxKind.ColonToken);
+                writer.WriteSpace();
+                symbol.ReturnType.WriteTo(writer);
+            }
         }
 
         private static void WriteGlobalVariableTo(GlobalVariableSymbol symbol, TextWriter writer)

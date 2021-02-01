@@ -60,6 +60,9 @@ namespace CASC.CodeParser.Binding
                 case BoundNodeKind.LiteralExpression:
                     WriteLiteralExpression((BoundLiteralExpression)node, writer);
                     break;
+                case BoundNodeKind.ArrayExpression:
+                    WriteArrayExpression((BoundArrayExpression)node, writer);
+                    break;
                 case BoundNodeKind.VariableExpression:
                     WriteVariableExpression((BoundVariableExpression)node, writer);
                     break;
@@ -277,6 +280,16 @@ namespace CASC.CodeParser.Binding
             {
                 throw new Exception($"Unexpected type {node.Type}");
             }
+        }
+
+        private static void WriteArrayExpression(BoundArrayExpression node, IndentedTextWriter writer)
+        {
+            writer.WriteString("[");
+
+            foreach (var content in node.Contents)
+                WriteTo(content, writer);
+
+            writer.WriteString("]");
         }
 
         private static void WriteVariableExpression(BoundVariableExpression node, IndentedTextWriter writer)
