@@ -22,7 +22,7 @@ namespace CASC.CodeParser
             _globals = variables;
             _locals.Push(new Dictionary<VariableSymbol, object>());
             var current = program;
-            
+
             while (current != null)
             {
                 foreach (var kv in current.Functions)
@@ -36,7 +36,17 @@ namespace CASC.CodeParser
             }
         }
 
-        public object Evaluate() => EvaluateStatement(_program.Statement);
+        public object Evaluate()
+        {
+            var function = _program.MainFunction ?? _program.ScriptFunction;
+
+            if (function == null)
+                return null;
+
+            var body = _functions[function];
+
+            return EvaluateStatement(body);
+        }
 
         private object EvaluateStatement(BoundBlockStatement body)
         {
@@ -263,7 +273,7 @@ namespace CASC.CodeParser
                 return Console.ReadLine();
             else if (node.Function == BuiltinFunctions.Print)
             {
-                var message = (string)EvaluateExpression(node.Arguments[0]);
+                var message = EvaluateExpression(node.Arguments[0]).ToString();
                 Console.WriteLine(message);
 
                 return null;
@@ -312,7 +322,9 @@ namespace CASC.CodeParser
         {
             var value = EvaluateExpression(node.Expression);
 
-            if (node.Type == TypeSymbol.Bool)
+            if (node.Type == TypeSymbol.Any)
+                return value;
+            else if (node.Type == TypeSymbol.Bool)
                 return Convert.ToBoolean(value);
             else if (node.Type == TypeSymbol.Number)
                 return Convert.ToDecimal(value);

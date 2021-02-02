@@ -139,12 +139,6 @@ namespace CASC.CodeParser
             Report(location, message);
         }
 
-        public void ReportArgumentTypeMismatch(TextLocation location, string name, TypeSymbol expectedType, TypeSymbol actualType)
-        {
-            var message = $"Parameter '{name}' requires a value of type '{expectedType}' but was given a value of type '{actualType}'.";
-            Report(location, message);
-        }
-
         public void ReportExpressionMustHaveValue(TextLocation location)
         {
             Report(location, "Expression must have a value.");
@@ -162,15 +156,27 @@ namespace CASC.CodeParser
             Report(location, message);
         }
 
-        public void ReportInvalidReturn(TextLocation location)
-        {
-            var message = $"The 'return' keyword can only be used inside of functions.";
-            Report(location, message);
-        }
-
         public void ReportAllPathsMustReturn(TextLocation location)
         {
             var message = "Not all code paths return a value.";
+            Report(location, message);
+        }
+
+        public void ReportOnlyOneFileCanHaveGlobalStatements(TextLocation location)
+        {
+            var message = $"At most one file can have global statements.";
+            Report(location, message);
+        }
+
+        public void ReportMainMustHaveCorrectSignature(TextLocation location)
+        {
+            var message = $"main must not take arguments and not return anything.";
+            Report(location, message);
+        }
+
+        public void ReportCannotMixMainAndGlobalStatements(TextLocation location)
+        {
+            var message = $"Cannot declare main function when global statements are used.";
             Report(location, message);
         }
 

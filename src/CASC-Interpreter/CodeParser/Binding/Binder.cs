@@ -45,22 +45,77 @@ namespace CASC.CodeParser.Binding
             var globalStatements = syntaxTrees.SelectMany(st => st.Root.Members)
                                               .OfType<GlobalStatementSyntax>();
 
+            var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
             foreach (var globalStatement in globalStatements)
             {
-                var s = binder.BindStatementInternal(globalStatement.Statement);
-                builder.Add(s);
+                var statement = binder.BindGlobalStatement(globalStatement.Statement);
+                statements.Add(statement);
             }
 
-            var statement = new BoundBlockStatement(builder.ToImmutable());
+            var firstGlobalStatementPerSyntaxTree = syntaxTrees.Select(st => st.Root.Members.OfType<GlobalStatementSyntax>().FirstOrDefault())
+                                                                .Where(g => g != null)
+                                                                .ToArray();
+
+            if (firstGlobalStatementPerSyntaxTree.Length > 1)
+            {
+                foreach (var globalStatement in firstGlobalStatementPerSyntaxTree)
+                    binder.Diagnostics.ReportOnlyOneFileCanHaveGlobalStatements(globalStatement.Location);
+            }
+
+            // Check for main/script with global statements
 
             var functions = binder._scope.GetDeclaredFunctions();
-            var variables = binder._scope.GetDeclaredVariables();
+
+            FunctionSymbol mainFunction;
+            FunctionSymbol scriptFunction;
+
+            if (isScript)
+            {
+                mainFunction = null;
+                if (globalStatements.Any())
+                {
+                    scriptFunction = new FunctionSymbol("$eval", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Any, null);
+                }
+                else
+                {
+                    scriptFunction = null;
+                }
+            }
+            else
+            {
+                mainFunction = functions.FirstOrDefault(f => f.Name == "main");
+                scriptFunction = null;
+
+                if (mainFunction != null)
+                {
+                    if (mainFunction.ReturnType != TypeSymbol.Void || mainFunction.Parameters.Any())
+                        binder.Diagnostics.ReportMainMustHaveCorrectSignature(mainFunction.Declaration.Identifier.Location);
+                }
+
+                if (globalStatements.Any())
+                {
+                    if (mainFunction != null)
+                    {
+                        binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(mainFunction.Declaration.Identifier.Location);
+
+                        foreach (var globalStatement in firstGlobalStatementPerSyntaxTree)
+                            binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(globalStatement.Location);
+                    }
+                    else
+                    {
+                        mainFunction = new FunctionSymbol("main", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Void, null);
+                    }
+                }
+            }
+
             var diagnostics = binder.Diagnostics.ToImmutableArray();
+            var variables = binder._scope.GetDeclaredVariables();
 
             if (previous != null)
                 diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
 
-            return new BoundGlobalScope(previous, diagnostics, functions, variables, builder.ToImmutable());
+            return new BoundGlobalScope(previous, diagnostics, mainFunction, scriptFunction, functions, variables, statements.ToImmutable());
         }
 
         public static BoundProgram BindProgram(bool isScript, BoundProgram previous, BoundGlobalScope globalScope)
@@ -84,9 +139,35 @@ namespace CASC.CodeParser.Binding
                 diagnostics.AddRange(binder.Diagnostics);
             }
 
-            var statement = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
+            if (globalScope.MainFunction != null && globalScope.Statements.Any())
+            {
+                var body = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
+                functionBodies.Add(globalScope.MainFunction, body);
+            }
+            else if (globalScope.ScriptFunction != null)
+            {
+                var statements = globalScope.Statements;
+                if (statements.Length == 1 &&
+                    statements[0] is BoundExpressionStatement es &&
+                    es.Expression.Type != TypeSymbol.Void)
+                {
+                    statements = statements.SetItem(0, new BoundReturnStatement(es.Expression));
+                }
+                else if (statements.Any() && statements.Last().Kind != BoundNodeKind.ReturnStatement)
+                {
+                    var nullValue = new BoundLiteralExpression("");
+                    statements = statements.Add(new BoundReturnStatement(nullValue));
+                }
 
-            return new BoundProgram(previous, diagnostics.ToImmutable(), functionBodies.ToImmutable(), statement);
+                var body = Lowerer.Lower(new BoundBlockStatement(statements));
+                functionBodies.Add(globalScope.ScriptFunction, body);
+            }
+
+            return new BoundProgram(previous,
+                                    diagnostics.ToImmutable(),
+                                    globalScope.MainFunction,
+                                    globalScope.ScriptFunction,
+                                    functionBodies.ToImmutable());
         }
 
         private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
@@ -241,7 +322,17 @@ namespace CASC.CodeParser.Binding
             var expression = syntax.Expression == null ? null : BindExpression(syntax.Expression);
 
             if (_function == null)
-                _diagnostics.ReportInvalidReturn(syntax.ReturnKeyword.Location);
+            {
+                if (_isScript)
+                {
+                    if (expression == null)
+                        expression = new BoundLiteralExpression("");
+                }
+                else if (expression != null)
+                {
+                    _diagnostics.ReportInvalidReturnExpression(syntax.Expression.Location, _function.Name);
+                }
+            }
             else
             {
                 if (_function.ReturnType == TypeSymbol.Void)
@@ -436,7 +527,7 @@ namespace CASC.CodeParser.Binding
 
             foreach (var expression in syntax.Contents)
             {
-                var boundExpression = BindExpression(expression, TypeSymbol.String);
+                var boundExpression = BindExpression(expression, TypeSymbol.Any);
 
                 expressions.Add(boundExpression);
             }
@@ -576,24 +667,14 @@ namespace CASC.CodeParser.Binding
                 return new BoundErrorExpression();
             }
 
-            bool hasErrors = false;
-
             for (var i = 0; i < syntax.Arguments.Count; i++)
             {
+                var arumentLocation = syntax.Arguments[i].Location;
                 var argument = boundArguments[i];
                 var parameter = function.Parameters[i];
-
-                if (argument.Type != parameter.Type)
-                {
-                    if (argument.Type != TypeSymbol.Error)
-                        _diagnostics.ReportArgumentTypeMismatch(syntax.Arguments[i].Location, parameter.Name, parameter.Type, argument.Type);
-
-                    hasErrors = true;
-                }
+                var convertedArgument =
+                boundArguments[i] = BindConversion(syntax.Arguments[i].Location, argument, parameter.Type);
             }
-
-            if (hasErrors)
-                return new BoundErrorExpression();
 
             return new BoundCallExpression(function, boundArguments.ToImmutable());
         }
@@ -662,6 +743,8 @@ namespace CASC.CodeParser.Binding
 
         private TypeSymbol LookupType(string name) => name switch
         {
+            "任何" => TypeSymbol.Any,
+            "any" => TypeSymbol.Any,
             "布林" => TypeSymbol.Bool,
             "bool" => TypeSymbol.Bool,
             "數字" => TypeSymbol.Number,

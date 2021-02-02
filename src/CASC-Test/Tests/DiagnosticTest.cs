@@ -247,14 +247,10 @@ namespace CASC_Test.Tests
         public void Evaluator_Invalid_Return()
         {
             var text = @"
-                [return]
+                return
             ";
 
-            var diagnostics = @"
-                The 'return' keyword can only be used inside of functions.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
+            AssertValue(text, "");
         }
 
         [Test]
@@ -304,7 +300,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                Parameter 'n' requires a value of type 'number' but was given a value of type 'string'.
+                Cannot implicitly convert type 'string' to 'number'. An explicit conversion exist (missing a cast?)
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -365,6 +361,17 @@ namespace CASC_Test.Tests
             ";
 
             AssertDiagnostics(text, diagnostics);
+        }
+
+        private static void AssertValue(string text, object expectedValue)
+        {
+            var syntaxTree = SyntaxTree.Parse(text);
+            var compilation = Compilation.CreateScript(null, syntaxTree);
+            var variables = new Dictionary<VariableSymbol, object>();
+            var result = compilation.Evaluate(variables);
+
+            Assert.IsEmpty(result.Diagnostics);
+            Assert.AreEqual(expectedValue, result.Value);
         }
 
         private void AssertDiagnostics(string text, string diagnosticText)
@@ -621,14 +628,10 @@ namespace CASC_Test.Tests
         public void Evaluator_Invalid_Return()
         {
             var text = @"
-                [return]
+                返回
             ";
 
-            var diagnostics = @"
-                The 'return' keyword can only be used inside of functions.
-            ";
-
-            AssertDiagnostics(text, diagnostics);
+            AssertValue(text, "");
         }
 
         [Test]
@@ -644,7 +647,7 @@ namespace CASC_Test.Tests
             ";
 
             var diagnostics = @"
-                Parameter '甲' requires a value of type 'number' but was given a value of type 'string'.
+                Cannot implicitly convert type 'string' to 'number'. An explicit conversion exist (missing a cast?)
             ";
 
             AssertDiagnostics(text, diagnostics);
@@ -664,6 +667,17 @@ namespace CASC_Test.Tests
             ";
 
             AssertDiagnostics(text, diagnostics);
+        }
+
+        private static void AssertValue(string text, object expectedValue)
+        {
+            var syntaxTree = SyntaxTree.Parse(text);
+            var compilation = Compilation.CreateScript(null, syntaxTree);
+            var variables = new Dictionary<VariableSymbol, object>();
+            var result = compilation.Evaluate(variables);
+
+            Assert.IsEmpty(result.Diagnostics);
+            Assert.AreEqual(expectedValue, result.Value);
         }
 
         private void AssertDiagnostics(string text, string diagnosticText)

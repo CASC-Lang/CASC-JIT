@@ -3,6 +3,7 @@ namespace CASC.CodeParser.Symbols
     public sealed class TypeSymbol : Symbol
     {
         public static readonly TypeSymbol Error = new TypeSymbol("?");
+        public static readonly TypeSymbol Any = new TypeSymbol("any");
         public static readonly TypeSymbol Void = new TypeSymbol("void");
         public static readonly TypeSymbol Array = new TypeSymbol("array");
         public static readonly TypeSymbol Number = new TypeSymbol("number");

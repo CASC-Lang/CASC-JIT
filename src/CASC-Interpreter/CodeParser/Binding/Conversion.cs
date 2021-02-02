@@ -24,23 +24,35 @@ namespace CASC.CodeParser.Binding
         public static Conversion Classify(TypeSymbol from, TypeSymbol to)
         {
             if (from == to)
-                return Identity;
+                return Conversion.Identity;
 
-            if (from == TypeSymbol.Number ||
-                from == TypeSymbol.Bool)
+            if (from != TypeSymbol.Void && to == TypeSymbol.Any)
+            {
+                return Conversion.Implicit;
+            }
+
+            if (from == TypeSymbol.Any && to != TypeSymbol.Void)
+            {
+                return Conversion.Explicit;
+            }
+
+            if (from == TypeSymbol.Bool || from == TypeSymbol.Number)
+            {
                 if (to == TypeSymbol.String)
-                    return Explicit;
+                    return Conversion.Explicit;
+            }
 
             if (from == TypeSymbol.String)
-                if (to == TypeSymbol.Number ||
-                    to == TypeSymbol.Bool)
-                    return Explicit;
+            {
+                if (to == TypeSymbol.Bool || to == TypeSymbol.Number)
+                    return Conversion.Explicit;
+            }
 
             if (from == TypeSymbol.Bool && to == TypeSymbol.Number)
                 return Explicit;
 
             if (from == TypeSymbol.Number && to == TypeSymbol.Bool)
-                return Explicit;
+                return Implicit;
 
             return None;
         }

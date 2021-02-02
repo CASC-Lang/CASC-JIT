@@ -1,2 +1,4 @@
-let str = readInput()
-print("Hello, " + str + "!")
+func main() {
+    let str = readInput()
+    print("Hello, " + str + "!")
+}

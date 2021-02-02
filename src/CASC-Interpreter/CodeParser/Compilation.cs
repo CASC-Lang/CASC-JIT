@@ -32,6 +32,7 @@ namespace CASC.CodeParser
         public Compilation Previous { get; }
         public SyntaxTree[] SyntaxTree { get; }
         public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
+        public FunctionSymbol MainFunction => GlobalScope.MainFunction;
         public ImmutableArray<FunctionSymbol> Functions => GlobalScope.Functions;
         public ImmutableArray<VariableSymbol> Variables => GlobalScope.Variables;
 
@@ -66,10 +67,6 @@ namespace CASC.CodeParser
                     .Select(fi => (FunctionSymbol)fi.GetValue(obj: null))
                     .ToList();
 
-                foreach (var builtin in builtinFunctions)
-                    if (seenSymbolNames.Add(builtin.Name))
-                        yield return builtin;
-
                 foreach (var function in submission.Functions)
                     if (seenSymbolNames.Add(function.Name))
                         yield return function;
@@ -77,6 +74,10 @@ namespace CASC.CodeParser
                 foreach (var variable in submission.Variables)
                     if (seenSymbolNames.Add(variable.Name))
                         yield return variable;
+
+                foreach (var builtin in builtinFunctions)
+                    if (seenSymbolNames.Add(builtin.Name))
+                        yield return builtin;
 
                 submission = submission.Previous;
             }
@@ -100,16 +101,16 @@ namespace CASC.CodeParser
 
             var program = GetProgram();
 
-            var appPath = Environment.GetCommandLineArgs()[0];
-            var appDirectory = Path.GetDirectoryName(appPath);
-            var cfgPath = Path.Combine(appDirectory, "cfg.dot");
-            var cfgStatement = !program.Statement.Statements.Any() && program.Functions.Any()
-                               ? program.Functions.Last().Value
-                               : program.Statement;
-            var cfg = ControlFlowGraph.Create(cfgStatement);
+            // var appPath = Environment.GetCommandLineArgs()[0];
+            // var appDirectory = Path.GetDirectoryName(appPath);
+            // var cfgPath = Path.Combine(appDirectory, "cfg.dot");
+            // var cfgStatement = !program.Statement.Statements.Any() && program.Functions.Any()
+            //                    ? program.Functions.Last().Value
+            //                    : program.Statement;
+            // var cfg = ControlFlowGraph.Create(cfgStatement);
 
-            using (var streamWriter = new StreamWriter(cfgPath))
-                cfg.WriteTo(streamWriter);
+            // using (var streamWriter = new StreamWriter(cfgPath))
+            //     cfg.WriteTo(streamWriter);
 
             if (program.Diagnostics.Any())
                 return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
@@ -124,20 +125,10 @@ namespace CASC.CodeParser
 
         public void EmitTree(TextWriter writer)
         {
-            var program = GetProgram();
-
-            if (program.Statement.Statements.Any())
-                program.Statement.WriteTo(writer);
-            else
-                foreach (var functionBody in program.Functions)
-                {
-                    if (!GlobalScope.Functions.Contains(functionBody.Key))
-                        continue;
-
-                    functionBody.Key.WriteTo(writer);
-                    writer.WriteLine();
-                    functionBody.Value.WriteTo(writer);
-                }
+            if (GlobalScope.MainFunction != null)
+                EmitTree(GlobalScope.MainFunction, writer);
+            else if (GlobalScope.ScriptFunction != null)
+                EmitTree(GlobalScope.ScriptFunction, writer);
         }
 
         public void EmitTree(FunctionSymbol symbol, TextWriter writer)
