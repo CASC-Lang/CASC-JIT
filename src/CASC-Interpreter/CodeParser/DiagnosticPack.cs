@@ -10,7 +10,7 @@ namespace CASC.CodeParser
 {
     internal sealed class DiagnosticPack : IEnumerable<Diagnostic>
     {
-        private readonly List<Diagnostic> _diagnostics = new List<Diagnostic>();
+        private readonly List<Diagnostic> _diagnostics = new();
 
         public IEnumerator<Diagnostic> GetEnumerator() => _diagnostics.GetEnumerator();
 
@@ -193,11 +193,13 @@ namespace CASC.CodeParser
             var message = "Only assignment and call expressions can be used as a statement.";
             Report(location, message);
         }
+        
         public void ReportInvalidReference(string path)
         {
             var message = $"The reference is not a valid .NET assembly: {path}.";
             Report(default, message);
         }
+        
         public void ReportRequiredTypeNotFound(string cascName, string metadataName)
         {
             var message = cascName == null
@@ -205,15 +207,17 @@ namespace CASC.CodeParser
                 : $"The required type '{metadataName}' cannot be resolve among the given references.";
             Report(default, message);
         }
+        
         public void ReportRequiredTypeAmbiguous(string cascName, string metadataName, TypeDefinition[] foundTypes)
         {
             var assemblyNames = foundTypes.Select(t => t.Module.Assembly.Name.Name);
             var assemblyNameList = string.Join(", ", assemblyNames);
             var message = cascName == null
-                ? $"The required type '{cascName}' was found in multiple references: {assemblyNameList}."
+                ? $"The required type '{metadataName}' was found in multiple references: {assemblyNameList}."
                 : $"The required type '{cascName}' ('{metadataName}') was found in multiple references: {assemblyNameList}.";
             Report(default, message);
         }
+        
         public void ReportRequiredMethodNotFound(string typeName, string methodName, string[] parameterTypeNames)
         {
             var assemblyNameList = string.Join(", ", parameterTypeNames);

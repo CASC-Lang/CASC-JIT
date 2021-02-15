@@ -91,7 +91,7 @@ namespace CASC.IO
             foreach (var diagnostic in diagnostics.Where(d => d.Location.Source == null))
             {
                 writer.SetForeground(ConsoleColor.DarkRed);
-                writer.Write(diagnostic.Message);
+                writer.WriteLine(diagnostic.Message);
                 writer.ResetColor();
             }
 

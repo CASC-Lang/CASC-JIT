@@ -12,8 +12,6 @@ namespace CASC
 {
     internal static class Program
     {
-        private static readonly Regex CASCFileRegex = new Regex("\\.casc|\\.cas");
-
         private static int Main(string[] args)
         {
             var outputPath = (string)null;
@@ -55,10 +53,7 @@ namespace CASC
                 return 1;
             }
 
-            if (outputPath == null)
-            {
-                outputPath = Path.ChangeExtension(sourcePaths[0], ".exe");
-            }
+            outputPath ??= Path.ChangeExtension(sourcePaths[0], ".exe");
 
             moduleName ??= Path.GetFileNameWithoutExtension(outputPath);
 
@@ -84,7 +79,6 @@ namespace CASC
                 {
                     Console.Error.WriteLine($"ERROR: File '{path}' doesn't exist.");
                     hasError = true;
-                    continue;
                 }
             }
 
@@ -104,22 +98,6 @@ namespace CASC
             }
 
             return 0;
-        }
-
-        private static IEnumerable<string> GetFilePaths(IEnumerable<string> paths)
-        {
-            var result = new SortedSet<string>();
-
-            foreach (var path in paths)
-            {
-                if (Directory.Exists(path))
-                    result.UnionWith(Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
-                                              .Where(f => CASCFileRegex.IsMatch(Path.GetExtension(f))));
-                else
-                    result.Add(path);
-            }
-
-            return result;
         }
     }
 }
