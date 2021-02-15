@@ -1,8 +1,10 @@
 using CASC.CodeParser.Syntax;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using CASC.CodeParser.Text;
 using CASC.CodeParser.Symbols;
+using Mono.Cecil;
 
 namespace CASC.CodeParser
 {
@@ -129,7 +131,7 @@ namespace CASC.CodeParser
 
         public void ReportUnterminatedString(TextLocation location)
         {
-            var message = $"Unterminated string literal.";
+            var message = "Unterminated string literal.";
             Report(location, message);
         }
 
@@ -150,6 +152,12 @@ namespace CASC.CodeParser
             Report(location, message);
         }
 
+        public void ReportInvalidReturnWithValueInGlobalStatements(TextLocation location)
+        {
+            var message = "The 'return' keyword cannot be followed by an expression in global statements.";
+            Report(location, message);
+        }
+
         public void ReportMissingReturnExpression(TextLocation location, TypeSymbol returnType)
         {
             var message = $"An expression of type '{returnType}' expected.";
@@ -164,26 +172,53 @@ namespace CASC.CodeParser
 
         public void ReportOnlyOneFileCanHaveGlobalStatements(TextLocation location)
         {
-            var message = $"At most one file can have global statements.";
+            var message = "At most one file can have global statements.";
             Report(location, message);
         }
 
         public void ReportMainMustHaveCorrectSignature(TextLocation location)
         {
-            var message = $"main must not take arguments and not return anything.";
+            var message = "main must not take arguments and not return anything.";
             Report(location, message);
         }
 
         public void ReportCannotMixMainAndGlobalStatements(TextLocation location)
         {
-            var message = $"Cannot declare main function when global statements are used.";
+            var message = "Cannot declare main function when global statements are used.";
             Report(location, message);
         }
 
-        internal void ReportInvalidExpressionStatement(TextLocation location)
+        public void ReportInvalidExpressionStatement(TextLocation location)
         {
             var message = "Only assignment and call expressions can be used as a statement.";
             Report(location, message);
+        }
+        public void ReportInvalidReference(string path)
+        {
+            var message = $"The reference is not a valid .NET assembly: {path}.";
+            Report(default, message);
+        }
+        public void ReportRequiredTypeNotFound(string cascName, string metadataName)
+        {
+            var message = cascName == null
+                ? $"The required type '{cascName}' ('{metadataName}') cannot be resolve among the given references."
+                : $"The required type '{metadataName}' cannot be resolve among the given references.";
+            Report(default, message);
+        }
+        public void ReportRequiredTypeAmbiguous(string cascName, string metadataName, TypeDefinition[] foundTypes)
+        {
+            var assemblyNames = foundTypes.Select(t => t.Module.Assembly.Name.Name);
+            var assemblyNameList = string.Join(", ", assemblyNames);
+            var message = cascName == null
+                ? $"The required type '{cascName}' was found in multiple references: {assemblyNameList}."
+                : $"The required type '{cascName}' ('{metadataName}') was found in multiple references: {assemblyNameList}.";
+            Report(default, message);
+        }
+        public void ReportRequiredMethodNotFound(string typeName, string methodName, string[] parameterTypeNames)
+        {
+            var assemblyNameList = string.Join(", ", parameterTypeNames);
+            var message = $"The required method '{typeName}.{methodName}({parameterTypeNames})' cannot be resolve among the given references: {assemblyNameList}.";
+            Report(default, message);
         }
     }
 }

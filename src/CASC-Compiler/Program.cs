@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CASC.CodeParser;
-using CASC.CodeParser.Symbols;
 using CASC.CodeParser.Syntax;
 using CASC.IO;
+using Mono.Options;
 
 namespace CASC
 {
@@ -16,12 +16,29 @@ namespace CASC
 
         private static int Main(string[] args)
         {
-            if (args.Length == 0)
+            var outputPath = (string)null;
+            var moduleName = (string)null;
+            var references = new List<string>();
+            var sourcePaths = new List<string>();
+            var helpRequested = false;
+
+            var options = new OptionSet
             {
-                Console.Error.WriteLine(
-                "Usage: casc <source-directory-path>\n   or  casc repl\nIf you are running CASC by local executable file,\nconsider adds arguments behind the excutable file."
-                );
-                return 1;
+                "usage: mcs <source-paths> (or repl) [options]",
+                {"r=", "The {path} of  an assembly to reference", v => references.Add(v)},
+                {"o=", "The output {path} of an assembly to create", v => outputPath = v},
+                {"m=", "The output {path} of the module", v => moduleName = v},
+                {"<>", v => sourcePaths.Add(v)},
+                {"?|h|help", _ => helpRequested = true}
+            };
+
+            options.Parse(args);
+
+            if (helpRequested)
+            {
+                options.WriteOptionDescriptions(Console.Out);
+
+                return 0;
             }
 
             if (string.Equals(args[0], "repl"))
@@ -31,15 +48,25 @@ namespace CASC
                 return 0;
             }
 
+            if (sourcePaths.Count == 0)
+            {
+                Console.Error.WriteLine("ERROR: Require at least one source file.");
 
-            var paths = GetFilePaths(args);
+                return 1;
+            }
+
+            if (outputPath == null)
+            {
+                outputPath = Path.ChangeExtension(sourcePaths[0], ".exe");
+            }
+
+            moduleName ??= Path.GetFileNameWithoutExtension(outputPath);
+
             var syntaxTrees = new List<SyntaxTree>();
             var hasError = false;
 
-            foreach (var path in paths)
+            foreach (var path in sourcePaths)
             {
-                var extensionName = Path.GetExtension(path);
-
                 if (!File.Exists(path))
                 {
                     Console.Error.WriteLine($"ERROR: File '{path}' doesn't exist.");
@@ -51,25 +78,28 @@ namespace CASC
                 syntaxTrees.Add(syntaxTree);
             }
 
+            foreach (var path in references)
+            {
+                if (!File.Exists(path))
+                {
+                    Console.Error.WriteLine($"ERROR: File '{path}' doesn't exist.");
+                    hasError = true;
+                    continue;
+                }
+            }
+
             if (hasError)
                 return 1;
 
             var compilation = Compilation.Create(syntaxTrees.ToArray());
-            var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+            var diagnostics = compilation.EmitTree(moduleName, references.ToArray(), outputPath);
 
-            if (!result.Diagnostics.Any())
+            if (!diagnostics.Any())
             {
-                if (result.Value != null)
-                {
-                    if (result.Value.GetType().IsArray)
-                        Console.WriteLine(IOUtil.ArrayToString((object[])result.Value));
-                    else
-                        Console.WriteLine(result.Value.ToString());
-                }
             }
             else
             {
-                Console.Error.WriteDiagnostics(result.Diagnostics);
+                Console.Error.WriteDiagnostics(diagnostics);
                 return 1;
             }
 
@@ -78,7 +108,6 @@ namespace CASC
 
         private static IEnumerable<string> GetFilePaths(IEnumerable<string> paths)
         {
-
             var result = new SortedSet<string>();
 
             foreach (var path in paths)

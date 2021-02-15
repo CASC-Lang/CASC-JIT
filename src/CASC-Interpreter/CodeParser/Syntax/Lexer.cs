@@ -32,10 +32,7 @@ namespace CASC.CodeParser.Syntax
         {
             var index = _position + offset;
 
-            if (index >= _source.Length)
-                return '\0';
-
-            return _source[index];
+            return index >= _source.Length ? '\0' : _source[index];
         }
 
         public SyntaxToken Lex()

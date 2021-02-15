@@ -330,7 +330,7 @@ namespace CASC.CodeParser.Binding
                 }
                 else if (expression != null)
                 {
-                    _diagnostics.ReportInvalidReturnExpression(syntax.Expression.Location, _function.Name);
+                    _diagnostics.ReportInvalidReturnWithValueInGlobalStatements(syntax.Expression.Location);
                 }
             }
             else
@@ -472,7 +472,7 @@ namespace CASC.CodeParser.Binding
 
         private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
         {
-            var result = BindExpressionNumberernal(syntax);
+            var result = BindExpressionInternal(syntax);
 
             if (!canBeVoid && result.Type == TypeSymbol.Void)
             {
@@ -484,7 +484,7 @@ namespace CASC.CodeParser.Binding
             return result;
         }
 
-        private BoundExpression BindExpressionNumberernal(ExpressionSyntax syntax)
+        private BoundExpression BindExpressionInternal(ExpressionSyntax syntax)
         {
             switch (syntax.Kind)
             {

@@ -5,6 +5,10 @@
 **/*.pdb
 **/*.exe
 
+samples/IL_EMIT_TEST/obj/*
+samples/IL_EMIT_TEST/bin/*
+
+src/.idea/*
 src/CASC-Interpreter/obj/*
 src/CASC-Interpreter/bin/*
 src/CASC-Compiler/obj/*

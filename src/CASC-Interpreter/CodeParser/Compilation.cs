@@ -6,8 +6,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.IO;
 using CASC.CodeParser.Symbols;
-using System;
-
+using CASC.CodeParser.Emit;
 using ReflectionBindingFlags = System.Reflection.BindingFlags;
 
 namespace CASC.CodeParser
@@ -24,9 +23,11 @@ namespace CASC.CodeParser
             SyntaxTrees = syntaxTree.ToImmutableArray();
         }
 
-        public static Compilation Create(params SyntaxTree[] syntaxTrees) => new Compilation(isScript: false, null, syntaxTrees);
+        public static Compilation Create(params SyntaxTree[] syntaxTrees) =>
+            new Compilation(isScript: false, null, syntaxTrees);
 
-        public static Compilation CreateScript(Compilation previous, params SyntaxTree[] syntaxTrees) => new Compilation(isScript: true, previous, syntaxTrees);
+        public static Compilation CreateScript(Compilation previous, params SyntaxTree[] syntaxTrees) =>
+            new Compilation(isScript: true, previous, syntaxTrees);
 
         public bool IsScript { get; }
         public Compilation Previous { get; }
@@ -64,7 +65,7 @@ namespace CASC.CodeParser
                 var builtinFunctions = typeof(BuiltinFunctions)
                     .GetFields(bindingFlags)
                     .Where(fi => fi.FieldType == typeof(FunctionSymbol))
-                    .Select(fi => (FunctionSymbol)fi.GetValue(obj: null))
+                    .Select(fi => (FunctionSymbol) fi.GetValue(obj: null))
                     .ToList();
 
                 foreach (var function in submission.Functions)
@@ -142,6 +143,13 @@ namespace CASC.CodeParser
                 return;
 
             body.WriteTo(writer);
+        }
+
+        public ImmutableArray<Diagnostic> EmitTree(string moduleName, string[] references, string outputPath)
+        {
+            var program = GetProgram();
+            
+            return Emitter.Emit(program, moduleName, references, outputPath);
         }
     }
 }

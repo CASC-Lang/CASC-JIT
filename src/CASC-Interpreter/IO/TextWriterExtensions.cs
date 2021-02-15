@@ -88,7 +88,15 @@ namespace CASC.IO
 
         public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics)
         {
-            foreach (var diagnostic in diagnostics.OrderBy(d => d.Location.FileName)
+            foreach (var diagnostic in diagnostics.Where(d => d.Location.Source == null))
+            {
+                writer.SetForeground(ConsoleColor.DarkRed);
+                writer.Write(diagnostic.Message);
+                writer.ResetColor();
+            }
+
+            foreach (var diagnostic in diagnostics.Where(d => d.Location.Source != null)
+                                                  .OrderBy(d => d.Location.FileName)
                                                   .ThenBy(d => d.Location.Span.Start)
                                                   .ThenBy(d => d.Location.Span.Length))
             {
