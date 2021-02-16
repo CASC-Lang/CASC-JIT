@@ -52,6 +52,12 @@ namespace CASC
             }
         }
 
+        [MetaCommand("exit", "Exits the REPL")]
+        private void EvaluateExit()
+        {
+            Environment.Exit(0);
+        }
+        
         [MetaCommand("clear", "Clears the screen")]
         private void EvaluateCls()
         {

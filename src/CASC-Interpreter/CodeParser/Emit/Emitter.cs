@@ -339,12 +339,11 @@ namespace CASC.CodeParser.Emit
                 var bits = decimal.GetBits(value);
                 var sign = (bits[3] & 0x80000000) != 0;
                 var scale = (byte)((bits[3] >> 16) & 0x7f);
-
-                ilProcessor.Emit(OpCodes.Ldc_I4_4, bits[0]);
+                ilProcessor.Emit(OpCodes.Ldc_I4, bits[0]);
                 ilProcessor.Emit(OpCodes.Ldc_I4, bits[1]);
                 ilProcessor.Emit(OpCodes.Ldc_I4, bits[2]);
                 ilProcessor.Emit(sign ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-                ilProcessor.Emit(OpCodes.Ldc_I4, scale);
+                ilProcessor.Emit(OpCodes.Ldc_I4, (int)scale);
                 ilProcessor.Emit(OpCodes.Newobj, _decimalCtorReference);
             }
             else if (expression.Type == TypeSymbol.String)
