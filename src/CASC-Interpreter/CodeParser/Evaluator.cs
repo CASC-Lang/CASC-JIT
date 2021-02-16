@@ -51,7 +51,6 @@ namespace CASC.CodeParser
         private object EvaluateStatement(BoundBlockStatement body)
         {
             var labelToIndex = new Dictionary<BoundLabel, int>();
-            var tryBlocks = new Stack<int>();
 
             for (var i = 0; i < body.Statements.Length; i++)
             {

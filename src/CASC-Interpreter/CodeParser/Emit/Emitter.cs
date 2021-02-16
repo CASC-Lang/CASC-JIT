@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using CASC.CodeParser.Binding;
 using CASC.CodeParser.Symbols;
+using CASC.CodeParser.Syntax;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -17,6 +18,9 @@ namespace CASC.CodeParser.Emit
         private readonly MethodReference _consoleReadLineReference;
         private readonly MethodReference _stringConcatReference;
         private readonly MethodReference _decimalCtorReference;
+        private readonly MethodReference _convert2BoolReference;
+        private readonly MethodReference _convert2DecimalReference;
+        private readonly MethodReference _convert2StringReference;
         private readonly AssemblyDefinition _asmDefinition;
         private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
         private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
@@ -155,6 +159,10 @@ namespace CASC.CodeParser.Emit
                     "System.Int32", "System.Boolean", "System.Byte"
                 }
             );
+
+            _convert2BoolReference = ResolveMethod("System.Convert", "ToBoolean", new[] {"System.Object"});
+            _convert2DecimalReference = ResolveMethod("System.Convert", "ToDecimal", new[] {"System.Object"});
+            _convert2StringReference = ResolveMethod("System.Convert", "ToString", new[] {"System.Object"});
         }
 
         public static ImmutableArray<Diagnostic> Emit(BoundProgram program,
@@ -381,7 +389,25 @@ namespace CASC.CodeParser.Emit
 
         private void EmitUnaryExpression(ILProcessor ilProcessor, BoundUnaryExpression expression)
         {
-            throw new NotImplementedException();
+            EmitExpression(ilProcessor, expression.Operand);
+            
+            switch (expression.Op.Kind)
+            {
+                case BoundUnaryOperatorKind.Identity:
+                    break;
+                case BoundUnaryOperatorKind.Negation:
+                    ilProcessor.Emit(OpCodes.Neg);
+                    break;
+                case BoundUnaryOperatorKind.LogicalNegation:
+                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    break;
+                case BoundUnaryOperatorKind.OnesComplement:
+                    ilProcessor.Emit(OpCodes.Not);
+                    break;
+                default:
+                    throw new Exception($"Unexpected unary operator {SyntaxFacts.GetText(expression.Op.SyntaxKind)}({expression.Operand.Type})");
+            }
         }
 
         private void EmitBinaryExpression(ILProcessor ilProcessor, BoundBinaryExpression expression)
@@ -424,7 +450,31 @@ namespace CASC.CodeParser.Emit
 
         private void EmitConversionExpression(ILProcessor ilProcessor, BoundConversionExpression expression)
         {
-            throw new NotImplementedException();
+            EmitExpression(ilProcessor, expression.Expression);
+            var needsBoxing = expression.Expression.Type == TypeSymbol.Bool ||
+                              expression.Expression.Type == TypeSymbol.Number;
+
+            if (needsBoxing)
+                ilProcessor.Emit(OpCodes.Box, _knownTypes[expression.Expression.Type]);
+
+            if (expression.Type == TypeSymbol.Any)
+            {
+                
+            }
+            else if (expression.Type == TypeSymbol.Bool)
+            {
+                ilProcessor.Emit(OpCodes.Call, _convert2BoolReference);
+            }
+            else if (expression.Type == TypeSymbol.Number)
+            {
+                ilProcessor.Emit(OpCodes.Call, _convert2DecimalReference);
+            }
+            else if (expression.Type == TypeSymbol.String)
+            {
+                ilProcessor.Emit(OpCodes.Call, _convert2StringReference);
+            }
+            else
+                throw new Exception($"Unexpected conversion from {expression.Expression.Type} to {expression.Type}");
         }
 
         private void EmitArrayExpression(ILProcessor ilProcessor, BoundArrayExpression expression)
