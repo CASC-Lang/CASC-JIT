@@ -1,1 +1,5 @@
-print("Greeting from CASC!")
+函式 main() {
+    print("請教您的名字?")
+    讓 名字 = input()
+    print("你好! " + 名字 + "很榮幸見到您!")
+}

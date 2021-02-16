@@ -14,11 +14,15 @@ namespace CASC.CodeParser.Emit
     {
         private readonly DiagnosticPack _diagnostics = new();
         private readonly MethodReference _consoleWriteLineReference;
+        private readonly MethodReference _consoleReadLineReference;
+        private readonly MethodReference _stringConcatReference;
         private readonly MethodReference _decimalCtorReference;
         private readonly AssemblyDefinition _asmDefinition;
-        private TypeDefinition _typeDefinition;
         private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
         private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
+        private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
+
+        private TypeDefinition _typeDefinition;
 
         private Emitter(string moduleName,
                         string[] references)
@@ -143,6 +147,8 @@ namespace CASC.CodeParser.Emit
             }
 
             _consoleWriteLineReference = ResolveMethod("System.Console", "WriteLine", new[] {"System.String"});
+            _consoleReadLineReference = ResolveMethod("System.Console", "ReadLine", Array.Empty<string>());
+            _stringConcatReference = ResolveMethod("System.String", "Concat", new[] {"System.String", "System.String"});
             _decimalCtorReference = ResolveMethod("System.Decimal", ".ctor", new[]
                 {
                     "System.Int32", "System.Int32",
@@ -187,6 +193,13 @@ namespace CASC.CodeParser.Emit
             return _diagnostics.ToImmutableArray();
         }
 
+        private void EmitFunctionDeclaration(FunctionSymbol function)
+        {
+            var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, _knownTypes[TypeSymbol.Void]);
+            _typeDefinition.Methods.Add(method);
+            _methods.Add(function, method);
+        }
+
         private void EmitFunctionBody(FunctionSymbol function, BoundBlockStatement body)
         {
 
@@ -198,20 +211,14 @@ namespace CASC.CodeParser.Emit
 
             if (function.ReturnType == TypeSymbol.Void)
                 ilProcessor.Emit(OpCodes.Ret);
-        }
 
-        private void EmitFunctionDeclaration(FunctionSymbol function)
-        {
-            var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, _knownTypes[TypeSymbol.Void]);
-            _typeDefinition.Methods.Add(method);
-            _methods.Add(function, method);
+            method.Body.OptimizeMacros();
         }
 
         private void EmitStatement(ILProcessor ilProcessor, BoundStatement statement)
         {
             switch (statement.Kind)
             {
-
                 case BoundNodeKind.VariableDeclaration:
                     EmitVariableDeclaration(ilProcessor, (BoundVariableDeclaration)statement);
                     break;
@@ -233,33 +240,39 @@ namespace CASC.CodeParser.Emit
                 default:
                     throw new Exception($"Unexpected node kind {statement.Kind}");
             }
-
-            ilProcessor.Emit(OpCodes.Ldstr, "Greeting from CASC!");
-            ilProcessor.Emit(OpCodes.Call, _consoleWriteLineReference);
-            ilProcessor.Emit(OpCodes.Ret);
         }
 
         private void EmitVariableDeclaration(ILProcessor ilProcessor, BoundVariableDeclaration statement)
         {
-            throw new NotImplementedException();
+            var typeReference = _knownTypes[statement.Variable.Type];
+            var variableDefinition = new VariableDefinition(typeReference);
+            _locals.Add(statement.Variable, variableDefinition);
+            ilProcessor.Body.Variables.Add(variableDefinition);
+
+            EmitExpression(ilProcessor, statement.Initializer);
+            ilProcessor.Emit(OpCodes.Stloc, variableDefinition);
         }
 
         private void EmitLabelStatement(ILProcessor ilProcessor, BoundLabelStatement statement)
         {
             throw new NotImplementedException();
         }
+
         private void EmitGotoStatement(ILProcessor ilProcessor, BoundGotoStatement statement)
         {
             throw new NotImplementedException();
         }
+
         private void EmitConditionalGotoStatement(ILProcessor ilProcessor, BoundConditionalGotoStatement statement)
         {
             throw new NotImplementedException();
         }
+
         private void EmitReturnStatement(ILProcessor ilProcessor, BoundReturnStatement statement)
         {
             throw new NotImplementedException();
         }
+
         private void EmitExpressionStatement(ILProcessor ilProcessor, BoundExpressionStatement statement)
         {
             EmitExpression(ilProcessor, statement.Expression);
@@ -267,6 +280,7 @@ namespace CASC.CodeParser.Emit
             if (statement.Expression.Type != TypeSymbol.Void)
                 ilProcessor.Emit(OpCodes.Pop);
         }
+
         private void EmitExpression(ILProcessor ilProcessor, BoundExpression expression)
         {
             switch (expression.Kind)
@@ -299,6 +313,7 @@ namespace CASC.CodeParser.Emit
                     throw new Exception($"Unexpected node kind {expression.Kind}");
             }
         }
+
         private void EmitLiteralExpression(ILProcessor ilProcessor, BoundLiteralExpression expression)
         {
             if (expression.Type == TypeSymbol.Bool)
@@ -332,22 +347,37 @@ namespace CASC.CodeParser.Emit
             else
                 throw new Exception($"Unexpected literal type: {expression.Type}.");
         }
+
         private void EmitVariableExpression(ILProcessor ilProcessor, BoundVariableExpression expression)
         {
-            throw new NotImplementedException();
+            var variableDefinition = _locals[expression.Variable];
+            ilProcessor.Emit(OpCodes.Ldloc, variableDefinition.Index);
         }
+
         private void EmitAssignmentExpression(ILProcessor ilProcessor, BoundAssignmentExpression expression)
         {
             throw new NotImplementedException();
         }
+
         private void EmitUnaryExpression(ILProcessor ilProcessor, BoundUnaryExpression expression)
         {
             throw new NotImplementedException();
         }
+
         private void EmitBinaryExpression(ILProcessor ilProcessor, BoundBinaryExpression expression)
         {
-            throw new NotImplementedException();
+            if (expression.Op.Kind == BoundBinaryOperatorKind.Addition)
+            {
+                if (expression.Left.Type == TypeSymbol.String &&
+                    expression.Right.Type == TypeSymbol.String)
+                {
+                    EmitExpression(ilProcessor, expression.Left);
+                    EmitExpression(ilProcessor, expression.Right);
+                    ilProcessor.Emit(OpCodes.Call, _stringConcatReference);
+                }
+            }
         }
+
         private void EmitCallExpression(ILProcessor ilProcessor, BoundCallExpression expression)
         {
             foreach (var argument in expression.Arguments)
@@ -359,7 +389,7 @@ namespace CASC.CodeParser.Emit
             }
             else if (expression.Function == BuiltinFunctions.Input)
             {
-
+                ilProcessor.Emit(OpCodes.Call, _consoleReadLineReference);
             }
             else if (expression.Function == BuiltinFunctions.Random)
             {
@@ -371,10 +401,12 @@ namespace CASC.CodeParser.Emit
                 ilProcessor.Emit(OpCodes.Call, methodDefinition);
             }
         }
+
         private void EmitConversionExpression(ILProcessor ilProcessor, BoundConversionExpression expression)
         {
             throw new NotImplementedException();
         }
+
         private void EmitArrayExpression(ILProcessor ilProcessor, BoundArrayExpression expression)
         {
             throw new NotImplementedException();
