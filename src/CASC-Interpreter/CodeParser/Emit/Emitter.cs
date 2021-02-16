@@ -195,7 +195,16 @@ namespace CASC.CodeParser.Emit
 
         private void EmitFunctionDeclaration(FunctionSymbol function)
         {
-            var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, _knownTypes[TypeSymbol.Void]);
+            var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, _knownTypes[function.ReturnType]);
+
+            foreach (var parameter in function.Parameters)
+            {
+                var parameterType = _knownTypes[parameter.Type];
+                var parameterAttribute = ParameterAttributes.None;
+                var parameterDefinition = new ParameterDefinition(parameter.Name, parameterAttribute, parameterType);
+                method.Parameters.Add(parameterDefinition);
+            }
+
             _typeDefinition.Methods.Add(method);
             _methods.Add(function, method);
         }
@@ -270,7 +279,10 @@ namespace CASC.CodeParser.Emit
 
         private void EmitReturnStatement(ILProcessor ilProcessor, BoundReturnStatement statement)
         {
-            throw new NotImplementedException();
+            if (statement.Expression != null)
+                EmitExpression(ilProcessor, statement.Expression);
+
+            ilProcessor.Emit(OpCodes.Ret);
         }
 
         private void EmitExpressionStatement(ILProcessor ilProcessor, BoundExpressionStatement statement)
@@ -350,13 +362,25 @@ namespace CASC.CodeParser.Emit
 
         private void EmitVariableExpression(ILProcessor ilProcessor, BoundVariableExpression expression)
         {
-            var variableDefinition = _locals[expression.Variable];
-            ilProcessor.Emit(OpCodes.Ldloc, variableDefinition.Index);
+            if (expression.Variable is ParameterSymbol parameter)
+            {
+                ilProcessor.Emit(OpCodes.Ldarg, parameter.Ordinal);
+            }
+            else
+            {
+                var variableDefinition = _locals[expression.Variable];
+                ilProcessor.Emit(OpCodes.Ldloc, variableDefinition.Index);
+            }
         }
 
         private void EmitAssignmentExpression(ILProcessor ilProcessor, BoundAssignmentExpression expression)
         {
-            throw new NotImplementedException();
+            var variableDefinition = _locals[expression.Variable];
+            EmitExpression(ilProcessor, expression.Expression);
+            ilProcessor.Emit(OpCodes.Dup);
+            ilProcessor.Emit(OpCodes.Stloc, variableDefinition);
+
+            EmitExpression(ilProcessor, expression.Expression);
         }
 
         private void EmitUnaryExpression(ILProcessor ilProcessor, BoundUnaryExpression expression)
