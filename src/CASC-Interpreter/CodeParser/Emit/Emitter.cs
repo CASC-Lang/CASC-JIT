@@ -218,9 +218,6 @@ namespace CASC.CodeParser.Emit
             foreach (var statement in body.Statements)
                 EmitStatement(ilProcessor, statement);
 
-            if (function.ReturnType == TypeSymbol.Void)
-                ilProcessor.Emit(OpCodes.Ret);
-
             method.Body.OptimizeMacros();
         }
 
