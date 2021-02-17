@@ -14,6 +14,11 @@ namespace CASC.CodeParser.Emit
     internal class Emitter
     {
         private readonly DiagnosticPack _diagnostics = new();
+        private readonly AssemblyDefinition _asmDefinition;
+        private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
+        private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
+        private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
+        
         private readonly MethodReference _consoleWriteLineReference;
         private readonly MethodReference _consoleReadLineReference;
         private readonly MethodReference _stringConcatReference;
@@ -21,10 +26,7 @@ namespace CASC.CodeParser.Emit
         private readonly MethodReference _convert2BoolReference;
         private readonly MethodReference _convert2DecimalReference;
         private readonly MethodReference _convert2StringReference;
-        private readonly AssemblyDefinition _asmDefinition;
-        private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
-        private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
-        private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
+        private readonly MethodReference _objectEqualsReference;
 
         private TypeDefinition _typeDefinition;
 
@@ -163,6 +165,8 @@ namespace CASC.CodeParser.Emit
             _convert2BoolReference = ResolveMethod("System.Convert", "ToBoolean", new[] {"System.Object"});
             _convert2DecimalReference = ResolveMethod("System.Convert", "ToDecimal", new[] {"System.Object"});
             _convert2StringReference = ResolveMethod("System.Convert", "ToString", new[] {"System.Object"});
+
+            _objectEqualsReference = ResolveMethod("System.Object", "Equals", new[] {"System.Object", "System.Object"});
         }
 
         public static ImmutableArray<Diagnostic> Emit(BoundProgram program,
@@ -390,7 +394,7 @@ namespace CASC.CodeParser.Emit
         private void EmitUnaryExpression(ILProcessor ilProcessor, BoundUnaryExpression expression)
         {
             EmitExpression(ilProcessor, expression.Operand);
-            
+
             switch (expression.Op.Kind)
             {
                 case BoundUnaryOperatorKind.Identity:
@@ -412,15 +416,97 @@ namespace CASC.CodeParser.Emit
 
         private void EmitBinaryExpression(ILProcessor ilProcessor, BoundBinaryExpression expression)
         {
+            EmitExpression(ilProcessor, expression.Left);
+            EmitExpression(ilProcessor, expression.Right);
+            
             if (expression.Op.Kind == BoundBinaryOperatorKind.Addition)
             {
                 if (expression.Left.Type == TypeSymbol.String &&
                     expression.Right.Type == TypeSymbol.String)
                 {
-                    EmitExpression(ilProcessor, expression.Left);
-                    EmitExpression(ilProcessor, expression.Right);
                     ilProcessor.Emit(OpCodes.Call, _stringConcatReference);
                 }
+            }
+            
+            if (expression.Op.Kind == BoundBinaryOperatorKind.Equals)
+            {
+                if (expression.Left.Type == TypeSymbol.Any && expression.Right.Type == TypeSymbol.Any ||
+                    expression.Left.Type == TypeSymbol.String && expression.Right.Type == TypeSymbol.String)
+                {
+                    ilProcessor.Emit(OpCodes.Call, _objectEqualsReference);
+                    return;
+                }
+            }
+            
+            if (expression.Op.Kind == BoundBinaryOperatorKind.NotEquals)
+            {
+                if (expression.Left.Type == TypeSymbol.Any && expression.Right.Type == TypeSymbol.Any ||
+                    expression.Left.Type == TypeSymbol.String && expression.Right.Type == TypeSymbol.String)
+                {
+                    ilProcessor.Emit(OpCodes.Call, _objectEqualsReference);
+                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    return;
+                }
+            }
+
+            if (expression.Left.Type == TypeSymbol.String &&
+                expression.Right.Type == TypeSymbol.String)
+            {
+                
+            }
+
+            switch (expression.Op.Kind)
+            {
+                case BoundBinaryOperatorKind.Addition:
+                    ilProcessor.Emit(OpCodes.Add);
+                    break;
+                case BoundBinaryOperatorKind.Subtraction:
+                    ilProcessor.Emit(OpCodes.Sub);
+                    break;
+                case BoundBinaryOperatorKind.Multiplication:
+                    ilProcessor.Emit(OpCodes.Mul);
+                    break;
+                case BoundBinaryOperatorKind.Division:
+                    ilProcessor.Emit(OpCodes.Div);
+                    break;
+                case BoundBinaryOperatorKind.BitwiseXOR:
+                    ilProcessor.Emit(OpCodes.Xor);
+                    break;
+                case BoundBinaryOperatorKind.LogicalAND:
+                case BoundBinaryOperatorKind.BitwiseAND:
+                    ilProcessor.Emit(OpCodes.And);
+                    break;
+                case BoundBinaryOperatorKind.LogicalOR:
+                case BoundBinaryOperatorKind.BitwiseOR:
+                    ilProcessor.Emit(OpCodes.Or);
+                    break;
+                case BoundBinaryOperatorKind.Equals:
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    break;
+                case BoundBinaryOperatorKind.NotEquals:
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    break;
+                case BoundBinaryOperatorKind.Greater:
+                    ilProcessor.Emit(OpCodes.Cgt);
+                    break;
+                case BoundBinaryOperatorKind.GreaterEquals:
+                    ilProcessor.Emit(OpCodes.Clt);
+                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    break;
+                case BoundBinaryOperatorKind.Less:
+                    ilProcessor.Emit(OpCodes.Clt);
+                    break;
+                case BoundBinaryOperatorKind.LessEquals:
+                    ilProcessor.Emit(OpCodes.Cgt);
+                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
+                    ilProcessor.Emit(OpCodes.Ceq);
+                    break;
+                default:
+                    throw new Exception($"Unexpected binary operator {SyntaxFacts.GetText(expression.Op.SyntaxKind)} ({expression.Left.Type}, {expression.Right.Type})");
             }
         }
 
@@ -459,7 +545,7 @@ namespace CASC.CodeParser.Emit
 
             if (expression.Type == TypeSymbol.Any)
             {
-                
+
             }
             else if (expression.Type == TypeSymbol.Bool)
             {
