@@ -54,4 +54,7 @@ True
 | else      | 否則                  | TODO                  |
 | while     | 當                    | TODO                  |
 | for...to  | 從...到               | TODO                  |
+| do...while| 持續..當               | TODO                 |
+| func      | 函式                  | TODO                  |
+| import    | 導入                  | TODO                  |
 ------

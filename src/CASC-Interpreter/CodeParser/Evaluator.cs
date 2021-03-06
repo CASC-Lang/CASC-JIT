@@ -270,14 +270,16 @@ namespace CASC.CodeParser
         {
             if (node.Function == BuiltinFunctions.Input)
                 return Console.ReadLine();
-            else if (node.Function == BuiltinFunctions.Print)
+            
+            if (node.Function == BuiltinFunctions.Print)
             {
-                var message = EvaluateExpression(node.Arguments[0]).ToString();
-                Console.WriteLine(message);
+                var value = EvaluateExpression(node.Arguments[0]).ToString();
+                Console.WriteLine(value);
 
                 return null;
             }
-            else if (node.Function == BuiltinFunctions.Random)
+            
+            if (node.Function == BuiltinFunctions.Random)
             {
                 var min = (decimal)EvaluateExpression(node.Arguments[0]);
                 var max = (decimal)EvaluateExpression(node.Arguments[1]);
@@ -287,34 +289,32 @@ namespace CASC.CodeParser
 
                 return _random.Next(Convert.ToInt32(min), Convert.ToInt32(max));
             }
-            else
+            
+            var locals = new Dictionary<VariableSymbol, object>();
+
+            for (int i = 0; i < node.Arguments.Length; i++)
             {
-                var locals = new Dictionary<VariableSymbol, object>();
+                var parameter = node.Function.Parameters[i];
+                var value = EvaluateExpression(node.Arguments[i]);
 
-                for (int i = 0; i < node.Arguments.Length; i++)
-                {
-                    var parameter = node.Function.Parameters[i];
-                    var value = EvaluateExpression(node.Arguments[i]);
-
-                    locals.Add(parameter, value);
-                }
-
-                _locals.Push(locals);
-
-                var statement = _functions[node.Function];
-                object result;
-
-                try
-                {
-                    result = EvaluateStatement(statement);
-                }
-                finally
-                {
-                    _locals.Pop();
-                }
-
-                return result;
+                locals.Add(parameter, value);
             }
+
+            _locals.Push(locals);
+
+            var statement = _functions[node.Function];
+            object result;
+
+            try
+            {
+                result = EvaluateStatement(statement);
+            }
+            finally
+            {
+                _locals.Pop();
+            }
+
+            return result;
         }
 
         private object EvaluateConversionExpression(BoundConversionExpression node)

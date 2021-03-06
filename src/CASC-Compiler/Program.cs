@@ -56,7 +56,10 @@ namespace CASC
                 return 1;
             }
 
-            var syntaxTree = SyntaxTree.Load(sourcePath);
+            var syntaxTrees = new List<SyntaxTree>
+            {
+                SyntaxTree.Load(sourcePath)
+            };
             
             if (emitToIL)
             {
@@ -78,7 +81,7 @@ namespace CASC
                 if (hasError)
                     return 1;
 
-                var compilation = Compilation.Create(syntaxTree);
+                var compilation = Compilation.Create(syntaxTrees.ToArray());
                 var diagnostics = compilation.EmitTree(moduleName, references.ToArray(), outputPath);
 
                 if (diagnostics.Any())
@@ -90,14 +93,7 @@ namespace CASC
             }
             else
             {
-                var syntaxTrees = new List<SyntaxTree>
-                {
-                    syntaxTree
-                };
-
-                var referencedPaths = syntaxTree.ParseReferencedSources(Directory.GetParent(sourcePath).FullName);
-                
-                foreach (var referencePath in referencedPaths)
+                foreach (var referencePath in syntaxTrees[0].ParseReferencedSources(Directory.GetParent(sourcePath).FullName))
                     syntaxTrees.Add(SyntaxTree.Load(referencePath));
 
                 var compilation = Compilation.Create(syntaxTrees.ToArray());

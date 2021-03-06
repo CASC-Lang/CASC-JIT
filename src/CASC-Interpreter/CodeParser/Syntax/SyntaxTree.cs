@@ -34,6 +34,11 @@ namespace CASC.CodeParser.Syntax
             return Parse(sourceText);
         }
 
+        public static SyntaxTree Load(string source, string builtInModule)
+        {
+            return Parse(SourceText.From(source, builtInModule));
+        }
+
         private static void Parse(SyntaxTree syntaxTree, out CompilationUnitSyntax root, out ImmutableArray<Diagnostic> diagnostics)
         {
             var parser = new Parser(syntaxTree);
