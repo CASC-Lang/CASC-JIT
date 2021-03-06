@@ -1,4 +1,8 @@
+導入 "/module2.casc"
+導入 "/module.casc"
+
 func main() {
+	unusedModuleFunction()
     let str = readInput()
     print("Hello, " + str + "!")
 }

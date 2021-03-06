@@ -1,3 +1,4 @@
 func readInput(): string {
+	print("What's your name?")
     return input()
 }

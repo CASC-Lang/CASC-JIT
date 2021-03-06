@@ -1,0 +1,7 @@
+導入 "/module.casc"
+
+func unusedModuleFunction(): string {
+	print("hello!")
+	print("What's your name?")
+    return input()
+}
