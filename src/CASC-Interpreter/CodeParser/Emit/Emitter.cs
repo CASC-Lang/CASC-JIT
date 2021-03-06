@@ -18,11 +18,18 @@ namespace CASC.CodeParser.Emit
         private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
         private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
         private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
-        
+        private readonly Dictionary<BoundLabel, int> _labels = new();
+        private readonly List<(int InstructionIndex, BoundLabel Target)> _fixups = new();
+
         private readonly MethodReference _consoleWriteLineReference;
         private readonly MethodReference _consoleReadLineReference;
         private readonly MethodReference _stringConcatReference;
+
         private readonly MethodReference _decimalCtorReference;
+        private readonly MethodReference _decimalAdditionReference;
+        private readonly MethodReference _decimalLessReference;
+        private readonly MethodReference _decimalLessEqualReference;
+
         private readonly MethodReference _convert2BoolReference;
         private readonly MethodReference _convert2DecimalReference;
         private readonly MethodReference _convert2StringReference;
@@ -161,6 +168,9 @@ namespace CASC.CodeParser.Emit
                     "System.Int32", "System.Boolean", "System.Byte"
                 }
             );
+            _decimalAdditionReference = ResolveMethod("System.Decimal", "op_Addition", new[] {"System.Decimal", "System.Decimal"});
+            _decimalLessReference = ResolveMethod("System.Decimal", "op_LessThan", new[] {"System.Decimal", "System.Decimal"});
+            _decimalLessEqualReference = ResolveMethod("System.Decimal", "op_LessThanOrEqual", new[] {"System.Decimal", "System.Decimal"});
 
             _convert2BoolReference = ResolveMethod("System.Convert", "ToBoolean", new[] {"System.Object"});
             _convert2DecimalReference = ResolveMethod("System.Convert", "ToDecimal", new[] {"System.Object"});
@@ -223,12 +233,25 @@ namespace CASC.CodeParser.Emit
 
         private void EmitFunctionBody(FunctionSymbol function, BoundBlockStatement body)
         {
-
             var method = _methods[function];
+            _locals.Clear();
+            _labels.Clear();
+            _fixups.Clear();
+
             var ilProcessor = method.Body.GetILProcessor();
 
             foreach (var statement in body.Statements)
                 EmitStatement(ilProcessor, statement);
+
+            foreach (var fixup in _fixups)
+            {
+                var targetLabel = fixup.Target;
+                var targetInstructionIndex = _labels[targetLabel];
+                var targetInstruction = ilProcessor.Body.Instructions[targetInstructionIndex];
+
+                var instructionToFixup = ilProcessor.Body.Instructions[fixup.InstructionIndex];
+                instructionToFixup.Operand = targetInstruction;
+            }
 
             method.Body.OptimizeMacros();
         }
@@ -273,17 +296,22 @@ namespace CASC.CodeParser.Emit
 
         private void EmitLabelStatement(ILProcessor ilProcessor, BoundLabelStatement statement)
         {
-            throw new NotImplementedException();
+            _labels.Add(statement.Label, ilProcessor.Body.Instructions.Count);
         }
 
         private void EmitGotoStatement(ILProcessor ilProcessor, BoundGotoStatement statement)
         {
-            throw new NotImplementedException();
+            _fixups.Add((ilProcessor.Body.Instructions.Count, statement.Label));
+            ilProcessor.Emit(OpCodes.Br, Instruction.Create(OpCodes.Nop));
         }
 
         private void EmitConditionalGotoStatement(ILProcessor ilProcessor, BoundConditionalGotoStatement statement)
         {
-            throw new NotImplementedException();
+            EmitExpression(ilProcessor, statement.Condition);
+
+            var opCode = statement.JumpIfTrue ? OpCodes.Brtrue : OpCodes.Brfalse;
+            _fixups.Add((ilProcessor.Body.Instructions.Count, statement.Label));
+            ilProcessor.Emit(opCode, Instruction.Create(OpCodes.Nop));
         }
 
         private void EmitReturnStatement(ILProcessor ilProcessor, BoundReturnStatement statement)
@@ -418,7 +446,7 @@ namespace CASC.CodeParser.Emit
         {
             EmitExpression(ilProcessor, expression.Left);
             EmitExpression(ilProcessor, expression.Right);
-            
+
             if (expression.Op.Kind == BoundBinaryOperatorKind.Addition)
             {
                 if (expression.Left.Type == TypeSymbol.String &&
@@ -427,7 +455,7 @@ namespace CASC.CodeParser.Emit
                     ilProcessor.Emit(OpCodes.Call, _stringConcatReference);
                 }
             }
-            
+
             if (expression.Op.Kind == BoundBinaryOperatorKind.Equals)
             {
                 if (expression.Left.Type == TypeSymbol.Any && expression.Right.Type == TypeSymbol.Any ||
@@ -437,7 +465,7 @@ namespace CASC.CodeParser.Emit
                     return;
                 }
             }
-            
+
             if (expression.Op.Kind == BoundBinaryOperatorKind.NotEquals)
             {
                 if (expression.Left.Type == TypeSymbol.Any && expression.Right.Type == TypeSymbol.Any ||
@@ -453,13 +481,13 @@ namespace CASC.CodeParser.Emit
             if (expression.Left.Type == TypeSymbol.String &&
                 expression.Right.Type == TypeSymbol.String)
             {
-                
+
             }
 
             switch (expression.Op.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    ilProcessor.Emit(OpCodes.Add);
+                    ilProcessor.Emit(OpCodes.Call, _decimalAdditionReference);
                     break;
                 case BoundBinaryOperatorKind.Subtraction:
                     ilProcessor.Emit(OpCodes.Sub);
@@ -498,12 +526,10 @@ namespace CASC.CodeParser.Emit
                     ilProcessor.Emit(OpCodes.Ceq);
                     break;
                 case BoundBinaryOperatorKind.Less:
-                    ilProcessor.Emit(OpCodes.Clt);
+                    ilProcessor.Emit(OpCodes.Call, _decimalLessReference);
                     break;
                 case BoundBinaryOperatorKind.LessEquals:
-                    ilProcessor.Emit(OpCodes.Cgt);
-                    ilProcessor.Emit(OpCodes.Ldc_I4_0);
-                    ilProcessor.Emit(OpCodes.Ceq);
+                    ilProcessor.Emit(OpCodes.Call, _decimalLessEqualReference);
                     break;
                 default:
                     throw new Exception($"Unexpected binary operator {SyntaxFacts.GetText(expression.Op.SyntaxKind)} ({expression.Left.Type}, {expression.Right.Type})");

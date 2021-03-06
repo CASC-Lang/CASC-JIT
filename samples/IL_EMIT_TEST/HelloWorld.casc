@@ -1,9 +1,5 @@
 函式 main() {
-    讓 名字 = 讀取名字("請教您的名字?")
-    print(名字 + "。很榮幸見到您!")
-}
-
-函式 讀取名字(提示: string): string {
-    print(提示)
-    return "你好! " + input()
+    for i = 0 to 100 {
+        
+    }
 }
