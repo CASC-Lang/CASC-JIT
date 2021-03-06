@@ -97,6 +97,8 @@ namespace CASC.CodeParser.Syntax
         {
             if (Current.Kind == SyntaxKind.FunctionKeyword)
                 return ParseFucntionDeclaration();
+            else if (Current.Kind == SyntaxKind.ImportKeyword)
+                return ParseImportReference();
 
             return ParseGlobalStatement();
         }
@@ -153,6 +155,14 @@ namespace CASC.CodeParser.Syntax
             var type = ParseTypeClause();
 
             return new ParameterSyntax(_syntaxTree, identifier, type);
+        }
+        
+        private MemberSyntax ParseImportReference()
+        {
+            var importKeyword = MatchToken(SyntaxKind.ImportKeyword);
+            var referencePath = MatchToken(SyntaxKind.StringToken);
+
+            return new ImportStatementSyntax(_syntaxTree, importKeyword, referencePath); // Unused Syntax in further actions
         }
 
         private MemberSyntax ParseGlobalStatement()

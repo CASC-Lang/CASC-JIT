@@ -120,6 +120,10 @@ namespace CASC.CodeParser.Syntax
                 case "函式":
                 case "func":
                     return SyntaxKind.FunctionKeyword;
+                
+                case "導入":
+                case "import":
+                    return SyntaxKind.ImportKeyword;
 
                 default:
                     return SyntaxKind.IdentifierToken;
@@ -230,6 +234,8 @@ namespace CASC.CodeParser.Syntax
                     return "to";
                 case SyntaxKind.FunctionKeyword:
                     return "func";
+                case SyntaxKind.ImportKeyword:
+                    return "import";
                 default:
                     return null;
             }
@@ -366,6 +372,9 @@ namespace CASC.CodeParser.Syntax
                     break;
                 case SyntaxKind.FunctionKeyword:
                     yield return "函式";
+                    break;
+                case SyntaxKind.ImportKeyword:
+                    yield return "導入";
                     break;
                 default:
                     yield break;

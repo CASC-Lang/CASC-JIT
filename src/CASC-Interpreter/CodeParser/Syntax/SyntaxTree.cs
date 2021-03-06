@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Collections.Generic;
 using CASC.CodeParser.Text;
@@ -16,7 +17,7 @@ namespace CASC.CodeParser.Syntax
             Source = source;
 
             handler(this, out var root, out var diagnostics);
-
+            
             Diagnostics = diagnostics;
             Root = root;
         }
@@ -94,6 +95,18 @@ namespace CASC.CodeParser.Syntax
             diagnostics = tempSyntaxTree.Diagnostics.ToImmutableArray();
 
             return tokens.ToImmutableArray();
+        }
+
+        public ImmutableArray<string> ParseReferencedSources(string path)
+        {
+            var tokens = ParseTokens(Source);
+            var referencedSources = new List<string>();
+
+            for (var i = 0; i < tokens.Length; i++)
+                if (tokens[i].Kind == SyntaxKind.ImportKeyword)
+                    referencedSources.Add(path + tokens[i + 2].Text.Replace("\"", ""));
+
+            return referencedSources.ToImmutableArray();
         }
     }
 }

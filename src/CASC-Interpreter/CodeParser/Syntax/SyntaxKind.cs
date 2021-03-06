@@ -52,6 +52,7 @@ namespace CASC.CodeParser.Syntax
         ContinueKeyword,
         ToKeyword,
         FunctionKeyword,
+        ImportKeyword,
 
         // Nodes
         CompilationUnit,
@@ -60,6 +61,7 @@ namespace CASC.CodeParser.Syntax
         Parameter,
         GlobalStatement,
         FunctionDeclaration,
+        ImportReference,
 
         // Statements
         BlockStatement,
