@@ -183,6 +183,9 @@ namespace CASC.CodeParser.Binding
                 case BoundNodeKind.ArrayExpression:
                     return RewriteArrayExpression((BoundArrayExpression)node);
 
+                case BoundNodeKind.IndexExpression:
+                    return RewriteIndexExpression((BoundIndexExpression)node);
+
                 case BoundNodeKind.LiteralExpression:
                     return RewriteLiteralExpression((BoundLiteralExpression)node);
 
@@ -191,6 +194,9 @@ namespace CASC.CodeParser.Binding
 
                 case BoundNodeKind.AssignmentExpression:
                     return RewriteAssignmentExpression((BoundAssignmentExpression)node);
+
+                case BoundNodeKind.ArrayAssignmentExpression:
+                    return RewriteArrayAssignmentExpression((BoundArrayAssignmentExpression)node);
 
                 case BoundNodeKind.UnaryExpression:
                     return RewriteUnaryExpression((BoundUnaryExpression)node);
@@ -209,14 +215,45 @@ namespace CASC.CodeParser.Binding
             }
         }
 
+
+
         protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)
         {
             return node;
         }
 
-        private BoundExpression RewriteArrayExpression(BoundArrayExpression node)
+        protected BoundExpression RewriteArrayExpression(BoundArrayExpression node)
         {
-            return node;
+            var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var expression in node.Contents)
+            {
+                expressions.Add(RewriteExpression(expression));
+            }
+
+            var contents = expressions.ToImmutable();
+
+            if (contents == node.Contents)
+                return node;
+
+            return new BoundArrayExpression(contents);
+        }
+
+        protected BoundIndexExpression RewriteIndexExpression(BoundIndexExpression node)
+        {
+            var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var expression in node.Contents)
+            {
+                expressions.Add(RewriteExpression(expression));
+            }
+
+            var contents = expressions.ToImmutable();
+
+            if (contents == node.Contents)
+                return node;
+
+            return new BoundIndexExpression(contents);
         }
 
         protected virtual BoundExpression RewriteLiteralExpression(BoundLiteralExpression node)
@@ -237,6 +274,17 @@ namespace CASC.CodeParser.Binding
                 return node;
 
             return new BoundAssignmentExpression(node.Variable, expression);
+        }
+
+        protected virtual BoundExpression RewriteArrayAssignmentExpression(BoundArrayAssignmentExpression node)
+        {
+            var expression = RewriteExpression(node.Expression);
+            var indexExpression = RewriteIndexExpression(node.Indexes);
+
+            if (expression == node.Expression)
+                return node;
+
+            return new BoundArrayAssignmentExpression(node.Variable, indexExpression, expression);
         }
 
         protected virtual BoundExpression RewriteUnaryExpression(BoundUnaryExpression node)

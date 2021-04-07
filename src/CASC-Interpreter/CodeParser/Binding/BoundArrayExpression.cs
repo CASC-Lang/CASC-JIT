@@ -3,15 +3,13 @@ using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {
-    internal class BoundArrayExpression : BoundExpression
+    internal class BoundArrayExpression : BoundIndexExpression
     {
-        public BoundArrayExpression(ImmutableArray<BoundExpression> contents)
+        public BoundArrayExpression(ImmutableArray<BoundExpression> contents) : base(contents)
         {
-            Contents = contents;
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.ArrayExpression;
         public override TypeSymbol Type => TypeSymbol.Array;
-        public ImmutableArray<BoundExpression> Contents { get; }
     }
 }

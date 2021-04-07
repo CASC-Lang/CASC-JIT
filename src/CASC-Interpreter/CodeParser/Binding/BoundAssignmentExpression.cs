@@ -2,7 +2,7 @@ using CASC.CodeParser.Symbols;
 
 namespace CASC.CodeParser.Binding
 {
-    internal sealed class BoundAssignmentExpression : BoundExpression
+    internal class BoundAssignmentExpression : BoundExpression
     {
         public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression)
         {

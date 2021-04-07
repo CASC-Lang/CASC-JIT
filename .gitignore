@@ -17,3 +17,5 @@ src/CASC-Console/obj/*
 src/CASC-Console/bin/*
 src/CASC-Test/obj/*
 src/CASC-Test/bin/*
+
+.idea/*

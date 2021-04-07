@@ -1,3 +1,4 @@
+using System.Linq;
 using CASC.CodeParser.Binding;
 using System.Collections.Generic;
 using System;
@@ -127,6 +128,7 @@ namespace CASC.CodeParser
             BoundNodeKind.ArrayExpression => EvaluateArrayExpression((BoundArrayExpression)node),
             BoundNodeKind.VariableExpression => EvaluateVariableExpression((BoundVariableExpression)node),
             BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression((BoundAssignmentExpression)node),
+            BoundNodeKind.ArrayAssignmentExpression => EvaluateArrayAssignmentExpression((BoundArrayAssignmentExpression)node),
             BoundNodeKind.UnaryExpression => EvaluateUnaryExpression((BoundUnaryExpression)node),
             BoundNodeKind.BinaryExpression => EvaluateBinaryExpression((BoundBinaryExpression)node),
             BoundNodeKind.CallExpression => EvaluateCallExpression((BoundCallExpression)node),
@@ -141,7 +143,7 @@ namespace CASC.CodeParser
 
         private object EvaluateArrayExpression(BoundArrayExpression node)
         {
-            var arrayBuilder = ImmutableArray.CreateBuilder<object>();
+            var arrayBuilder = new List<object>();
             var contents = node.Contents;
 
             foreach (var content in contents)
@@ -151,7 +153,7 @@ namespace CASC.CodeParser
                 arrayBuilder.Add(evaluatedContent);
             }
 
-            return arrayBuilder.ToArray();
+            return arrayBuilder;
         }
 
         private object EvaluateVariableExpression(BoundVariableExpression v)
@@ -170,6 +172,18 @@ namespace CASC.CodeParser
         {
             var value = EvaluateExpression(a.Expression);
             Assign(a.Variable, value);
+
+            return value;
+        }
+
+        private object EvaluateArrayAssignmentExpression(BoundArrayAssignmentExpression a)
+        {
+            var value = EvaluateExpression(a.Expression);
+            var indexes = a.Indexes.Contents.Select(expression =>
+            {
+                return Convert.ToInt32(EvaluateExpression(expression));
+            }).ToImmutableArray();
+            AssignIndex(a.Variable, indexes, value);
 
             return value;
         }
@@ -270,7 +284,7 @@ namespace CASC.CodeParser
         {
             if (node.Function == BuiltinFunctions.Input)
                 return Console.ReadLine();
-            
+
             if (node.Function == BuiltinFunctions.Print)
             {
                 var value = EvaluateExpression(node.Arguments[0]).ToString();
@@ -278,7 +292,7 @@ namespace CASC.CodeParser
 
                 return null;
             }
-            
+
             if (node.Function == BuiltinFunctions.Random)
             {
                 var min = (decimal)EvaluateExpression(node.Arguments[0]);
@@ -289,7 +303,7 @@ namespace CASC.CodeParser
 
                 return _random.Next(Convert.ToInt32(min), Convert.ToInt32(max));
             }
-            
+
             var locals = new Dictionary<VariableSymbol, object>();
 
             for (int i = 0; i < node.Arguments.Length; i++)
@@ -342,6 +356,62 @@ namespace CASC.CodeParser
                 var locals = _locals.Peek();
                 locals[variable] = value;
             }
+        }
+
+        private void AssignIndex(VariableSymbol variable, ImmutableArray<int> indexes, object value)
+        {
+            object array;
+
+            if (variable.Kind == SymbolKind.GlobalVariable)
+            {
+                array = _globals[variable];
+            }
+            else
+            {
+                var locals = _locals.Peek();
+                array = locals[variable];
+            }
+
+            if (array is List<object> list)
+            {
+                if (indexes.Length == 1)
+                {
+                    list[indexes[0]] = value;
+                }
+                else
+                {
+                    var lastIndex = indexes.Last();
+                    indexes.RemoveAt(indexes.Length - 1);
+                    var arrayStack = new Stack<List<object>>();
+
+                    foreach (int index in indexes)
+                    {
+                        if (indexes.IndexOf(index) == 0)
+                        {
+                            if (list[index] is List<object> l)
+                                arrayStack.Append(l);
+                            else throw new Exception("Unable to index array content.");
+                        }
+                        else
+                        {
+                            if (arrayStack.Last()[index] is List<object> l)
+                                arrayStack.Append(l);
+                            else throw new Exception("Unable to index array content.");
+                        }
+                    }
+                }
+
+                if (variable.Kind == SymbolKind.GlobalVariable)
+                {
+                    _globals[variable] = list;
+                }
+                else
+                {
+                    var locals = _locals.Peek();
+                    locals[variable] = list;
+                }
+            }
+            else throw new Exception("Unable to index array content.");
         }
     }
 }

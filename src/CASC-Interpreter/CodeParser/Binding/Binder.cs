@@ -503,6 +503,9 @@ namespace CASC.CodeParser.Binding
                 case SyntaxKind.AssignmentExpression:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)syntax);
 
+                case SyntaxKind.ArrayAssignmentExpression:
+                    return BindArrayAssignmentExpression((ArrayAssignmentExpressionSyntax)syntax);
+
                 case SyntaxKind.UnaryExpression:
                     return BindUnaryExpression((UnaryExpressionSyntax)syntax);
 
@@ -516,13 +519,13 @@ namespace CASC.CodeParser.Binding
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
         }
+
         private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
         {
             return BindExpression(syntax.Expression);
         }
 
-        private BoundExpression BindArrayExpression(ArrayExpressionSyntax syntax)
-        {
+        private BoundExpression BindArrayExpression(ArrayExpressionSyntax syntax) {
             var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
 
             foreach (var expression in syntax.Contents)
@@ -533,6 +536,19 @@ namespace CASC.CodeParser.Binding
             }
 
             return new BoundArrayExpression(expressions.ToImmutableArray());
+        }
+
+        private BoundExpression BindIndexExpression(IndexExpressionSyntax syntax) {
+            var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var expression in syntax.Contents)
+            {
+                var boundExpression = BindExpression(expression, TypeSymbol.Any);
+
+                expressions.Add(boundExpression);
+            }
+
+            return new BoundIndexExpression(expressions.ToImmutableArray());
         }
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
@@ -571,6 +587,24 @@ namespace CASC.CodeParser.Binding
             var convertedExpression = BindConversion(syntax.Expression.Location, boundExpression, variable.Type);
 
             return new BoundAssignmentExpression(variable, convertedExpression);
+        }
+
+        private BoundExpression BindArrayAssignmentExpression(ArrayAssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var indexes = (BoundIndexExpression) BindIndexExpression(syntax.IndexSyntax);
+            var boundExpression = BindExpression(syntax.Expression);
+            
+            var variable = BindVariableReference(syntax.IdentifierToken);
+            if (variable == null)
+                return boundExpression;
+
+            if (variable.Type != TypeSymbol.Array)
+                _diagnostics.ReportCannotIndex(syntax.IndexSyntax.Location, variable.Type, name);
+
+            var convertedExpression = BindConversion(syntax.Expression.Location, boundExpression, TypeSymbol.Any);
+
+            return new BoundArrayAssignmentExpression(variable, indexes, convertedExpression);
         }
 
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)

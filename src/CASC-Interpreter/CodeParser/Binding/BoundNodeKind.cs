@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 namespace CASC.CodeParser.Binding
 {
     internal enum BoundNodeKind
@@ -20,10 +21,12 @@ namespace CASC.CodeParser.Binding
         LiteralExpression,
         VariableExpression,
         AssignmentExpression,
+        ArrayAssignmentExpression,
         UnaryExpression,
         BinaryExpression,
         CallExpression,
         ConversionExpression,
-        ArrayExpression
+        ArrayExpression,
+        IndexExpression
     }
 }

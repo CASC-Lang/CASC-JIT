@@ -123,6 +123,12 @@ namespace CASC.CodeParser
             Report(location, message);
         }
 
+        public void ReportCannotIndex(TextLocation location, TypeSymbol actualType, string name)
+        {
+            var message = $"Variable '{name}' with type {actualType} cannot be index.";
+            Report(location, message);
+        }
+
         public void ReportInvalidBreakOrContinue(TextLocation location, string text)
         {
             var message = $"The keyword '{text}' can only be used inside of loops.";
@@ -193,13 +199,13 @@ namespace CASC.CodeParser
             var message = "Only assignment and call expressions can be used as a statement.";
             Report(location, message);
         }
-        
+
         public void ReportInvalidReference(string path)
         {
             var message = $"The reference is not a valid .NET assembly: {path}.";
             Report(default, message);
         }
-        
+
         public void ReportRequiredTypeNotFound(string cascName, string metadataName)
         {
             var message = cascName == null
@@ -207,7 +213,7 @@ namespace CASC.CodeParser
                 : $"The required type '{metadataName}' cannot be resolve among the given references.";
             Report(default, message);
         }
-        
+
         public void ReportRequiredTypeAmbiguous(string cascName, string metadataName, TypeDefinition[] foundTypes)
         {
             var assemblyNames = foundTypes.Select(t => t.Module.Assembly.Name.Name);
@@ -217,7 +223,7 @@ namespace CASC.CodeParser
                 : $"The required type '{cascName}' ('{metadataName}') was found in multiple references: {assemblyNameList}.";
             Report(default, message);
         }
-        
+
         public void ReportRequiredMethodNotFound(string typeName, string methodName, string[] parameterTypeNames)
         {
             var assemblyNameList = string.Join(", ", parameterTypeNames);

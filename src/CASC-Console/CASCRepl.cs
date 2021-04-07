@@ -176,7 +176,7 @@ namespace CASC
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    if (result.Value is object[] objArray)
+                    if (result.Value is List<object> objArray)
                         Console.WriteLine(IOUtil.ArrayToString(objArray));
                     else
                         Console.WriteLine(result.Value.ToString());

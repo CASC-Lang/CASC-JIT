@@ -156,7 +156,7 @@ namespace CASC.CodeParser.Syntax
 
             return new ParameterSyntax(_syntaxTree, identifier, type);
         }
-        
+
         private MemberSyntax ParseImportReference()
         {
             var importKeyword = MatchToken(SyntaxKind.ImportKeyword);
@@ -233,7 +233,7 @@ namespace CASC.CodeParser.Syntax
             return new BlockStatementSyntax(_syntaxTree, openBraceToken, statements.ToImmutable(), closeBraceToken);
         }
 
-        private ExpressionSyntax ParseArrayExpression()
+        private ArrayExpressionSyntax ParseArrayExpression()
         {
             var openBracket = MatchToken(SyntaxKind.OpenBracketToken);
             var contents = ParseArrayContents();
@@ -387,14 +387,25 @@ namespace CASC.CodeParser.Syntax
 
         private ExpressionSyntax ParseAssignmentExpression()
         {
-            if (Current.Kind == SyntaxKind.IdentifierToken &&
-                Peek(1).Kind == SyntaxKind.EqualsToken)
+            if (Current.Kind == SyntaxKind.IdentifierToken)
             {
-                var indentifierToken = NextToken();
-                var operatorToken = NextToken();
-                var right = ParseAssignmentExpression();
+                if (Peek(1).Kind == SyntaxKind.EqualsToken)
+                {
+                    var indentifierToken = NextToken();
+                    var operatorToken = NextToken();
+                    var right = ParseAssignmentExpression();
 
-                return new AssignmentExpressionSyntax(_syntaxTree, indentifierToken, operatorToken, right);
+                    return new AssignmentExpressionSyntax(_syntaxTree, indentifierToken, operatorToken, right);
+                } else if (Peek(1).Kind == SyntaxKind.GreaterToken &&
+                           Peek(2).Kind == SyntaxKind.OpenBracketToken) {
+                    var identifierToken = NextToken();
+                    var greaterToken = NextToken();
+                    var indexSyntax = ParseArrayExpression();
+                    var operatorToken = MatchToken(SyntaxKind.EqualsToken);
+                    var right = ParseAssignmentExpression();
+
+                    return new ArrayAssignmentExpressionSyntax(_syntaxTree, identifierToken, greaterToken, indexSyntax, operatorToken, right);
+                }
             }
 
             return ParseBinaryExpression();

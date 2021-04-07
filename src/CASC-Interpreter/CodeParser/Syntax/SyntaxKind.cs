@@ -82,7 +82,9 @@ namespace CASC.CodeParser.Syntax
         ParenthesizedExpression,
         NameExpression,
         AssignmentExpression,
+        ArrayAssignmentExpression,
         CallExpression,
-        ArrayExpression
+        ArrayExpression,
+        IndexExpression
     }
 }
