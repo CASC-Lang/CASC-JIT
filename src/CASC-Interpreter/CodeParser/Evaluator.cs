@@ -360,7 +360,7 @@ namespace CASC.CodeParser
 
         private void AssignIndex(VariableSymbol variable, ImmutableArray<int> indexes, object value)
         {
-            object array;
+            object array = null;
 
             if (variable.Kind == SymbolKind.GlobalVariable)
             {
@@ -374,44 +374,36 @@ namespace CASC.CodeParser
 
             if (array is List<object> list)
             {
-                if (indexes.Length == 1)
-                {
-                    list[indexes[0]] = value;
-                }
+                if (indexes.Length == 1) list[indexes[0]] = value;
                 else
                 {
-                    var lastIndex = indexes.Last();
-                    indexes.RemoveAt(indexes.Length - 1);
-                    var arrayStack = new Stack<List<object>>();
+                    object temp = null;
 
-                    foreach (int index in indexes)
+                    for (var i = 0; i < indexes.Length; i++)
                     {
-                        if (indexes.IndexOf(index) == 0)
+                        if (temp == null)
                         {
-                            if (list[index] is List<object> l)
-                                arrayStack.Append(l);
-                            else throw new Exception("Unable to index array content.");
+                            temp = list[indexes[i]];
                         }
-                        else
+                        else if (temp is List<object> t)
                         {
-                            if (arrayStack.Last()[index] is List<object> l)
-                                arrayStack.Append(l);
-                            else throw new Exception("Unable to index array content.");
+                            if (!(t[indexes[i]] is List<object>)) t[indexes[i]] = value;
+                            else temp = t[indexes[i]];
                         }
+                        else throw new Exception($"Error: Variable '{variable.Name}' with type '{variable.Type}' cannot be index.");
                     }
                 }
 
                 if (variable.Kind == SymbolKind.GlobalVariable)
                 {
-                    _globals[variable] = list;
+                    _globals[variable] = array;
                 }
                 else
                 {
                     var locals = _locals.Peek();
-                    locals[variable] = list;
+                    locals[variable] = array;
                 }
             }
-            else throw new Exception("Unable to index array content.");
         }
     }
 }
