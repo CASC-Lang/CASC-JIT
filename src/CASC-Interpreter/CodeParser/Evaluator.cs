@@ -156,16 +156,37 @@ namespace CASC.CodeParser
             return arrayBuilder;
         }
 
+        private object EvaluateIndexExpression(BoundIndexExpression i)
+            => i.Contents.Select(expression => Convert.ToInt32(EvaluateExpression(expression))).ToImmutableArray();
+
         private object EvaluateVariableExpression(BoundVariableExpression v)
         {
+            object value;
+
             if (v.Variable.Kind == SymbolKind.GlobalVariable)
-                return _globals[v.Variable];
+                value = _globals[v.Variable];
             else
             {
                 var locals = _locals.Peek();
 
-                return locals[v.Variable];
+                value = locals[v.Variable];
             }
+
+            if (v.IndexClause != null)
+            {
+                var indexes = EvaluateIndexExpression(v.IndexClause);
+
+                if (indexes is ImmutableArray<int> index)
+                {
+                    for (int i = 0; i < index.Length; i++)
+                    {
+                        if (value is List<object> array) value = array[index[i]];
+                    }
+
+                    return value;
+                } else throw new Exception($"Error: Variable '{v.Variable.Name}' with type '{v.Variable.Type}' cannot be index.");
+            }
+            else return value;
         }
 
         private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
@@ -179,10 +200,7 @@ namespace CASC.CodeParser
         private object EvaluateArrayAssignmentExpression(BoundArrayAssignmentExpression a)
         {
             var value = EvaluateExpression(a.Expression);
-            var indexes = a.Indexes.Contents.Select(expression =>
-            {
-                return Convert.ToInt32(EvaluateExpression(expression));
-            }).ToImmutableArray();
+            var indexes = EvaluateIndexExpression(a.Indexes);
             AssignIndex(a.Variable, indexes, value);
 
             return value;
@@ -358,7 +376,7 @@ namespace CASC.CodeParser
             }
         }
 
-        private void AssignIndex(VariableSymbol variable, ImmutableArray<int> indexes, object value)
+        private void AssignIndex(VariableSymbol variable, object indexes, object value)
         {
             object array = null;
 
@@ -372,23 +390,23 @@ namespace CASC.CodeParser
                 array = locals[variable];
             }
 
-            if (array is List<object> list)
+            if (array is List<object> list && indexes is ImmutableArray<int> index)
             {
-                if (indexes.Length == 1) list[indexes[0]] = value;
+                if (index.Length == 1) list[index[0]] = value;
                 else
                 {
                     object temp = null;
 
-                    for (var i = 0; i < indexes.Length; i++)
+                    for (var i = 0; i < index.Length; i++)
                     {
                         if (temp == null)
                         {
-                            temp = list[indexes[i]];
+                            temp = list[index[i]];
                         }
                         else if (temp is List<object> t)
                         {
-                            if (!(t[indexes[i]] is List<object>)) t[indexes[i]] = value;
-                            else temp = t[indexes[i]];
+                            if (!(t[index[i]] is List<object>)) t[index[i]] = value;
+                            else temp = t[index[i]];
                         }
                         else throw new Exception($"Error: Variable '{variable.Name}' with type '{variable.Type}' cannot be index.");
                     }

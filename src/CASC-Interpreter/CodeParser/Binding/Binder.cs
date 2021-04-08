@@ -525,7 +525,8 @@ namespace CASC.CodeParser.Binding
             return BindExpression(syntax.Expression);
         }
 
-        private BoundExpression BindArrayExpression(ArrayExpressionSyntax syntax) {
+        private BoundExpression BindArrayExpression(ArrayExpressionSyntax syntax)
+        {
             var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
 
             foreach (var expression in syntax.Contents)
@@ -538,7 +539,8 @@ namespace CASC.CodeParser.Binding
             return new BoundArrayExpression(expressions.ToImmutableArray());
         }
 
-        private BoundExpression BindIndexExpression(IndexExpressionSyntax syntax) {
+        private BoundExpression BindIndexExpression(IndexExpressionSyntax syntax)
+        {
             var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
 
             foreach (var expression in syntax.Contents)
@@ -569,7 +571,12 @@ namespace CASC.CodeParser.Binding
             if (variable == null)
                 return new BoundErrorExpression();
 
-            return new BoundVariableExpression(variable);
+            var indexClause = syntax.IndexClause != null ? BindIndexExpression(syntax.IndexClause) : null;
+
+            if (indexClause != null && variable.Type != TypeSymbol.Array)
+                return new BoundErrorExpression();
+
+            return new BoundVariableExpression(variable, (BoundIndexExpression) indexClause);
         }
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
@@ -592,9 +599,9 @@ namespace CASC.CodeParser.Binding
         private BoundExpression BindArrayAssignmentExpression(ArrayAssignmentExpressionSyntax syntax)
         {
             var name = syntax.IdentifierToken.Text;
-            var indexes = (BoundIndexExpression) BindIndexExpression(syntax.IndexSyntax);
+            var indexes = (BoundIndexExpression)BindIndexExpression(syntax.IndexSyntax);
             var boundExpression = BindExpression(syntax.Expression);
-            
+
             var variable = BindVariableReference(syntax.IdentifierToken);
             if (variable == null)
                 return boundExpression;

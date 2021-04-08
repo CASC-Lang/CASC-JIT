@@ -396,8 +396,10 @@ namespace CASC.CodeParser.Syntax
                     var right = ParseAssignmentExpression();
 
                     return new AssignmentExpressionSyntax(_syntaxTree, indentifierToken, operatorToken, right);
-                } else if (Peek(1).Kind == SyntaxKind.GreaterToken &&
-                           Peek(2).Kind == SyntaxKind.OpenBracketToken) {
+                }
+                else if (Peek(1).Kind == SyntaxKind.GreaterToken &&
+                         Peek(2).Kind == SyntaxKind.OpenBracketToken)
+                {
                     var identifierToken = NextToken();
                     var greaterToken = NextToken();
                     var indexSyntax = ParseArrayExpression();
@@ -541,8 +543,12 @@ namespace CASC.CodeParser.Syntax
         private ExpressionSyntax ParseNameExpression()
         {
             var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
+            var indexClause = Current.Kind == SyntaxKind.OpenBracketToken ? ParseArrayExpression() : null;
 
-            return new NameExpressionSyntax(_syntaxTree, identifierToken);
+            if (indexClause != null && indexClause.Contents.Count == 0)
+                _diagnostics.ReportEmptyIndex(indexClause.Location);
+
+            return new NameExpressionSyntax(_syntaxTree, identifierToken, indexClause);
         }
     }
 }

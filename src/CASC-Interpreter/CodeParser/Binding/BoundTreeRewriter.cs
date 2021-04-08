@@ -222,7 +222,7 @@ namespace CASC.CodeParser.Binding
             return node;
         }
 
-        protected BoundExpression RewriteArrayExpression(BoundArrayExpression node)
+        protected virtual BoundExpression RewriteArrayExpression(BoundArrayExpression node)
         {
             var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
 
@@ -239,7 +239,7 @@ namespace CASC.CodeParser.Binding
             return new BoundArrayExpression(contents);
         }
 
-        protected BoundIndexExpression RewriteIndexExpression(BoundIndexExpression node)
+        protected virtual BoundIndexExpression RewriteIndexExpression(BoundIndexExpression node)
         {
             var expressions = ImmutableArray.CreateBuilder<BoundExpression>();
 
@@ -263,7 +263,13 @@ namespace CASC.CodeParser.Binding
 
         protected virtual BoundExpression RewriteVariableExpression(BoundVariableExpression node)
         {
-            return node;
+            if (node.IndexClause != null)
+            {
+                var indexClause = RewriteIndexExpression(node.IndexClause);
+
+                return new BoundVariableExpression(node.Variable, indexClause);
+            }
+            else return node;
         }
 
         protected virtual BoundExpression RewriteAssignmentExpression(BoundAssignmentExpression node)

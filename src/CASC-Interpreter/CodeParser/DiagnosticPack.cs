@@ -230,5 +230,11 @@ namespace CASC.CodeParser
             var message = $"The required method '{typeName}.{methodName}({parameterTypeNames})' cannot be resolve among the given references: {assemblyNameList}.";
             Report(default, message);
         }
+
+        public void ReportEmptyIndex(TextLocation location)
+        {
+            var message = "Indexing must have at least one value.";
+            Report(location, message);
+        }
     }
 }
