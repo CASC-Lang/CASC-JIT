@@ -23,10 +23,29 @@ Though CASC do have a repl for users to test out syntaxes, but the output of the
 
 <table>
     <tr><td width=33% valign=top>
-    
+
 * [Hello World](#hello-world)
     
     </td></tr>
 </table>
 
 ## Hello World
+
+Pure English Syntax: 
+```casc
+func main() {
+    print("Hello world!")
+}
+```
+
+Pure Manderin Syntax:
+```casc
+函式 main() {
+    print("你好世界！")
+}
+```
+
+Simple enough, let's start from the first line of code: 
+`func` / `函式` declares a function, and `main()` defines an entry point for CASC compiler to execute, you don't define a main function while typing in repl.
+
+`print()` function is one of builtin function, it takes one string as arugment. `print()` prints the string provided in argument.
