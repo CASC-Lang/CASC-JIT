@@ -23,9 +23,10 @@ Though CASC do have a repl for users to test out syntaxes, but the output of the
 
 <table>
     <tr><td width=33% valign=top>
+    
 * [Hello World](#hello-world)
-    </td>
-    </tr>
+    
+    </td></tr>
 </table>
 
 ## Hello World
