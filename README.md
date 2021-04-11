@@ -1,7 +1,19 @@
-# CASC  
-> A compiler aim for Manderins progremmers  
+<div align="center">
+
+<h1>CASC</h1> 
+A compiler aim for Manderins progremmers  
+
+[Documention](https://github.com/CASC-Lang/CASC/blob/master/docs/doc.md) |
+[Examples](https://github.com/CASC-Lang/CASC/tree/master/samples) 
+
+</div>
+
+------  
+  
 ![Unit Test](https://github.com/CASC-Lang/CASC/workflows/Unit%20Test/badge.svg?branch=master)
-![Publish](https://github.com/CASC-Lang/CASC/workflows/Publish/badge.svg?branch=v0.0.1&event=release)
+![Publish](https://github.com/CASC-Lang/CASC/workflows/Publish/badge.svg?branch=v0.0.1&event=release)  
+
+------
 
 CASC is a handwritten compiler which can compile English or Manderin or even mixed codes!  
 Currently it's under developement by ChAoS_UnItY.  
@@ -11,14 +23,13 @@ This project is inspired by [Minsk](https://github.com/terrajobst/minsk).
 ## Example Code <br> 程式碼範例
 ------
 ```casc
-> 1 + 9 - 7
-3
-> 一 加 九 減 七
-3
-> 1 + 九 減 7
-3
-> 一加二十一是二十二
-True
+for i = 0 to 100 {
+    print(i)
+}
+
+從 甲 = 零 到 一百 {
+    print(甲)
+}
 ```
 ## Preserved Word Conversion Table <br> 保留字對照表
 ------
