@@ -60,7 +60,7 @@ namespace CASC
                 var name = "CASC";
                 var scope = EnvironmentVariableTarget.User;
                 var oldValue = Environment.GetEnvironmentVariable(name, scope);
-                var newValue = System.IO.Directory.GetParent(System.Reflection.Assembly.GetEntryAssembly().Location);
+                var newValue = System.IO.Directory.GetParent(System.Reflection.Assembly.GetEntryAssembly().Location).FullName;
                 Environment.SetEnvironmentVariable(name, newValue, scope);
 
                 Console.WriteLine("Successfully link CASC.exe to user's system environment path.");
