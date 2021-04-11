@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASC-Console", "CASC-Consol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASC-Interpreter", "CASC-Interpreter\CASC-Interpreter.csproj", "{0F305D91-B510-4C3B-8AE1-3D25AF434B42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASC-Compiler", "CASC-Compiler\CASC-Compiler.csproj", "{812D8135-A722-47AF-AAF1-CC4F9EA91408}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASC", "CASC\CASC.csproj", "{812D8135-A722-47AF-AAF1-CC4F9EA91408}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
