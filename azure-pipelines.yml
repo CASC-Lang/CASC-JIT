@@ -29,7 +29,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: False
-    arguments: 'src/CASC-Compiler/CASC-Compiler.csproj --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: 'src/CASC/CASC.csproj --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 - task: PublishBuildArtifacts@1
   inputs:

@@ -22,7 +22,7 @@ namespace CASC
 
             var options = new OptionSet
             {
-                "usage: casc (<source-path> / repl) [options]",
+                "usage: casc (<source-path> / repl / syslink) [options]",
                 {"i=", "Compile CASC source code to assembly (Unstable)", v => emitToIL = true},
                 {"r=", "The {path} of  an assembly to reference (Unstable)", v => references.Add(v)},
                 {"o=", "The output {path} of an assembly to create (Unstable)", v => outputPath = v},
@@ -38,7 +38,7 @@ namespace CASC
 
                 return 0;
             }
-            
+
             if (string.Equals(args[0], "repl"))
             {
                 var repl = new CASCRepl();
@@ -46,7 +46,20 @@ namespace CASC
 
                 return 0;
             }
-            
+
+            if (string.Equals(args[0], "syslink"))
+            {
+                var name = "PATH";
+                var scope = EnvironmentVariableTarget.User;
+                var oldValue = Environment.GetEnvironmentVariable(name, scope);
+                var newValue = System.Reflection.Assembly.GetEntryAssembly().Location;
+                Environment.SetEnvironmentVariable(name, newValue, scope);
+
+                Console.WriteLine("Successfully link CASC.exe to user's system environment path.");
+
+                return 0;
+            }
+
             var sourcePath = args[0];
 
             if (!File.Exists(sourcePath))
@@ -60,7 +73,7 @@ namespace CASC
             {
                 SyntaxTree.Load(sourcePath)
             };
-            
+
             if (emitToIL)
             {
                 outputPath ??= Path.ChangeExtension(sourcePath, ".exe");
