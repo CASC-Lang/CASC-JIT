@@ -57,10 +57,10 @@ namespace CASC
 
             if (string.Equals(args[0], "syslink"))
             {
-                var name = "PATH";
+                var name = "CASC";
                 var scope = EnvironmentVariableTarget.User;
                 var oldValue = Environment.GetEnvironmentVariable(name, scope);
-                var newValue = System.Reflection.Assembly.GetEntryAssembly().Location.Replace("dll", "exe");
+                var newValue = System.IO.Directory.GetParent(System.Reflection.Assembly.GetEntryAssembly().Location);
                 Environment.SetEnvironmentVariable(name, newValue, scope);
 
                 Console.WriteLine("Successfully link CASC.exe to user's system environment path.");
