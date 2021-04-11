@@ -30,6 +30,14 @@ namespace CASC
                 {"?|h|help", _ => helpRequested = true}
             };
 
+            if (args.Length == 0)
+            {
+                var repl = new CASCRepl();
+                repl.Run();
+
+                return 0;
+            }
+
             options.Parse(args);
 
             if (helpRequested)
@@ -52,7 +60,7 @@ namespace CASC
                 var name = "PATH";
                 var scope = EnvironmentVariableTarget.User;
                 var oldValue = Environment.GetEnvironmentVariable(name, scope);
-                var newValue = System.Reflection.Assembly.GetEntryAssembly().Location;
+                var newValue = System.Reflection.Assembly.GetEntryAssembly().Location.Replace("dll", "exe");
                 Environment.SetEnvironmentVariable(name, newValue, scope);
 
                 Console.WriteLine("Successfully link CASC.exe to user's system environment path.");
