@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using System.Linq;
 using CASC.CodeParser.Binding;
 using System.Collections.Generic;
@@ -184,7 +185,8 @@ namespace CASC.CodeParser
                     }
 
                     return value;
-                } else throw new Exception($"Error: Variable '{v.Variable.Name}' with type '{v.Variable.Type}' cannot be index.");
+                }
+                else throw new Exception($"Error: Variable '{v.Variable.Name}' with type '{v.Variable.Type}' cannot be index.");
             }
             else return value;
         }
@@ -305,10 +307,32 @@ namespace CASC.CodeParser
 
             if (node.Function == BuiltinFunctions.Print)
             {
-                var value = EvaluateExpression(node.Arguments[0]).ToString();
+                var value = IO.Formatter.Format(EvaluateExpression(node.Arguments[0]));
+                Console.Write(value);
+
+                return null;
+            }
+
+            if (node.Function == BuiltinFunctions.Println)
+            {
+                var value = IO.Formatter.Format(EvaluateExpression(node.Arguments[0]));
                 Console.WriteLine(value);
 
                 return null;
+            }
+
+            if (node.Function == BuiltinFunctions.Type)
+            {
+                var value = EvaluateExpression(node.Arguments[0]);
+
+                return value switch
+                {
+                    decimal d => "number",
+                    string s => "string",
+                    List<object> l => "array",
+                    bool b => "bool",
+                    _ => "any"
+                };
             }
 
             if (node.Function == BuiltinFunctions.Random)

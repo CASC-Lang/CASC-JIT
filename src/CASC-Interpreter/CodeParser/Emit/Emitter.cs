@@ -541,7 +541,7 @@ namespace CASC.CodeParser.Emit
             foreach (var argument in expression.Arguments)
                 EmitExpression(ilProcessor, argument);
 
-            if (expression.Function == BuiltinFunctions.Print)
+            if (expression.Function == BuiltinFunctions.Println)
             {
                 ilProcessor.Emit(OpCodes.Call, _consoleWriteLineReference);
             }
