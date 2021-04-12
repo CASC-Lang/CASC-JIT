@@ -329,7 +329,7 @@ namespace CASC.CodeParser
                 {
                     decimal d => "number",
                     string s => "string",
-                    List<object> l => "array",
+                    List<object> l => "array", // TODO: Support Generic
                     bool b => "bool",
                     _ => "any"
                 };
