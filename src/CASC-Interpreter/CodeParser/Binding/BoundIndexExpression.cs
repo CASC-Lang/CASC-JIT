@@ -5,7 +5,7 @@ namespace CASC.CodeParser.Binding
 {
     internal class BoundIndexExpression : BoundExpression
     {
-        public BoundIndexExpression(ImmutableArray<BoundExpression> contents)
+        public BoundIndexExpression(ImmutableArray<BoundExpression> contents) : base(TypeSymbol.Array)
         {
             Contents = contents;
         }

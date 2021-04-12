@@ -4,7 +4,7 @@ namespace CASC.CodeParser.Binding
 {
     internal class BoundAssignmentExpression : BoundExpression
     {
-        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression)
+        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression) : base(expression.Type)
         {
             Variable = variable;
             Expression = expression;

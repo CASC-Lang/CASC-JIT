@@ -88,6 +88,8 @@ namespace CASC_Test
         [TestCase("{ var a = 0 do a = a + 1 while a < 10 return a}", 10)]
         [TestCase("{ var i = 0 while i < 5 { i = i + 1 if i == 5 continue } return i }", 5)]
         [TestCase("{ var i = 0 do { i = i + 1 if i == 5 continue } while i < 5 return i }", 5)]
+        [TestCase("{ let a = [100, 10] let b = a[0] + a[1] return b }", 110)]
+        [TestCase("{ let a = [100, 10, 1] let b = 0 for i = 0 to 2 { b = b + a[i] } return b }", 111)]
         public void EvalTestI(string input, object expected)
         {
             var result = Evaluate(input);
@@ -143,6 +145,24 @@ namespace CASC_Test
 
             Assert.That(result.Diagnostics, Has.Exactly(0).Count);
             Assert.AreEqual(result.Value, expected);
+        }
+
+        [TestCase("[100, 1000]", 100, 1000)]
+        [TestCase("[true, true]", true, true)]
+        [TestCase("[\"a\", \"b\"]", "a", "b")]
+        [TestCase("[100, true, \"string\"]", 100, true, "string")]
+        public void EvalTestArray(string input, params object[] expected)
+        {
+            var result = Evaluate(input);
+
+            Assert.That(result.Diagnostics, Has.Exactly(0).Count);
+            Assert.That(result.Value is List<object>);
+
+            if (result.Value is List<object> array)
+                for (int i = 0; i < array.Count; i++)
+                {
+                    Assert.AreEqual(array[i], expected[i]);
+                }
         }
     }
 }

@@ -4,7 +4,7 @@ namespace CASC.CodeParser.Binding
 {
     internal sealed class BoundBinaryExpression : BoundExpression
     {
-        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator  op, BoundExpression right)
+        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator  op, BoundExpression right) : base(op.Type)
         {
             Left = left;
             Op = op;

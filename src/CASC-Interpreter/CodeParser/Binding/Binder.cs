@@ -481,6 +481,17 @@ namespace CASC.CodeParser.Binding
                 return new BoundErrorExpression();
             }
 
+            if (result.Type == TypeSymbol.Array) // TODO: Make it functions like a real array instead of hardcode.
+            {
+                if (result is BoundVariableExpression v)
+                {
+                    if (v.IndexClause != null)
+                    {
+                        v.ActualType = v.Type.Generics[0];
+                    }
+                }
+            }
+
             return result;
         }
 
@@ -531,12 +542,18 @@ namespace CASC.CodeParser.Binding
 
             foreach (var expression in syntax.Contents)
             {
-                var boundExpression = BindExpression(expression, TypeSymbol.Any);
+                var boundExpression = BindExpression(expression);
 
                 expressions.Add(boundExpression);
             }
 
-            return new BoundArrayExpression(expressions.ToImmutableArray());
+            var arrayExpression = new BoundArrayExpression(expressions.ToImmutableArray());
+
+            // Check if all expressions' type are same. ie: If types are number, then array type will be array<number>, otherwise will be array<any> (Unsafe array)
+
+            arrayExpression.Type.AddGeneric(expressions.All(b => b.Type == expressions[0].Type) ? expressions[0].Type : TypeSymbol.Any);
+
+            return arrayExpression;
         }
 
         private BoundExpression BindIndexExpression(IndexExpressionSyntax syntax)
@@ -545,7 +562,7 @@ namespace CASC.CodeParser.Binding
 
             foreach (var expression in syntax.Contents)
             {
-                var boundExpression = BindExpression(expression, TypeSymbol.Any);
+                var boundExpression = BindExpression(expression, TypeSymbol.Number);
 
                 expressions.Add(boundExpression);
             }
@@ -576,7 +593,7 @@ namespace CASC.CodeParser.Binding
             if (indexClause != null && variable.Type != TypeSymbol.Array)
                 return new BoundErrorExpression();
 
-            return new BoundVariableExpression(variable, (BoundIndexExpression) indexClause);
+            return new BoundVariableExpression(variable, (BoundIndexExpression)indexClause);
         }
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
@@ -607,11 +624,18 @@ namespace CASC.CodeParser.Binding
                 return boundExpression;
 
             if (variable.Type != TypeSymbol.Array)
+            {
                 _diagnostics.ReportCannotIndex(syntax.IndexSyntax.Location, variable.Type, name);
+                return new BoundErrorExpression();
+            }
 
-            var convertedExpression = BindConversion(syntax.Expression.Location, boundExpression, TypeSymbol.Any);
+            if (variable.Type.Generics[0] != boundExpression.Type)
+            {
+                _diagnostics.ReportCannotConvert(syntax.Location, boundExpression.Type, variable.Type.Generics[0]);
+                return new BoundErrorExpression();
+            }
 
-            return new BoundArrayAssignmentExpression(variable, indexes, convertedExpression);
+            return new BoundArrayAssignmentExpression(variable, indexes, boundExpression);
         }
 
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
@@ -621,11 +645,11 @@ namespace CASC.CodeParser.Binding
             if (boundOperand.Type == TypeSymbol.Error)
                 return new BoundErrorExpression();
 
-            var boundOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
+            var boundOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.ActualType);
 
             if (boundOperator == null)
             {
-                _diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken.Location, syntax.OperatorToken.Text, boundOperand.Type);
+                _diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken.Location, syntax.OperatorToken.Text, boundOperand.ActualType);
 
                 return new BoundErrorExpression();
             }
@@ -641,11 +665,11 @@ namespace CASC.CodeParser.Binding
             if (boundLeft.Type == TypeSymbol.Error || boundRight.Type == TypeSymbol.Error)
                 return new BoundErrorExpression();
 
-            var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
+            var boundOperator = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.ActualType, boundRight.ActualType);
 
             if (boundOperator == null)
             {
-                _diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken.Location, syntax.OperatorToken.Text, boundLeft.Type, boundRight.Type);
+                _diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken.Location, syntax.OperatorToken.Text, boundLeft.ActualType, boundRight.ActualType);
 
                 return new BoundErrorExpression();
             }

@@ -5,7 +5,7 @@ namespace CASC.CodeParser.Binding
 {
     internal sealed class BoundCallExpression : BoundExpression
     {
-        public BoundCallExpression(FunctionSymbol function, ImmutableArray<BoundExpression> arguments)
+        public BoundCallExpression(FunctionSymbol function, ImmutableArray<BoundExpression> arguments) : base(function.ReturnType)
         {
             Function = function;
             Arguments = arguments;
