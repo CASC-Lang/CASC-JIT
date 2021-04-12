@@ -46,6 +46,9 @@ namespace CASC
             {
                 var text = EditSubmission();
 
+                if (string.Equals(text, "exit"))
+                    Environment.Exit(0);
+
                 if (string.IsNullOrEmpty(text))
                     continue;
 
