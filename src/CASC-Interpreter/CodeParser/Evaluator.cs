@@ -143,17 +143,40 @@ namespace CASC.CodeParser
 
         private object EvaluateArrayExpression(BoundArrayExpression node)
         {
-            var arrayBuilder = new List<object>();
+            var evaluatedResults = new List<object>();
+            var evaluatedType = new List<Type>();
             var contents = node.Contents;
 
             foreach (var content in contents)
             {
                 var evaluatedContent = EvaluateExpression(content);
 
-                arrayBuilder.Add(evaluatedContent);
+                evaluatedResults.Add(evaluatedContent);
+                evaluatedType.Add(evaluatedContent.GetType());
             }
 
-            return arrayBuilder;
+            if (evaluatedType.Count == 0)
+                return new List<object>();
+
+            if (evaluatedType.All(t => t == evaluatedType[0]))
+            {
+                if (evaluatedType[0] == typeof(decimal))
+                    return evaluatedResults.Select(r => Convert.ToDecimal(r)).ToList();
+                if (evaluatedType[0] == typeof(bool))
+                    return evaluatedResults.Select(r => Convert.ToBoolean(r)).ToList();
+                if (evaluatedType[0] == typeof(string))
+                    return evaluatedResults.Select(r => r.ToString()).ToList();
+                if (evaluatedType[0] == typeof(List<object>))
+                    return evaluatedResults.Select(r => (List<object>)r).ToList();
+                if (evaluatedType[0] == typeof(List<decimal>))
+                    return evaluatedResults.Select(r => (List<decimal>)r).ToList();
+                if (evaluatedType[0] == typeof(List<bool>))
+                    return evaluatedResults.Select(r => (List<bool>)r).ToList();
+                if (evaluatedType[0] == typeof(List<string>))
+                    return evaluatedResults.Select(r => (List<string>)r).ToList();
+            }
+
+            return evaluatedResults;
         }
 
         private object EvaluateIndexExpression(BoundIndexExpression i)
@@ -323,6 +346,8 @@ namespace CASC.CodeParser
             if (node.Function == BuiltinFunctions.Type)
             {
                 var value = EvaluateExpression(node.Arguments[0]);
+
+                Console.WriteLine(value.GetType());
 
                 return IO.Formatter.FormatType(value);
             }

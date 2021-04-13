@@ -551,7 +551,10 @@ namespace CASC.CodeParser.Binding
 
             // Check if all expressions' type are same. ie: If types are number, then array type will be array<number>, otherwise will be array<any> (Unsafe array)
 
-            arrayExpression.Type.AddGeneric(expressions.All(b => b.Type == expressions[0].Type) ? expressions[0].Type : TypeSymbol.Any);
+            if (expressions.Count > 0)
+                arrayExpression.Type.AddGeneric(expressions.All(b => b.Type == expressions[0].Type) ? expressions[0].Type : TypeSymbol.Any);
+            else
+                arrayExpression.Type.AddGeneric(TypeSymbol.Any);
 
             return arrayExpression;
         }
@@ -816,6 +819,8 @@ namespace CASC.CodeParser.Binding
             "number" => TypeSymbol.Number,
             "字串" => TypeSymbol.String,
             "string" => TypeSymbol.String,
+            "陣列" => TypeSymbol.Array,
+            "array" => TypeSymbol.Array,
             _ => null
         };
     }
