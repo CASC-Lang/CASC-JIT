@@ -51,6 +51,8 @@ namespace CASC.IO
                 var genericType = obj.GetType().GetGenericArguments()[0];
 
                 if (genericType == typeof(decimal)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Number.Name}>";
+                if (genericType == typeof(bool)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Bool.Name}>";
+                if (genericType == typeof(string)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.String.Name}>";
                 if (genericType == typeof(object)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Any.Name}>";
                 if (genericType.IsGenericType && genericType.GetGenericTypeDefinition() == typeof(List<>)) return $"{TypeSymbol.Array.Name}<{FormatType(genericType)}>";
             }
@@ -72,6 +74,9 @@ namespace CASC.IO
                 var genericType = type.GetGenericArguments()[0];
 
                 if (genericType == typeof(decimal)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Number.Name}>";
+                if (genericType == typeof(bool)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Bool.Name}>";
+                if (genericType == typeof(string)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.String.Name}>";
+                if (genericType == typeof(object)) return $"{TypeSymbol.Array.Name}<{TypeSymbol.Any.Name}>";
                 if (genericType.IsGenericType && genericType.GetGenericTypeDefinition() == typeof(List<>)) return $"{TypeSymbol.Array.Name}<{FormatType(genericType)}>";
             }
 
