@@ -156,7 +156,8 @@ namespace CASC_Test
             var result = Evaluate(input);
 
             Assert.That(result.Diagnostics, Has.Exactly(0).Count);
-            Assert.That(result.Value is List<object>);
+            Assert.That(result.Value.GetType().IsGenericType &&
+                        result.Value.GetType().GetGenericTypeDefinition() == typeof(List<>));
 
             if (result.Value is List<object> array)
                 for (int i = 0; i < array.Count; i++)

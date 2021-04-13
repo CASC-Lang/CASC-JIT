@@ -155,7 +155,7 @@ namespace CASC.CodeParser
                 evaluatedType.Add(evaluatedContent.GetType());
             }
 
-            if (evaluatedType.Count == 0)
+            if (evaluatedResults.Count == 0)
                 return new List<object>();
 
             if (evaluatedType.All(t => t == evaluatedType[0]))
@@ -203,7 +203,8 @@ namespace CASC.CodeParser
                 {
                     for (int i = 0; i < index.Length; i++)
                     {
-                        if (value is List<object> array) value = array[index[i]];
+                        dynamic array = value;
+                        value = array[index[i]];
                     }
 
                     return value;

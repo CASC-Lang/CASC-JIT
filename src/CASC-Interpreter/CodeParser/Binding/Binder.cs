@@ -551,7 +551,7 @@ namespace CASC.CodeParser.Binding
 
             // Check if all expressions' type are same. ie: If types are number, then array type will be array<number>, otherwise will be array<any> (Unsafe array)
 
-            if (expressions.Count > 0)
+            if (arrayExpression.Contents.Length > 0)
                 arrayExpression.Type.AddGeneric(expressions.All(b => b.Type == expressions[0].Type) ? expressions[0].Type : TypeSymbol.Any);
             else
                 arrayExpression.Type.AddGeneric(TypeSymbol.Any);
