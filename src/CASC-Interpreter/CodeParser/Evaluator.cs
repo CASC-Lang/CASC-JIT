@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using System.Linq;
 using CASC.CodeParser.Binding;
 using System.Collections.Generic;
@@ -307,7 +306,7 @@ namespace CASC.CodeParser
 
             if (node.Function == BuiltinFunctions.Print)
             {
-                var value = IO.Formatter.Format(EvaluateExpression(node.Arguments[0]));
+                var value = IO.Formatter.FormatValue(EvaluateExpression(node.Arguments[0]));
                 Console.Write(value);
 
                 return null;
@@ -315,7 +314,7 @@ namespace CASC.CodeParser
 
             if (node.Function == BuiltinFunctions.Println)
             {
-                var value = IO.Formatter.Format(EvaluateExpression(node.Arguments[0]));
+                var value = IO.Formatter.FormatValue(EvaluateExpression(node.Arguments[0]));
                 Console.WriteLine(value);
 
                 return null;
@@ -325,14 +324,7 @@ namespace CASC.CodeParser
             {
                 var value = EvaluateExpression(node.Arguments[0]);
 
-                return value switch
-                {
-                    decimal d => "number",
-                    string s => "string",
-                    List<object> l => "array", // TODO: Support Generic
-                    bool b => "bool",
-                    _ => "any"
-                };
+                return IO.Formatter.FormatType(value);
             }
 
             if (node.Function == BuiltinFunctions.Random)

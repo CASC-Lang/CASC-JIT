@@ -176,7 +176,7 @@ namespace CASC
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    Console.WriteLine(Formatter.Format(result.Value));
+                    Console.WriteLine(Formatter.FormatValue(result.Value));
                     Console.ResetColor();
                 }
 
